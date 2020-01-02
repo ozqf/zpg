@@ -1,5 +1,5 @@
-#ifndef ZPG_GRID_H
-#define ZPG_GRID_H
+#ifndef ZPG_RANDOM_WALK_H
+#define ZPG_RANDOM_WALK_H
 
 #include "../zpg.h"
 
@@ -165,4 +165,4 @@ extern "C" void ZPG_PlotSegmentedPath(
     }
 }
 
-#endif // ZPG_GRID_H
+#endif // ZPG_RANDOM_WALK_H

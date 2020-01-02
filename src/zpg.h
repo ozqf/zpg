@@ -429,22 +429,6 @@ struct ZPGGrid
         }
         printf("------------------\n");
     }
-    
-    void PrintValues()
-    {
-        printf("------ Grid %d/%d ------\n", width, height);
-        for (i32 y = 0; y < height; ++y)
-        {
-            printf("|");
-            for (i32 x = 0; x < width; ++x)
-            {
-                ZPGCell *cell = GetCellAt(x, y);
-                printf("%d", cell->tile.type);
-            }
-            printf("|\n");
-        }
-        printf("------------------\n");
-    }
 };
 
 extern "C" void ZPG_RunTest(i32 mode);

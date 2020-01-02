@@ -5,6 +5,7 @@
 #include "string.h"
 #include "time.h"
 #include "zpg_random_table.h"
+#include "zpg_grid.h"
 #include "zpg_utils.h"
 #include "zpg_file.h"
 #include "zpg_draw_grid_primitives.h"
@@ -55,7 +56,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed)
     ZPGGrid* grid = ZPG_CreateGrid(width, height);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(width, height);
     ZPG_FillRect(stencil, { 16, 8 }, { 48, 24 }, ZPG_CELL_TYPE_FLOOR );
-    stencil->PrintValues();
+    ZPG_Grid_PrintValues(stencil);
     ZPGWalkCfg cfg = {};
     cfg.seed = seed;
     cfg.startX = 31;
@@ -350,7 +351,7 @@ extern "C" void ZPG_RunTest(i32 mode)
         }
         else
         {
-            grid->PrintValues();
+            ZPG_Grid_PrintValues(grid);
         }
         ZPG_WriteGridAsAsci(grid, "test_grid.txt");
         free(grid);
