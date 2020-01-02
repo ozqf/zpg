@@ -13,6 +13,7 @@
 #include "zpg_entities.h"
 #include "zpg_drunken_walk.h"
 #include "zpg_cave_gen.h"
+#include "zpg_embed.h"
 
 extern "C" ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
 {
@@ -318,6 +319,16 @@ static ZPGGrid* ZPG_TestLoadAsciFile()
     return grid;
 }
 
+static ZPGGrid* ZPG_TestEmbed(i32 seed)
+{
+    ZPGGrid* grid = NULL;
+    const char* str = embed_8x8_grid_pillars;
+    i32 len = strlen(str);
+    grid = ZPG_ReadGridAsci((u8*)str, len);
+
+    return grid;
+}
+
 extern "C" void ZPG_RunTest(i32 mode)
 {
     // Seed rand
@@ -341,6 +352,7 @@ extern "C" void ZPG_RunTest(i32 mode)
             grid = ZPG_TestLoadAsciFile();
             bSaveGrid = NO;
             break;
+        case 9: grid = ZPG_TestEmbed(seed);
         default: printf("Did not recognise test mode %d\n", mode); break;
     }
     
