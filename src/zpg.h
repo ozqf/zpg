@@ -370,36 +370,34 @@ struct ZPGGrid
         char c = ' ';
         switch (cell->tile.type)
         {
-        //case ZPG_CELL_TYPE_WALL: c = ' '; break;
-        case ZPG_CELL_TYPE_WALL:
-            //c = '#';
-            c = (u8)ZPG_CHAR_CODE_SOLID_BLOCK;
-            break;
-        case ZPG_CELL_TYPE_FLOOR:
-            c = ' ';
-            switch (cell->tile.entType)
-            {
-            case ZPG_ENTITY_TYPE_NONE:
+            case ZPG_CELL_TYPE_WALL:
+                c = (u8)ZPG_CHAR_CODE_SOLID_BLOCK;
+                break;
+            case ZPG_CELL_TYPE_FLOOR:
                 c = ' ';
+                switch (cell->tile.entType)
+                {
+                    case ZPG_ENTITY_TYPE_NONE:
+                        c = ' ';
+                        break;
+                    case ZPG_ENTITY_TYPE_ENEMY:
+                        c = 'x';
+                        break;
+                    case ZPG_ENTITY_TYPE_START:
+                        c = 's';
+                        break;
+                    case ZPG_ENTITY_TYPE_END:
+                        c = 'e';
+                        break;
+                    case ZPG_ENTITY_TYPE_OBJECTIVE:
+                        c = 'k';
+                        break;
+                    default:
+                        // unknown non-zero
+                        c = '?';
+                        break;
+                }
                 break;
-            case ZPG_ENTITY_TYPE_ENEMY:
-                c = 'x';
-                break;
-            case ZPG_ENTITY_TYPE_START:
-                c = 's';
-                break;
-            case ZPG_ENTITY_TYPE_END:
-                c = 'e';
-                break;
-            case ZPG_ENTITY_TYPE_OBJECTIVE:
-                c = 'k';
-                break;
-            default:
-                // unknown non-zero
-                c = '?';
-                break;
-            }
-            break;
         case ZPG_CELL_TYPE_WATER:
             c = '.';
             break;

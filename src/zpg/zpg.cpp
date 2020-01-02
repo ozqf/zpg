@@ -304,17 +304,17 @@ static ZPGGrid* ZPG_TestPerlin(i32 seed)
 static ZPGGrid* ZPG_TestLoadAsciFile()
 {
     char* fileName = "test_grid.txt";
-    ZPGPoint size;
-    i32 len;
-    FILE* f = ZPG_OpenAndMeasureFile(fileName, &size, &len);
-    if (f == NULL) { return NULL; }
-
-    printf("\nDone - read grid %d chars, size %d/%d\n",
-        len, size.x, size.y);
-
     ZPGGrid* grid = NULL;
+    #if 1
+    i32 len;
+    u8* chars = ZPG_StageFile(fileName, &len);
+    printf("Read %d bytes from %s\n", len, fileName);
+    //ZPG_MeasureGridInString(chars, &size, len);
+    grid = ZPG_ReadGridAsci(chars, len);
+    #endif
 
-    ZPG_CloseFile(f);
+    // clean up
+    free(chars);
     return grid;
 }
 
@@ -327,6 +327,7 @@ extern "C" void ZPG_RunTest(i32 mode)
     printf("-- ZE PROC GEN TESTS --\n");
     ZPGGrid* grid = NULL;
     i32 bPrintChars = YES;
+    i32 bSaveGrid = YES;
     switch (mode)
     {
         case 1: grid = ZPG_TestDrunkenWalk_FromCentre(0); break;
@@ -336,12 +337,16 @@ extern "C" void ZPG_RunTest(i32 mode)
         case 5: grid = ZPG_TestDrawLines(); break;
         case 6: grid = ZPG_TestDrunkenWalk_WithinSpace(seed); break;
         case 7: grid = ZPG_TestPerlin(seed);  break;
-        case 8: grid = ZPG_TestLoadAsciFile(); break;
+        case 8:
+            grid = ZPG_TestLoadAsciFile();
+            bSaveGrid = NO;
+            break;
         default: printf("Did not recognise test mode %d\n", mode); break;
     }
     
     if (grid != NULL)
     {
+        printf("-- Grid Loaded --\ncreating entities\n");
         grid->CountNeighourRings();
         ZPG_PlaceScatteredEntities(grid, &seed);
 
@@ -353,7 +358,10 @@ extern "C" void ZPG_RunTest(i32 mode)
         {
             ZPG_Grid_PrintValues(grid);
         }
-        ZPG_WriteGridAsAsci(grid, "test_grid.txt");
+        if (bSaveGrid)
+        {
+            ZPG_WriteGridAsAsci(grid, "test_grid.txt");
+        }
         free(grid);
     }
 
