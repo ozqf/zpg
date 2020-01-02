@@ -303,7 +303,7 @@ static ZPGGrid* ZPG_TestPerlin(i32 seed)
 
 static ZPGGrid* ZPG_TestLoadAsciFile()
 {
-    char* fileName = "test_read_grid.txt";
+    char* fileName = "test_grid.txt";
     ZPGPoint size;
     i32 len;
     FILE* f = ZPG_OpenAndMeasureFile(fileName, &size, &len);
