@@ -1,0 +1,17 @@
+# IDEs/Debuggers
+/.vs/
+/.vscode/
+
+# Temp directories for compile
+/bin/
+/buildwintemp/
+
+# IDEs
+*.db
+/xercise.VC.VC.opendb
+*.i
+*.sln
+*.vcxproj*
+
+# Compiles
+*.out
