@@ -1,12 +1,40 @@
 #ifndef ZPG_H
 #define ZPG_H
 
-extern "C" void ZPG_Hello();
-
 #include "zpg/zpg_common.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+//#define ZPG_CHAR_CODE_SOLID_BLOCK 35
+#define ZPG_CHAR_CODE_SOLID_BLOCK 219
+
+#define ZPG_ENTITY_TYPE_NONE 0
+#define ZPG_ENTITY_TYPE_START 1
+#define ZPG_ENTITY_TYPE_END 2
+#define ZPG_ENTITY_TYPE_OBJECTIVE 3
+#define ZPG_ENTITY_TYPE_ENEMY 4
+#define ZPG_ENTITY_TYPE_ITEM 5
+
+#define ZPG_CELL_TYPE_NONE 0
+#define ZPG_CELL_TYPE_FLOOR 1
+#define ZPG_CELL_TYPE_WALL 2
+#define ZPG_CELL_TYPE_WATER 3
+
+#define ZPG_STENCIL_TYPE_EMPTY 0
+#define ZPG_STENCIL_TYPE_FULL 1
+
+#define ZPG_CELL_TAG_NONE 0
+#define ZPG_CELL_TAG_RANDOM_WALK_START 1
+#define ZPG_CELL_TAG_RANDOM_WALK_END 2
+
+#define ZPG_CELL_CHANNEL_R 0
+#define ZPG_CELL_CHANNEL_G 1
+#define ZPG_CELL_CHANNEL_B 2
+#define ZPG_CELL_CHANNEL_A 3
+
+//////////////////////////////////////////
+// Data types
+//////////////////////////////////////////
 struct ZPGPoint
 {
     i32 x;
@@ -46,85 +74,50 @@ struct ZPGWalkCfg
     //char charToPlace;
 };
 
-//#define ZPG_CHAR_CODE_SOLID_BLOCK 35
-#define ZPG_CHAR_CODE_SOLID_BLOCK 219
-
-#define ZPG_ENTITY_TYPE_NONE 0
-#define ZPG_ENTITY_TYPE_START 1
-#define ZPG_ENTITY_TYPE_END 2
-#define ZPG_ENTITY_TYPE_OBJECTIVE 3
-#define ZPG_ENTITY_TYPE_ENEMY 4
-#define ZPG_ENTITY_TYPE_ITEM 5
-
-#define ZPG_CELL_TYPE_NONE 0
-#define ZPG_CELL_TYPE_FLOOR 1
-#define ZPG_CELL_TYPE_WALL 2
-#define ZPG_CELL_TYPE_WATER 3
-
-#define ZPG_STENCIL_TYPE_EMPTY 0
-#define ZPG_STENCIL_TYPE_FULL 1
-
-#define ZPG_CELL_TAG_NONE 0
-#define ZPG_CELL_TAG_RANDOM_WALK_START 1
-#define ZPG_CELL_TAG_RANDOM_WALK_END 2
-
-#define ZPG_CELL_CHANNEL_R 0
-#define ZPG_CELL_CHANNEL_G 1
-#define ZPG_CELL_CHANNEL_B 2
-#define ZPG_CELL_CHANNEL_A 3
-
-#if 0
-struct ZPGCell
-{
-    // specific class of this cell
-    i32 type;
-    // how many concentric rings of the same cell surround this cell
-    i32 rings;
-    // for additional categorisation
-    i32 tag;
-};
-#endif
-
-#if 1
 #pragma pack(push, 1)
 union ZPGCell
 {
     u8 arr[4];
     struct
     {
-        u8 r;
-        u8 g;
-        u8 b;
-        u8 a;
-    } colour;
-
+        u8 type, tag, entType, rings;
+    } tile;
     struct
     {
-        u8 type;
-        u8 tag;
-        u8 entType;
-        u8 rings;
-    } tile;
-    
+        u8 r, g, b, a;
+    } colour;
 };
 #pragma pack(pop)
-#endif
+
+struct ZPGGridEntityStats
+{
+    i32 numFloorTiles;
+    i32 numObjectiveTags;
+};
 
 struct ZPGGrid
 {
-    i32 id;
+    // id: plan is to use it to identify grids in
+    // user created generate scripts
+    //i32 id;
     i32 width;
     i32 height;
+    // used for generating entities
+    ZPGGridEntityStats stats;
+    // row by row cell store
     ZPGCell *cells;
-
-    struct
-    {
-        i32 numFloorTiles;
-        i32 numObjectiveTags;
-    } stats;
 };
 
-extern "C" void ZPG_RunTest(i32 mode);
+//////////////////////////////////////////
+// Functions
+//////////////////////////////////////////
+extern "C" void ZPG_Hello();
+extern "C" void ZPG_RunPreset(i32 mode);
+/**
+ * allocates a new grid.
+ * The struct and cells array are in a single allocation
+ * so to free the grid, just call free(gridPointer)
+ */
 extern "C" ZPGGrid *ZPG_CreateGrid(i32 width, i32 height);
 
 extern "C" void ZPG_GridRandomWalk(ZPGGrid* grid, ZPGGrid* stencil, ZPGRect* borderRect, ZPGWalkCfg* cfg, ZPGPoint dir);

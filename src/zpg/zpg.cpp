@@ -352,7 +352,7 @@ static ZPGGrid* ZPG_TestBlit(i32 seed)
     return grid;
 }
 
-extern "C" void ZPG_RunTest(i32 mode)
+extern "C" void ZPG_RunPreset(i32 mode)
 {
     // Seed rand
     srand((i32)time(NULL));
