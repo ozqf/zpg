@@ -29,7 +29,7 @@ static void ZPG_ApplyPerlinThreshold(
         for (i32 pixelX = 0; pixelX < grid->width; ++pixelX)
         {
             if (ZPG_CheckStencilOccupied(stencil, pixelX, pixelY)) { continue; }
-            ZPGCell* cell = grid->GetCellAt(pixelX, pixelY);
+            ZPGCell* cell = ZPG_GetCellAt(grid, pixelX, pixelY);
             f32 value = ZPG_ByteToFloat(cell->tile.type);
             #if 0
             if (value > 0.66f) { cell->tile.type = types[0]; }
@@ -95,7 +95,7 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed)
             result = noise;
             #endif
             // type is scaled to 0-255
-            grid->GetCellAt(pixelX, pixelY)->tile.type = (u8)(255.f * result);
+            ZPG_GetCellAt(grid, pixelX, pixelY)->tile.type = (u8)(255.f * result);
         }
     }
     #if 0

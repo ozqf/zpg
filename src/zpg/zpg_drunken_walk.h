@@ -96,7 +96,7 @@ extern "C" void ZPG_GridRandomWalk(
         return;
     }
 
-    grid->SetCellTagAt(cursor.x, cursor.y, ZPG_CELL_TAG_RANDOM_WALK_START);
+    ZPG_SetCellTagAt(grid, cursor.x, cursor.y, ZPG_CELL_TAG_RANDOM_WALK_START);
 
     ZPGRect border;
     // setup border
@@ -119,7 +119,7 @@ extern "C" void ZPG_GridRandomWalk(
     i32 tilesPlaced = 0;
     while (tilesPlaced < cfg->tilesToPlace)
     {
-        ZPGCell* cell = grid->GetCellAt(cursor.x, cursor.y);
+        ZPGCell* cell = ZPG_GetCellAt(grid, cursor.x, cursor.y);
         if (cell != NULL && cell->tile.type != cfg->typeToPaint)
         {
             f32 r = ZPG_Randf32(cfg->seed++);
@@ -131,7 +131,7 @@ extern "C" void ZPG_GridRandomWalk(
             }
             else
             {
-                grid->SetCellTypeAt(cursor.x, cursor.y, cfg->typeToPaint);
+                ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, cfg->typeToPaint);
             }
             lastPos = cursor;
             tilesPlaced++;
@@ -144,7 +144,7 @@ extern "C" void ZPG_GridRandomWalk(
             break;
         }
     }
-    grid->SetCellTagAt(lastPos.x, lastPos.y, ZPG_CELL_TAG_RANDOM_WALK_END);
+    ZPG_SetCellTagAt(grid, lastPos.x, lastPos.y, ZPG_CELL_TAG_RANDOM_WALK_END);
     //printf("Drunken walk placed %d tiles in %d iterations\n",
     //    tilesPlaced, iterations);
 }

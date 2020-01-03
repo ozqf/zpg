@@ -44,7 +44,7 @@ extern "C" ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)
 {
     ZPGGrid* stencil = ZPG_CreateGrid(width, height);
-    stencil->SetCellTypeAll(ZPG_CELL_TYPE_NONE);
+    ZPG_SetCellTypeAll(stencil, ZPG_CELL_TYPE_NONE);
     ZPG_DrawOuterBorder(stencil, ZPG_CELL_TYPE_FLOOR);
     return stencil;
 }
@@ -206,7 +206,7 @@ extern "C" ZPGGrid* ZPG_TestCaveGen(i32 seed)
 {
     // Create canvas
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
-    grid->SetCellTypeAll(ZPG_CELL_TYPE_WALL);
+    ZPG_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
     // Stencil grid - blocks writing of tiles
     ZPGGrid* stencil = ZPG_CreateBorderStencil(72, 32);
     //ZPGGrid* stencil = ZPG_CreateGrid(72, 32);
@@ -214,7 +214,7 @@ extern "C" ZPGGrid* ZPG_TestCaveGen(i32 seed)
     //ZPG_DrawOuterBorder(stencil, ZPG_CELL_TYPE_FLOOR);
 
     ZPG_SeedCaves(grid, stencil, ZPG_CELL_TYPE_FLOOR, &seed);
-    grid->PrintChars();
+    ZPG_PrintChars(grid);
     i32 numIterations = 2;
     for (i32 i = 0; i < numIterations; ++i)
     {
@@ -228,7 +228,7 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
     const i32 width = 72;
     const i32 height = 32;
     ZPGGrid* grid = ZPG_CreateGrid(width, height);
-    grid->SetCellTypeAll(ZPG_CELL_TYPE_WALL);
+    ZPG_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
 
     i32 seed = 0;
     const i32 numPoints = 8;
@@ -282,7 +282,7 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
 extern "C" ZPGGrid* ZPG_TestDrawLines()
 {
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
-    grid->SetCellTypeAll(ZPG_CELL_TYPE_WALL);
+    ZPG_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
 
     ZPG_DrawOuterBorder(grid, ZPG_CELL_TYPE_FLOOR);
     ZPG_DrawLine(grid, 0, 0, 71, 31, ZPG_CELL_TYPE_FLOOR);
@@ -292,10 +292,10 @@ extern "C" ZPGGrid* ZPG_TestDrawLines()
 static ZPGGrid* ZPG_TestPerlin(i32 seed)
 {
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
-    grid->SetCellTypeAll(ZPG_CELL_TYPE_WALL);
+    ZPG_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
 
     ZPGGrid* stencil = ZPG_CreateGrid(72, 32);
-    stencil->SetCellTypeAll(ZPG_CELL_TYPE_NONE);
+    ZPG_SetCellTypeAll(stencil, ZPG_CELL_TYPE_NONE);
     ZPG_DrawOuterBorder(stencil, ZPG_CELL_TYPE_WALL);
     ZPG_DrawPerlinGrid(grid, stencil, &seed);
     ZPG_IterateCaves(grid, stencil, ZPG_CELL_TYPE_WALL, ZPG_CELL_TYPE_FLOOR);
@@ -383,12 +383,12 @@ extern "C" void ZPG_RunTest(i32 mode)
     if (grid != NULL)
     {
         printf("-- Grid Loaded --\ncreating entities\n");
-        grid->CountNeighourRings();
+        ZPG_CountNeighourRings(grid);
         ZPG_PlaceScatteredEntities(grid, &seed);
 
         if (bPrintChars)
         {
-            grid->PrintChars();    
+            ZPG_PrintChars(grid);    
         }
         else
         {

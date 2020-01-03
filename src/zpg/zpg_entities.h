@@ -109,7 +109,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
     */
     /////////////////////////////////////////////
     // calculate capacity for working arrays
-    grid->CalcStats();
+    ZPG_CalcStats(grid);
     if (grid->stats.numObjectiveTags < 2)
     {
         printf("Abort: Only %d ents! Must have at least TWO for objectives\n",
@@ -134,7 +134,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
     {
         for (i32 x = 0;  x < grid->width; ++x)
         {
-            ZPGCell* cell = grid->GetCellAt(x, y);
+            ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
             if (cell->tile.type != ZPG_CELL_TYPE_FLOOR) { continue; }
 
             if (cell->tile.tag == ZPG_CELL_TAG_RANDOM_WALK_START
@@ -162,7 +162,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
         for (i32 i = numObjectives - 1; i >= 0; --i)
         {
             ZPGEntityInfo* info = &objectives[i];
-            ZPGCell* cell = grid->GetCellAt(info->pos.x, info->pos.y);
+            ZPGCell* cell = ZPG_GetCellAt(grid, info->pos.x, info->pos.y);
             cell->tile.entType = info->entType;
         }
     }
@@ -178,7 +178,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
 
         // place enemy
         ZPGPoint* p = &emptyTiles[randomIndex];
-        grid->GetCellAt(p->x, p->y)->tile.entType = ZPG_ENTITY_TYPE_ENEMY;
+        ZPG_GetCellAt(grid, p->x, p->y)->tile.entType = ZPG_ENTITY_TYPE_ENEMY;
         tilesCursor--;
 
         // Reduce usable tiles

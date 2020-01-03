@@ -68,7 +68,7 @@ static void ZPG_DrawLine(ZPGGrid *grid, i32 aX, i32 aY, i32 bX, i32 bY, u8 typeT
 
     for (; n > 0; --n)
     {
-        ZPGCell* cell = grid->GetCellAt(plotX, plotY);
+        ZPGCell* cell = ZPG_GetCellAt(grid, plotX, plotY);
         if (cell != NULL)
         {
             cell->tile.type = typeToPaint;
@@ -136,7 +136,7 @@ static void ZPG_FillRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPai
     {
         for (i32 x = min.x; x <= max.x; ++x)
         {
-            grid->GetCellAt(x, y)->tile.type = typeToPaint;
+            ZPG_GetCellAt(grid, x, y)->tile.type = typeToPaint;
         }
     }
 }
@@ -154,8 +154,8 @@ static void ZPG_BlitGrids(ZPGGrid* target, ZPGGrid* source, ZPGPoint topLeft, ZP
     {
         for(i32 sourceX = 0; sourceX < source->width; ++sourceX)
         {
-            ZPGCell* sourceCell = source->GetCellAt(sourceX, sourceY);
-            ZPGCell* targetCell = target->GetCellAt(topLeft.x + sourceX, topLeft.y + sourceY);
+            ZPGCell* sourceCell = ZPG_GetCellAt(source, sourceX, sourceY);
+            ZPGCell* targetCell = ZPG_GetCellAt(target, topLeft.x + sourceX, topLeft.y + sourceY);
             if (sourceCell == NULL || targetCell == NULL) { continue; }
             *targetCell = *sourceCell;
         }
