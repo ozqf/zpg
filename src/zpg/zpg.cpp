@@ -2,11 +2,16 @@
 #define ZE_PROC_GEN_CPP
 
 #include "../zpg.h"
+
+static ZPGCellTypeDef g_types[255];
+static u8 g_numTypes = 0;
+
 #include "string.h"
 #include "time.h"
 #include "zpg_random_table.h"
 #include "zpg_grid.h"
 #include "zpg_utils.h"
+#include "zpg_cell_types.h"
 #include "zpg_file.h"
 #include "zpg_draw_grid_primitives.h"
 #include "zpg_perlin_draw.h"
@@ -405,9 +410,9 @@ extern "C" void ZPG_RunPreset(i32 mode)
     //ZPG_TestDrunkenWalk(1993);
 }
 
-extern "C" void ZPG_Hello()
+extern "C" void ZPG_Init()
 {
-	printf("Hello from ZPG\n");
+    ZPG_InitCellTypes();
 }
 
 #endif // ZE_PROC_GEN_CPP

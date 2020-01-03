@@ -35,6 +35,20 @@
 //////////////////////////////////////////
 // Data types
 //////////////////////////////////////////
+
+struct ZPGCellTypeDef
+{
+    u8 value;
+    // Solid/floor/void
+    u8 geometryType;
+    // for grouping - eg none/enemy/objective/trap etc
+    u8 category;
+    // char to write when saving grid as text
+    u8 asciChar;
+    // display name
+    char* label;
+};
+
 struct ZPGPoint
 {
     i32 x;
@@ -111,7 +125,7 @@ struct ZPGGrid
 //////////////////////////////////////////
 // Functions
 //////////////////////////////////////////
-extern "C" void ZPG_Hello();
+extern "C" void ZPG_Init();
 extern "C" void ZPG_RunPreset(i32 mode);
 /**
  * allocates a new grid.
