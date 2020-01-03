@@ -8,6 +8,24 @@
 //#define ZPG_CHAR_CODE_SOLID_BLOCK 35
 #define ZPG_CHAR_CODE_SOLID_BLOCK 219
 
+#define ZPG_GEOMETRY_TYPE_PATH 0
+#define ZPG_GEOMETRY_TYPE_SOLID 1
+#define ZPG_GEOMETRY_TYPE_VOID 2
+
+#define ZPG_CELL_CATEGORY_NONE 0
+#define ZPG_CELL_CATEGORY_OBJECTIVE 1
+#define ZPG_CELL_CATEGORY_ENEMY 2
+
+#define ZPG2_CELL_TYPE_PATH 0
+#define ZPG2_CELL_TYPE_WALL 1
+#define ZPG2_CELL_TYPE_VOID 2
+
+#define ZPG2_CELL_TYPE_START 3
+#define ZPG2_CELL_TYPE_END 4
+#define ZPG2_CELL_TYPE_KEY 5
+#define ZPG2_CELL_TYPE_ENEMY 6
+
+
 #define ZPG_ENTITY_TYPE_NONE 0
 #define ZPG_ENTITY_TYPE_START 1
 #define ZPG_ENTITY_TYPE_END 2
@@ -111,11 +129,11 @@ struct ZPGGridEntityStats
 
 struct ZPGGrid
 {
+    i32 width;
+    i32 height;
     // id: plan is to use it to identify grids in
     // user created generate scripts
     //i32 id;
-    i32 width;
-    i32 height;
     // used for generating entities
     ZPGGridEntityStats stats;
     // row by row cell store
