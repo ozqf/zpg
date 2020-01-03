@@ -219,12 +219,12 @@ struct ZPGGrid
         }
         if (cell->tile.tag != ZPG_CELL_TAG_NONE)
         {
-            printf("WARN: Cannot tag %d/%d as %d, already %d!\n",
-                x, y, tag, cell->tile.tag);
+            //printf("WARN: Cannot tag %d/%d as %d, already %d!\n",
+            //    x, y, tag, cell->tile.tag);
             return;
         }
         cell->tile.tag = tag;
-        printf("Tagging cell %d/%d as %d\n", x, y, tag);
+        //printf("Tagging cell %d/%d as %d\n", x, y, tag);
     }
 
     i32 CountNeighboursAt(i32 x, i32 y)

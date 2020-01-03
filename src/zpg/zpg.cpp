@@ -85,7 +85,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed)
     {
         //ZPGPoint dir = ZPG_RandomFourWayDir(&cfg.seed);
         ZPGPoint dir = directions[i % numDirections];
-        ZPG_GridRandomWalk(grid, NULL, NULL, &cfg, dir);
+        ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
     }
     // Draw "tunnels"
     cfg.typeToPaint = ZPG_CELL_TYPE_FLOOR;
@@ -329,6 +329,29 @@ static ZPGGrid* ZPG_TestEmbed(i32 seed)
     return grid;
 }
 
+static ZPGGrid* ZPG_TestBlit(i32 seed)
+{
+    printf("*** TEST GRID BLIT ***\n");
+    ZPGGrid* grid = NULL;
+    ZPGGrid* source = NULL;
+    ZPGGrid* stencil = NULL;
+    const char* str = embed_8x8_grid_pillars;
+    i32 len = strlen(str);
+    source = ZPG_ReadGridAsci((u8*)str, len);
+
+    grid = ZPG_CreateGrid(source->width * 2, source->height * 2);
+    ZPGPoint topLeft;
+    topLeft.x = 0;//source->width / 4;
+    topLeft.y = 0;//source->height / 4;
+    ZPG_BlitGrids(grid, source, topLeft, NULL);
+
+    topLeft.x = grid->width - source->width;
+    topLeft.x = grid->height - source->height;
+    ZPG_BlitGrids(grid, source, topLeft, NULL);
+
+    return grid;
+}
+
 extern "C" void ZPG_RunTest(i32 mode)
 {
     // Seed rand
@@ -352,7 +375,8 @@ extern "C" void ZPG_RunTest(i32 mode)
             grid = ZPG_TestLoadAsciFile();
             bSaveGrid = NO;
             break;
-        case 9: grid = ZPG_TestEmbed(seed);
+        case 9: grid = ZPG_TestEmbed(seed); break;
+        case 10: grid= ZPG_TestBlit(seed); break;
         default: printf("Did not recognise test mode %d\n", mode); break;
     }
     

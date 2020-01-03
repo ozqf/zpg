@@ -54,11 +54,48 @@ static void ZPG_RandomStep(
     #endif
 }
 
+/**
+ * If currently under the stencil, move in given dir until not
+ * returns 0 if this fails
+ */
+static i32 ZPG_MarchOutOfStencil(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint* cursor, ZPGPoint* dir)
+{
+    if (stencil == NULL) { return YES; }
+    i32 bMoving = YES;
+    i32 bSuccessful = NO;
+    ZPGPoint nextPos = {};
+    while (bMoving)
+    {
+        i32 bOverStencil = ZPG_CheckStencilOccupied(stencil, cursor->x, cursor->y);
+        if (bOverStencil == YES)
+        {
+            nextPos.x = cursor->x + dir->x;
+            nextPos.y = cursor->y + dir->y;
+            if (ZPG_Grid_IsPositionSafe(grid, nextPos.x, nextPos.y) == NO) { return NO; }
+            *cursor = nextPos;
+        }
+        else
+        {
+            bMoving = false;
+            bSuccessful = YES;
+            printf("Exiting stencil at %d/%d\n", cursor->x, cursor->y);
+        }
+    }
+    return bSuccessful;
+}
+
 extern "C" void ZPG_GridRandomWalk(
     ZPGGrid* grid, ZPGGrid* stencil, ZPGRect* borderRect, ZPGWalkCfg* cfg, ZPGPoint dir)
 {
     ZPGPoint cursor = { cfg->startX, cfg->startY };
     ZPGPoint lastPos = cursor;
+    // move start out of stencil if required.
+    if (ZPG_MarchOutOfStencil(grid, stencil, &cursor, &dir) == NO)
+    {
+        printf("ABORT: Failed to move walk out of stencil\n");
+        return;
+    }
+
     grid->SetCellTagAt(cursor.x, cursor.y, ZPG_CELL_TAG_RANDOM_WALK_START);
 
     ZPGRect border;

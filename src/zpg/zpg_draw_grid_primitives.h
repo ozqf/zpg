@@ -141,4 +141,25 @@ static void ZPG_FillRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPai
     }
 }
 
+static void ZPG_BlitGrids(ZPGGrid* target, ZPGGrid* source, ZPGPoint topLeft, ZPGGrid* writeStencil)
+{
+    if (target == NULL) { return; }
+    if (source == NULL) { return; }
+    if (topLeft.x >= target->width) { return; }
+    if (topLeft.y >= target->height) { return; }
+
+    ZPGPoint sample = {};
+
+    for (i32 sourceY = 0; sourceY < source->height; ++sourceY)
+    {
+        for(i32 sourceX = 0; sourceX < source->width; ++sourceX)
+        {
+            ZPGCell* sourceCell = source->GetCellAt(sourceX, sourceY);
+            ZPGCell* targetCell = target->GetCellAt(topLeft.x + sourceX, topLeft.y + sourceY);
+            if (sourceCell == NULL || targetCell == NULL) { continue; }
+            *targetCell = *sourceCell;
+        }
+    }
+}
+
 #endif // ZPG_DRAW_GRID_PRIMITIVES_H

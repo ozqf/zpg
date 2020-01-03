@@ -22,4 +22,11 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid)
     printf("------------------\n");
 }
 
+static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y)
+{
+    if (x < 0 || x >= grid->width) { return false; }
+    if (y < 0 || y >= grid->height) { return false; }
+    return true;
+}
+
 #endif // ZPG_GRID_H
