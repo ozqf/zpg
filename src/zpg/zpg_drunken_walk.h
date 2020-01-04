@@ -3,8 +3,56 @@
 
 #include "../zpg.h"
 
-static void ZPG_RandomStep(
-    ZPGGrid* grid, ZPGGrid* stencil, ZPGRect rect, ZPGPoint* cursor, ZPGPoint* dir, i32* seed)
+struct ZPGWalkInfo
+{
+    ZPGPoint* points;
+    i32 numPoints;
+    i32 maxPoints;
+};
+
+static void ZPG_RandomStepWithinStencil(
+    ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint* cursor, ZPGPoint* dir, i32* seed)
+{
+
+}
+
+/**
+ * Returns final position
+ */
+static ZPGPoint ZPG_RandomWalkAndFill(
+    ZPGGrid* grid, ZPGGrid* stencil, ZPGWalkCfg* cfg, ZPGPoint dir)
+{
+    ZPGPoint cursor = { cfg->startX, cfg->startY };
+    if (dir.x == 0 && dir.y == 0) { return cursor; }
+
+    ZPGCellTypeDef* def = ZPG_GetType(cfg->typeToPaint);
+    ZPGWalkInfo info;
+    info.numPoints = 0;
+    info.maxPoints = 1024;
+    info.points = (ZPGPoint*)malloc(sizeof(ZPGPoint) * info.maxPoints);
+    i32 tilesPlaced = 0;
+    while(tilesPlaced < cfg->tilesToPlace)
+    {
+        // paint current
+        ZPG_SetCellTypeGeometry(
+            grid, cursor.x, cursor.y, def->value, def->geometryType);
+        // record tile
+        info.points[info.numPoints] = cursor;
+        info.numPoints++;
+        
+        // Step
+        cursor.x += dir.x;
+        cursor.y += dir.y;
+
+        tilesPlaced++;
+    }
+
+    free(info.points);
+    return cursor;
+}
+
+static void ZPG_RandomStepWithinRect(
+    ZPGGrid* grid, ZPGRect rect, ZPGPoint* cursor, ZPGPoint* dir, i32* seed)
 {
     // if already over a stencil cell, keep moving forward.
     /*i32 bOverStencil = ZPG_CheckStencilOccupied(stencil, cursor->x, cursor->y);
@@ -52,51 +100,6 @@ static void ZPG_RandomStep(
         *seed += 1;
     }
     #endif
-}
-
-/**
- * If currently under the stencil, move in given dir until not
- * Is allowed to paint tiles as it goes, just not change direction
- * returns 0 if this fails
- */
-static i32 ZPG_MarchOutOfStencil(
-    ZPGGrid* grid,
-    ZPGGrid* stencil,
-    ZPGPoint* cursor,
-    ZPGPoint* dir,
-    i32 bPaintPath,
-    u8 typeToPaint)
-{
-    if (stencil == NULL) { return YES; }
-    ZPGCellTypeDef* def = ZPG_GetType(typeToPaint);
-    i32 bMoving = YES;
-    i32 bSuccessful = NO;
-    ZPGPoint nextPos = {};
-    while (bMoving)
-    {
-        i32 bOverStencil = ZPG_CheckStencilOccupied(stencil, cursor->x, cursor->y);
-        if (bOverStencil == YES)
-        {
-            nextPos.x = cursor->x + dir->x;
-            nextPos.y = cursor->y + dir->y;
-            if (ZPG_Grid_IsPositionSafe(grid, nextPos.x, nextPos.y) == NO) { return NO; }
-            *cursor = nextPos;
-            if (bPaintPath == YES)
-            {
-                ZPG_SetCellTypeGeometry(
-                    grid, cursor->x, cursor->y, typeToPaint, def->geometryType);
-                //ZPG_SetCellTypeAt(grid, cursor->x, cursor->y, typeToPaint);
-            }
-        }
-        else
-        {
-            bMoving = false;
-            bSuccessful = YES;
-            // mark exit as a start
-            //printf("Exiting stencil at %d/%d\n", cursor->x, cursor->y);
-        }
-    }
-    return bSuccessful;
 }
 
 /**
@@ -158,7 +161,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
             lastPos = cursor;
             tilesPlaced++;
         }
-        ZPG_RandomStep(grid, stencil, border, &cursor, &dir, &cfg->seed);
+        ZPG_RandomStepWithinRect(grid, border, &cursor, &dir, &cfg->seed);
         iterations++;
         if (iterations >= escapeCounter)
         {

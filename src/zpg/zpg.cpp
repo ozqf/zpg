@@ -415,9 +415,10 @@ static ZPGGrid* ZPG_TestWalkFromPrefab(i32 seed)
     cfg.bigRoomChance = 0.02f;
     cfg.startX = topLeft.x + (start.x + dir.x);
     cfg.startY = topLeft.y + (start.y + dir.y);
-    cfg.tilesToPlace = 40;
+    cfg.tilesToPlace = 4;
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
-    ZPGPoint end = ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
+    //ZPGPoint end = ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
+    ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir);
     
     free(stencil);
     return grid;
@@ -442,6 +443,7 @@ extern "C" void ZPG_RunPreset(i32 mode)
     i32 seed = 0;
     printf("-- ZE PROC GEN TESTS --\n");
     ZPGGrid* grid = NULL;
+    i32 bPlaceEntities = YES;
     i32 bPrintValues = YES;
     i32 bPrintChars = YES;
     i32 bSaveGridAsci = YES;
@@ -463,8 +465,11 @@ extern "C" void ZPG_RunPreset(i32 mode)
             bSaveGridAsci = NO;
             break;
         case 9: grid = ZPG_TestEmbed(seed); break;
-        case 10: grid= ZPG_TestBlit(seed); break;
-        case 11: grid= ZPG_TestWalkFromPrefab(seed); break;
+        case 10: grid = ZPG_TestBlit(seed); break;
+        case 11:
+            grid = ZPG_TestWalkFromPrefab(seed); 
+            bPlaceEntities = NO;
+            break;
         default: printf("Did not recognise test mode %d\n", mode); break;
     }
     
@@ -473,9 +478,12 @@ extern "C" void ZPG_RunPreset(i32 mode)
     //////////////////////////////////////////
     if (grid != NULL)
     {
-        printf("-- Grid Loaded --\ncreating entities\n");
-        ZPG_CountNeighourRings(grid);
-        ZPG_PlaceScatteredEntities(grid, &seed);
+        if (bPlaceEntities)
+        {
+            printf("-- Grid Loaded --\ncreating entities\n");
+            ZPG_CountNeighourRings(grid);
+            ZPG_PlaceScatteredEntities(grid, &seed);
+        }
 
         if (bPrintValues)
         {

@@ -78,6 +78,15 @@ static void ZPG_SetCellTypeAll(ZPGGrid* grid, u8 type)
     }
 }
 
+static void ZPG_Grid_ClearAllTags(ZPGGrid* grid)
+{
+    i32 len = grid->width * grid->height;
+    for (i32 i = 0; i < len; ++i)
+    {
+        grid->cells[i].tile.tag = 0;
+    }
+}
+
 static void ZPG_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel)
 {
     if (channel < 0 || channel >= 4) { return; }

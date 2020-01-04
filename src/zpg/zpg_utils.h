@@ -110,4 +110,51 @@ static void ZPG_StepGridWithBorder(
     }
 }
 
+
+/**
+ * If currently under the stencil, move in given dir until not
+ * Is allowed to paint tiles as it goes, just not change direction
+ * returns 0 if this fails
+ */
+static i32 ZPG_MarchOutOfStencil(
+    ZPGGrid* grid,
+    ZPGGrid* stencil,
+    ZPGPoint* cursor,
+    ZPGPoint* dir,
+    i32 bPaintPath,
+    u8 typeToPaint)
+{
+    if (stencil == NULL) { return YES; }
+    ZPGCellTypeDef* def = ZPG_GetType(typeToPaint);
+    i32 bMoving = YES;
+    i32 bSuccessful = NO;
+    ZPGPoint nextPos = {};
+    while (bMoving)
+    {
+        i32 bOverStencil = ZPG_CheckStencilOccupied(stencil, cursor->x, cursor->y);
+        if (bOverStencil == YES)
+        {
+            nextPos.x = cursor->x + dir->x;
+            nextPos.y = cursor->y + dir->y;
+            if (ZPG_Grid_IsPositionSafe(grid, nextPos.x, nextPos.y) == NO) { return NO; }
+            *cursor = nextPos;
+            if (bPaintPath == YES)
+            {
+                ZPG_SetCellTypeGeometry(
+                    grid, cursor->x, cursor->y, typeToPaint, def->geometryType);
+                //ZPG_SetCellTypeAt(grid, cursor->x, cursor->y, typeToPaint);
+            }
+        }
+        else
+        {
+            bMoving = false;
+            bSuccessful = YES;
+            // mark exit as a start
+            //printf("Exiting stencil at %d/%d\n", cursor->x, cursor->y);
+        }
+    }
+    return bSuccessful;
+}
+
+
 #endif // ZPG_UTILS_H

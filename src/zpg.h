@@ -112,13 +112,15 @@ union ZPGCell
     u8 arr[4];
     struct
     {
-        u8 type,
-            //tag,
-            // rotation degrees divided by two
-            // to fit within one byte
-            halfDegrees,
-            //entType,
-            rings;
+        u8 type;
+        // rotation degrees divided by two
+        // to fit within one byte
+        u8 halfDegrees;
+        // count of concentric rings of neighbours
+        u8 rings;
+        // Extra working value
+        // eg recording that a cell has been visited
+        u8 tag;
     } tile;
     struct
     {
