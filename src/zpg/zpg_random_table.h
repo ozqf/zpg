@@ -1,6 +1,8 @@
 #ifndef ZPG_RANDOM_TABLE_H
 #define ZPG_RANDOM_TABLE_H
-
+/*
+TODO: How did this get so messy again...?
+*/
 #include "../zpg.h"
 #include <time.h>
 #include <math.h>
@@ -10,6 +12,11 @@ static f32 ZPG_STDRandf32();
 static f32 ZPG_Randf32(i32 index)
 {
 	return ZPG_STDRandf32();
+}
+
+static i32 ZPG_RandArrIndex(i32 len, i32 seed)
+{
+    return rand() % len;
 }
 
 static f32 ZPG_Randf32InRange(i32 index, f32 min, f32 max)

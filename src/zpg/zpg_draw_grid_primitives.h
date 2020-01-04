@@ -155,9 +155,17 @@ static void ZPG_BlitGrids(ZPGGrid* target, ZPGGrid* source, ZPGPoint topLeft, ZP
         for(i32 sourceX = 0; sourceX < source->width; ++sourceX)
         {
             ZPGCell* sourceCell = ZPG_GetCellAt(source, sourceX, sourceY);
-            ZPGCell* targetCell = ZPG_GetCellAt(target, topLeft.x + sourceX, topLeft.y + sourceY);
+            ZPGPoint tarPos;
+            tarPos.x = topLeft.x + sourceX;
+            tarPos.y = topLeft.y + sourceY;
+            ZPGCell* targetCell = ZPG_GetCellAt(target, tarPos.x, tarPos.y);
             if (sourceCell == NULL || targetCell == NULL) { continue; }
             *targetCell = *sourceCell;
+            if (writeStencil != NULL)
+            {
+                ZPG_SetCellTypeAt(
+                    writeStencil, tarPos.x, tarPos.y, ZPG_STENCIL_TYPE_FULL, NULL);
+            }
         }
     }
 }

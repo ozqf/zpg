@@ -388,6 +388,41 @@ static ZPGGrid* ZPG_TestBlit(i32 seed)
     return grid;
 }
 
+static ZPGGrid* ZPG_TestWalkFromPrefab(i32 seed)
+{
+    i32 w = 64, h = 32;
+    ZPGGrid* grid = ZPG_CreateGrid(w, h);
+    ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
+    i32 gridHalfWidth = w / 2, gridHalfHeight = h / 2;
+
+    ZPGGridPrefab* prefab = ZPG_GetPrefabByIndex(0);
+    i32 prefabHalfWidth = prefab->grid->width / 2;
+    i32 prefabHalfHeight = prefab->grid->height / 2;
+
+    ZPGPoint topLeft;
+    topLeft.x = gridHalfWidth - prefabHalfWidth;
+    topLeft.y = gridHalfHeight - prefabHalfHeight;
+    ZPG_BlitGrids(grid, prefab->grid, topLeft, stencil);
+
+    printf("Stencil after blit:\n");
+    ZPG_Grid_PrintValues(stencil);
+
+    i32 exit = ZPG_RandArrIndex(prefab->numExits, seed++);
+    ZPGPoint start = prefab->exits[exit];
+    ZPGPoint dir = prefab->exitDirs[exit];
+
+    ZPGWalkCfg cfg = {};
+    cfg.bigRoomChance = 0.02f;
+    cfg.startX = topLeft.x + (start.x + dir.x);
+    cfg.startY = topLeft.y + (start.y + dir.y);
+    cfg.tilesToPlace = 40;
+    cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
+    ZPGPoint end = ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
+    
+    free(stencil);
+    return grid;
+}
+
 extern "C" void ZPG_Init()
 {
     if (g_bInitialised == YES) { return; }
@@ -429,6 +464,7 @@ extern "C" void ZPG_RunPreset(i32 mode)
             break;
         case 9: grid = ZPG_TestEmbed(seed); break;
         case 10: grid= ZPG_TestBlit(seed); break;
+        case 11: grid= ZPG_TestWalkFromPrefab(seed); break;
         default: printf("Did not recognise test mode %d\n", mode); break;
     }
     

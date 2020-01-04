@@ -30,7 +30,7 @@ static void ZPG_ScanRowForPrefabExits(
     for (i32 i = 0; i < limit; ++i)
     {
         ZPGPoint p = { startX + (iterateX * i), startY + (iterateY * i) };
-        printf("\tCheck %d/%d\n", p.x, p.y);
+        //printf("\tCheck %d/%d\n", p.x, p.y);
         ZPGCellTypeDef* def = ZPG_GetCellTypeAt(prefab->grid, p.x, p.y);
         if (def->geometryType != ZPG_GEOMETRY_TYPE_PATH) { continue; }
         prefab->exits[prefab->numExits] = { p.x, p.y };
@@ -40,7 +40,7 @@ static void ZPG_ScanRowForPrefabExits(
     }
 }
 
-static void ZPG_ScanPrefabForExits(ZPGGridPrefab* prefab)
+static void ZPG_ScanPrefabForExits(ZPGGridPrefab* prefab, i32 bPrintExits)
 {
     ZPGPoint min, max;
     min.x = 0;
@@ -49,30 +49,25 @@ static void ZPG_ScanPrefabForExits(ZPGGridPrefab* prefab)
     max.y = prefab->grid->height - 1;
     printf("Scanning prefab for exits\n");
     // horizontal edges
-    ZPG_ScanRowForPrefabExits(prefab, { -1, 0 }, min.x, min.y, 1, 0, prefab->grid->width);
-    ZPG_ScanRowForPrefabExits(prefab, { -1, 0 }, min.x, max.y, 1, 0, prefab->grid->width);
+    ZPG_ScanRowForPrefabExits(prefab, { 0, -1 }, min.x, min.y, 1, 0, prefab->grid->width);
+    ZPG_ScanRowForPrefabExits(prefab, { 0, 1 }, min.x, max.y, 1, 0, prefab->grid->width);
     // vertical edges
-    ZPG_ScanRowForPrefabExits(prefab, { 0, -1 }, min.x, min.y, 0, 1, prefab->grid->height);
-    ZPG_ScanRowForPrefabExits(prefab, { 0, -1 }, max.x, min.y, 0, 1, prefab->grid->height);
-    for (i32 i = 0; i < prefab->numExits; ++i)
+    ZPG_ScanRowForPrefabExits(prefab, { -1, 0 }, min.x, min.y, 0, 1, prefab->grid->height);
+    ZPG_ScanRowForPrefabExits(prefab, { 1, 0 }, max.x, min.y, 0, 1, prefab->grid->height);
+    if (bPrintExits == YES)
     {
-        ZPGPoint p = prefab->exits[i];
-        printf("Prefab exit at %d/%d\n", p.x, p.y);
+        for (i32 i = 0; i < prefab->numExits; ++i)
+        {
+            ZPGPoint p = prefab->exits[i];
+            printf("Prefab exit at %d/%d\n", p.x, p.y);
+        }
     }
-    /*
-    ZPGPoint dir; // dir out of prefab at given exit
-    // scan top row
-    i32 x = 0, y = 0;
-    dir = { 0, -1 }; // up
-    for (; x < prefab->grid->width; ++x)
-    {
-        ZPGCellTypeDef* def = ZPG_GetCellTypeAt(prefab->grid, x, y);
-        if (def->geometryType != ZPG_GEOMETRY_TYPE_PATH) { continue; }
-        prefab->exits[prefab->numExits] = { x, y };
-        prefab->exitDirs[prefab->numExits] = dir;
-        if (prefab->numExits >= ZPG_MAX_PREFAB_EXITS) { return; }
-    }
-    */
+}
+
+static ZPGGridPrefab* ZPG_GetPrefabByIndex(i32 i)
+{
+   if (i < 0 || i >= g_numPrefabs) { return &g_prefabs[0]; }
+   return &g_prefabs[i];
 }
 
 static void ZPG_InitPrefabs()
@@ -85,7 +80,7 @@ static void ZPG_InitPrefabs()
     const char* str = embed_8x8_grid_pillars;
     i32 len = strlen(str);
     prefab->grid = ZPG_ReadGridAsci((u8*)str, len);
-    ZPG_ScanPrefabForExits(prefab);
+    ZPG_ScanPrefabForExits(prefab, NO);
 }
 
 #endif // ZPG_EMBED_H

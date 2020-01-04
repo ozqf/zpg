@@ -12,6 +12,7 @@ int main(int argc, char** argv)
 	//ZPG_RunPreset(3); // cave gen
 	//ZPG_RunPreset(4); // walks from line segment
 	//ZPG_RunPreset(8);
-	ZPG_RunPreset(9); // embed
+	//ZPG_RunPreset(9); // embed
 	//ZPG_RunPreset(10); // blit
+	ZPG_RunPreset(11); // walk from prefab
 }
