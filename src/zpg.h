@@ -103,6 +103,7 @@ struct ZPGWalkCfg
     i32 startY;
     i32 tilesToPlace;
     u8 typeToPaint;
+    u8 bPlaceObjectives;
 };
 
 #pragma pack(push, 1)
@@ -145,6 +146,16 @@ struct ZPGGrid
     ZPGCell *cells;
 };
 
+#define ZPG_MAX_PREFAB_EXITS 4
+struct ZPGGridPrefab
+{
+    char* label;
+    ZPGGrid* grid;
+    i32 numExits;
+    ZPGPoint exits[ZPG_MAX_PREFAB_EXITS];
+    ZPGPoint exitDirs[ZPG_MAX_PREFAB_EXITS];
+};
+
 //////////////////////////////////////////
 // Functions
 //////////////////////////////////////////
@@ -157,7 +168,7 @@ extern "C" void ZPG_RunPreset(i32 mode);
  */
 extern "C" ZPGGrid *ZPG_CreateGrid(i32 width, i32 height);
 
-extern "C" void ZPG_GridRandomWalk(ZPGGrid* grid, ZPGGrid* stencil, ZPGRect* borderRect, ZPGWalkCfg* cfg, ZPGPoint dir);
+extern "C" ZPGPoint ZPG_GridRandomWalk(ZPGGrid* grid, ZPGGrid* stencil, ZPGRect* borderRect, ZPGWalkCfg* cfg, ZPGPoint dir);
 extern "C" void ZPG_SeedCaves(ZPGGrid *grid, ZPGGrid *stencil, u8 paintType, i32 *seed);
 extern "C" void ZPG_IterateCaves(ZPGGrid *grid, ZPGGrid *stencil, u8 solidType, u8 emptyType);
 

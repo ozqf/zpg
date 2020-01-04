@@ -7,13 +7,13 @@ static void ZPG_RandomStep(
     ZPGGrid* grid, ZPGGrid* stencil, ZPGRect rect, ZPGPoint* cursor, ZPGPoint* dir, i32* seed)
 {
     // if already over a stencil cell, keep moving forward.
-    i32 bOverStencil = ZPG_CheckStencilOccupied(stencil, cursor->x, cursor->y);
+    /*i32 bOverStencil = ZPG_CheckStencilOccupied(stencil, cursor->x, cursor->y);
     if (bOverStencil == YES)
     {
         cursor->x += dir->x;
         cursor->y += dir->y;
         return;
-    }
+    }*/
 
     // form 2 - select a tile to move to, and pick another if not acceptable
     #if 0
@@ -99,7 +99,10 @@ static i32 ZPG_MarchOutOfStencil(
     return bSuccessful;
 }
 
-extern "C" void ZPG_GridRandomWalk(
+/**
+ * Returns final position
+ */
+extern "C" ZPGPoint ZPG_GridRandomWalk(
     ZPGGrid* grid, ZPGGrid* stencil, ZPGRect* borderRect, ZPGWalkCfg* cfg, ZPGPoint dir)
 {
     ZPGPoint cursor = { cfg->startX, cfg->startY };
@@ -110,10 +113,12 @@ extern "C" void ZPG_GridRandomWalk(
     if (ZPG_MarchOutOfStencil(grid, stencil, &cursor, &dir, YES, cfg->typeToPaint) == NO)
     {
         printf("ABORT: Failed to move walk out of stencil\n");
-        return;
+        return cursor;
     }
-
-    ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_START, NULL);
+    if (cfg->bPlaceObjectives)
+    {
+        ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_START, NULL);
+    }
 
     ZPGRect border;
     // setup border
@@ -162,9 +167,13 @@ extern "C" void ZPG_GridRandomWalk(
         }
     }
     //ZPG_SetCellTagAt(grid, lastPos.x, lastPos.y, ZPG_CELL_TAG_RANDOM_WALK_END);
-    ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_END, NULL);
+    if (cfg->bPlaceObjectives)
+    {
+        ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_END, NULL);
+    }
     //printf("Drunken walk placed %d tiles in %d iterations\n",
     //    tilesPlaced, iterations);
+    return cursor;
 }
 
 static void ZPG_PrintPointsArray(ZPGPoint* points, i32 numPoints)

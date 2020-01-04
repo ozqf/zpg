@@ -3,11 +3,16 @@
 
 #include "../zpg.h"
 
+// Grid type is 1 byte so hard limit on types
 #define ZPG_TYPES_LIST_SIZE 255
 #define ZPG_NUM_TYPES 256
 static u8 g_bInitialised = NO;
 static ZPGCellTypeDef g_types[ZPG_TYPES_LIST_SIZE];
 static u8 g_numTypes = 0;
+
+#define ZPG_MAX_PREFABS 255
+static ZPGGridPrefab g_prefabs[ZPG_MAX_PREFABS];
+static i32 g_numPrefabs = 0;
 
 #include "string.h"
 #include "time.h"
@@ -86,6 +91,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
     };
     // Draw "rivers"
     cfg.typeToPaint = ZPG2_CELL_TYPE_VOID;
+    cfg.bPlaceObjectives = NO;
     cfg.bigRoomChance = 0.1f;
     //cfg.bigRoomChance = 0;
     //cfg.charToPlace = '.';
@@ -104,6 +110,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
     }
     // Draw "tunnels"
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
+    cfg.bPlaceObjectives = YES;
     //cfg.charToPlace = '#';
     for (i32 i = 0; i < numPaths; ++i)
     {
@@ -295,8 +302,16 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
         }
         cfg.startX = points[i].x;
         cfg.startY = points[i].y;
-        ZPG_GridRandomWalk(grid, NULL, NULL, &cfg, dir);
+        ZPGPoint end = ZPG_GridRandomWalk(grid, NULL, NULL, &cfg, dir);
+        // place objective at the end
+        ZPG_SetCellTypeAt(grid, end.x, end.y, ZPG2_CELL_TYPE_KEY, NULL);
     }
+    // play start/end points
+    ZPG_SetCellTypeAt(grid, points[0].x, points[0].y, ZPG2_CELL_TYPE_START, NULL);
+    ZPG_SetCellTypeAt(grid, points[numPoints - 1].x, points[numPoints - 1].y, ZPG2_CELL_TYPE_END, NULL);
+
+    // cleanup
+    free(points);
     return grid;
 }
 
@@ -378,15 +393,16 @@ extern "C" void ZPG_Init()
     if (g_bInitialised == YES) { return; }
     g_bInitialised = YES;
     ZPG_InitCellTypes();
+    ZPG_InitPrefabs();
 }
 
 extern "C" void ZPG_RunPreset(i32 mode)
 {
     ZPG_Init();
     // Seed randomly
-    //srand((i32)time(NULL));
+    srand((i32)time(NULL));
     // seed specifically
-    srand(0);
+    //srand(0);
 
     i32 seed = 0;
     printf("-- ZE PROC GEN TESTS --\n");

@@ -73,7 +73,7 @@ static i32 ZPG_PlaceScatteredObjectives(ZPGGrid* grid, ZPGEntityInfo* ents, i32 
         ents[i].entType = ZPG2_CELL_TYPE_KEY;
     }
 
-    #if 0// debug
+    #if 0 // debug
     for (i32 i = 0; i < numEnts; ++i)
     {
         ZPGEntityInfo* info = &ents[i];
@@ -158,9 +158,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
         for (i32 i = numObjectives - 1; i >= 0; --i)
         {
             ZPGEntityInfo* info = &objectives[i];
-            ZPG_SetCellTypeAt(grid, info->pos.x, info->pos.y, ZPG2_CELL_TYPE_KEY, NULL);
-            //ZPGCell* cell = ZPG_GetCellAt(grid, info->pos.x, info->pos.y);
-            //cell->tile.entType = info->entType;
+            ZPG_SetCellTypeAt(grid, info->pos.x, info->pos.y, info->entType, NULL);
         }
     }
     // Randomly place enemies on remaining tiles:
@@ -176,7 +174,6 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
         // place enemy
         ZPGPoint* p = &emptyTiles[randomIndex];
         ZPG_SetCellTypeAt(grid, p->x, p->y, ZPG2_CELL_TYPE_ENEMY, NULL);
-        //ZPG_GetCellAt(grid, p->x, p->y)->tile.entType = ZPG2_CELL_TYPE_ENEMY;
         tilesCursor--;
 
         // Reduce usable tiles
@@ -187,7 +184,6 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
         }
         else
         {
-            /* code */
             // swap last item with item just used
             emptyTiles[randomIndex] = emptyTiles[tilesCursor - 1];
             // reduce
