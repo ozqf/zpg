@@ -69,6 +69,8 @@ static ZPGPoint ZPG_RandomThreeWayDir(i32* seed, ZPGPoint curDir)
     return p;
 }
 
+//static 
+
 static void ZPG_StepGridWithBorder(
     ZPGPoint *cursor, ZPGPoint *dir, ZPGPoint topLeft, ZPGPoint bottomRight)
 {

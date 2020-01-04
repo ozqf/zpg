@@ -14,6 +14,16 @@ static u8 g_numTypes = 0;
 static ZPGGridPrefab g_prefabs[ZPG_MAX_PREFABS];
 static i32 g_numPrefabs = 0;
 
+#define ZPG_NUM_DIRECTIONS 4
+#define ZPG_DIR_RIGHT 0
+#define ZPG_DIR_UP 1
+#define ZPG_DIR_LEFT 2
+#define ZPG_DIR_DOWN 3
+static ZPGPoint g_directions[ZPG_NUM_DIRECTIONS];
+
+//#define ZPG_MAX_NEIGHBOURS 8
+//static ZPGPoint g_neighbours[8];
+
 #include "string.h"
 #include "time.h"
 #include "zpg_random_table.h"
@@ -418,7 +428,7 @@ static ZPGGrid* ZPG_TestWalkFromPrefab(i32 seed)
     cfg.tilesToPlace = 4;
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
     //ZPGPoint end = ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
-    ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir);
+    ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, seed);
     
     free(stencil);
     return grid;
@@ -428,6 +438,23 @@ extern "C" void ZPG_Init()
 {
     if (g_bInitialised == YES) { return; }
     g_bInitialised = YES;
+    g_directions[ZPG_DIR_RIGHT] = { 1, 0 };
+    g_directions[ZPG_DIR_UP] = { 0, -1 };
+    g_directions[ZPG_DIR_LEFT] = { -1, 0 };
+    g_directions[ZPG_DIR_DOWN] = { 0, 1 };
+
+    // // above
+    // g_neighbours[0] = { -1, -1 };
+    // g_neighbours[1] = { 0, -1 };
+    // g_neighbours[2] = { 1, -1 };
+    // // beside
+    // g_neighbours[3] = { -1, 0 };
+    // g_neighbours[4] = { 1, 0 };
+    // // below
+    // g_neighbours[5] = { -1, 1 };
+    // g_neighbours[6] = { 0, 1 };
+    // g_neighbours[7] = { 1, 1 };
+
     ZPG_InitCellTypes();
     ZPG_InitPrefabs();
 }
