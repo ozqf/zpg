@@ -56,11 +56,19 @@ static void ZPG_RandomStep(
 
 /**
  * If currently under the stencil, move in given dir until not
+ * Is allowed to paint tiles as it goes, just not change direction
  * returns 0 if this fails
  */
-static i32 ZPG_MarchOutOfStencil(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint* cursor, ZPGPoint* dir)
+static i32 ZPG_MarchOutOfStencil(
+    ZPGGrid* grid,
+    ZPGGrid* stencil,
+    ZPGPoint* cursor,
+    ZPGPoint* dir,
+    i32 bPaintPath,
+    u8 typeToPaint)
 {
     if (stencil == NULL) { return YES; }
+    ZPGCellTypeDef* def = ZPG_GetType(typeToPaint);
     i32 bMoving = YES;
     i32 bSuccessful = NO;
     ZPGPoint nextPos = {};
@@ -73,12 +81,19 @@ static i32 ZPG_MarchOutOfStencil(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint* curs
             nextPos.y = cursor->y + dir->y;
             if (ZPG_Grid_IsPositionSafe(grid, nextPos.x, nextPos.y) == NO) { return NO; }
             *cursor = nextPos;
+            if (bPaintPath == YES)
+            {
+                ZPG_SetCellTypeGeometry(
+                    grid, cursor->x, cursor->y, typeToPaint, def->geometryType);
+                //ZPG_SetCellTypeAt(grid, cursor->x, cursor->y, typeToPaint);
+            }
         }
         else
         {
             bMoving = false;
             bSuccessful = YES;
-            printf("Exiting stencil at %d/%d\n", cursor->x, cursor->y);
+            // mark exit as a start
+            //printf("Exiting stencil at %d/%d\n", cursor->x, cursor->y);
         }
     }
     return bSuccessful;
@@ -89,15 +104,16 @@ extern "C" void ZPG_GridRandomWalk(
 {
     ZPGPoint cursor = { cfg->startX, cfg->startY };
     ZPGPoint lastPos = cursor;
+    i32 bMarkStencilExitsAsStart = YES;
+    ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
     // move start out of stencil if required.
-    if (ZPG_MarchOutOfStencil(grid, stencil, &cursor, &dir) == NO)
+    if (ZPG_MarchOutOfStencil(grid, stencil, &cursor, &dir, YES, cfg->typeToPaint) == NO)
     {
         printf("ABORT: Failed to move walk out of stencil\n");
         return;
     }
 
-    ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_START);
-    //ZPG_SetCellTagAt(grid, cursor.x, cursor.y, ZPG_CELL_TAG_RANDOM_WALK_START);
+    ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_START, NULL);
 
     ZPGRect border;
     // setup border
@@ -132,7 +148,7 @@ extern "C" void ZPG_GridRandomWalk(
             }
             else
             {
-                ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, cfg->typeToPaint);
+                ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
             }
             lastPos = cursor;
             tilesPlaced++;
@@ -146,7 +162,7 @@ extern "C" void ZPG_GridRandomWalk(
         }
     }
     //ZPG_SetCellTagAt(grid, lastPos.x, lastPos.y, ZPG_CELL_TAG_RANDOM_WALK_END);
-    ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_END);
+    ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_END, NULL);
     //printf("Drunken walk placed %d tiles in %d iterations\n",
     //    tilesPlaced, iterations);
 }

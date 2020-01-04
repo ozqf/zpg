@@ -5,6 +5,7 @@
 
 #define ZPG_TYPES_LIST_SIZE 255
 #define ZPG_NUM_TYPES 256
+static u8 g_bInitialised = NO;
 static ZPGCellTypeDef g_types[ZPG_TYPES_LIST_SIZE];
 static u8 g_numTypes = 0;
 
@@ -27,8 +28,8 @@ extern "C" ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
     i32 totalCells = width * height;
     i32 memForGrid = (sizeof(ZPGCell) * totalCells);
     i32 memTotal = sizeof(ZPGGrid) + memForGrid;
-    printf("Make grid %d by %d (%d cells, %d bytes)\n",
-        width, height, (width * height), memTotal);
+    //printf("Make grid %d by %d (%d cells, %d bytes)\n",
+    //    width, height, (width * height), memTotal);
     u8* ptr = (u8*)malloc(memTotal);
     // Create grid struct
     ZPGGrid* grid = (ZPGGrid*)ptr;
@@ -55,7 +56,7 @@ static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)
     return stencil;
 }
 
-extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed)
+extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
 {
     printf("Generate: Drunken walk - start from centre\n");
     const i32 width = 64;
@@ -63,7 +64,8 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed)
     ZPGGrid* grid = ZPG_CreateGrid(width, height);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(width, height);
     ZPG_FillRect(stencil, { 16, 8 }, { 48, 24 }, ZPG_STENCIL_TYPE_FULL );
-    ZPG_Grid_PrintValues(stencil);
+    // debug check stencil
+    //ZPG_Grid_PrintValues(stencil);
     ZPGWalkCfg cfg = {};
     cfg.seed = seed;
     cfg.startX = 31;
@@ -92,6 +94,13 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed)
         //ZPGPoint dir = ZPG_RandomFourWayDir(&cfg.seed);
         ZPGPoint dir = directions[i % numDirections];
         ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
+        if (bStepThrough)
+        {
+            printf("River %d:\n", i);
+            ZPG_Grid_PrintValues(grid);
+            printf("Press ENTER to continue\n");
+            getchar();
+        }
     }
     // Draw "tunnels"
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
@@ -101,6 +110,13 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed)
         //ZPGPoint dir = ZPG_RandomFourWayDir(&cfg.seed);
         ZPGPoint dir = directions[i % numDirections];
         ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
+        if (bStepThrough)
+        {
+            printf("Path %d:\n", i);
+            ZPG_Grid_PrintValues(grid);
+            printf("Press ENTER to continue\n");
+            getchar();
+        }
     }
     //printf("Final seed value: %d\n", cfg.seed);
     return grid;
@@ -357,19 +373,34 @@ static ZPGGrid* ZPG_TestBlit(i32 seed)
     return grid;
 }
 
+extern "C" void ZPG_Init()
+{
+    if (g_bInitialised == YES) { return; }
+    g_bInitialised = YES;
+    ZPG_InitCellTypes();
+}
+
 extern "C" void ZPG_RunPreset(i32 mode)
 {
-    // Seed rand
-    srand((i32)time(NULL));
+    ZPG_Init();
+    // Seed randomly
+    //srand((i32)time(NULL));
+    // seed specifically
+    srand(0);
 
     i32 seed = 0;
     printf("-- ZE PROC GEN TESTS --\n");
     ZPGGrid* grid = NULL;
+    i32 bPrintValues = YES;
     i32 bPrintChars = YES;
-    i32 bSaveGrid = YES;
+    i32 bSaveGridAsci = YES;
+    
+    //////////////////////////////////////////
+    // Generate geometry
+    //////////////////////////////////////////
     switch (mode)
     {
-        case 1: grid = ZPG_TestDrunkenWalk_FromCentre(0); break;
+        case 1: grid = ZPG_TestDrunkenWalk_FromCentre(0, NO); break;
         case 2: grid = ZPG_TestDrunkenWalk_Scattered(0); break;
         case 3: grid = ZPG_TestCaveGen(seed); break;
         case 4: grid = ZPG_TestDrawOffsetLines(); break;
@@ -378,28 +409,31 @@ extern "C" void ZPG_RunPreset(i32 mode)
         case 7: grid = ZPG_TestPerlin(seed);  break;
         case 8:
             grid = ZPG_TestLoadAsciFile();
-            bSaveGrid = NO;
+            bSaveGridAsci = NO;
             break;
         case 9: grid = ZPG_TestEmbed(seed); break;
         case 10: grid= ZPG_TestBlit(seed); break;
         default: printf("Did not recognise test mode %d\n", mode); break;
     }
     
+    //////////////////////////////////////////
+    // Generate entities and save
+    //////////////////////////////////////////
     if (grid != NULL)
     {
         printf("-- Grid Loaded --\ncreating entities\n");
         ZPG_CountNeighourRings(grid);
         ZPG_PlaceScatteredEntities(grid, &seed);
 
+        if (bPrintValues)
+        {
+            ZPG_Grid_PrintValues(grid);
+        }
         if (bPrintChars)
         {
             ZPG_PrintChars(grid);    
         }
-        else
-        {
-            ZPG_Grid_PrintValues(grid);
-        }
-        if (bSaveGrid)
+        if (bSaveGridAsci)
         {
             ZPG_WriteGridAsAsci(grid, "test_grid.txt");
         }
@@ -408,11 +442,6 @@ extern "C" void ZPG_RunPreset(i32 mode)
 
     //ZPG_TestDrunkenWalk(876987);
     //ZPG_TestDrunkenWalk(1993);
-}
-
-extern "C" void ZPG_Init()
-{
-    ZPG_InitCellTypes();
 }
 
 #endif // ZE_PROC_GEN_CPP

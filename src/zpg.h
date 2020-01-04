@@ -103,7 +103,6 @@ struct ZPGWalkCfg
     i32 startY;
     i32 tilesToPlace;
     u8 typeToPaint;
-    //char charToPlace;
 };
 
 #pragma pack(push, 1)
@@ -115,9 +114,9 @@ union ZPGCell
         u8 type,
             //tag,
             // rotation degrees divided by two
-            // to fit without one byte
+            // to fit within one byte
             halfDegrees,
-            entType,
+            //entType,
             rings;
     } tile;
     struct

@@ -35,11 +35,38 @@ static ZPGCellTypeDef* ZPG_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y)
     return ZPG_GetType(cell->tile.type);
 }
 
-static void ZPG_SetCellTypeAt(ZPGGrid* grid, i32 x, i32 y, u8 type)
+/**
+ * returns NO if type at given cell is 0 (or no stencil was supplied),
+ * YES otherwise
+ */
+static i32 ZPG_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y)
 {
+    if (grid == NULL) { return NO; }
+    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+    if (cell == NULL) { return NO; }
+    return (cell->tile.type != ZPG_STENCIL_TYPE_EMPTY);
+}
+
+static void ZPG_SetCellTypeAt(ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGGrid* stencil)
+{
+    if (ZPG_CheckStencilOccupied(stencil, x, y) == YES) { return; }
     ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
     if (cell == NULL) { return; }
     cell->tile.type = type;
+}
+
+/**
+ * Paint the given type on this cell only if the current value
+ * has a different geometry type
+ */
+static void ZPG_SetCellTypeGeometry(
+    ZPGGrid* grid, i32 x, i32 y, u8 typeToPaint, u8 geometryType)
+{
+    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+    if (cell == NULL) { return; }
+    ZPGCellTypeDef* def = ZPG_GetType(cell->tile.type);
+    if (def->geometryType == geometryType) { return; }
+    cell->tile.type = typeToPaint;
 }
 
 static void ZPG_SetCellTypeAll(ZPGGrid* grid, u8 type)

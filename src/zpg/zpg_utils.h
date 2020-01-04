@@ -8,18 +8,6 @@ static f32 ZPG_Distance(ZPGPoint a, ZPGPoint b)
     return sqrtf(((f32)b.x * (f32)a.x) + ((f32)b.y * (f32)a.y));
 }
 
-/**
- * returns NO if type at given cell is 0 (or no stencil was supplied),
- * YES otherwise
- */
-static i32 ZPG_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y)
-{
-    if (grid == NULL) { return NO; }
-    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
-    if (cell == NULL) { return NO; }
-    return (cell->tile.type != ZPG_STENCIL_TYPE_EMPTY);
-}
-
 static i32 ZPG_RandomDir(i32* seed)
 {
     f32 r = ZPG_Randf32(*seed);
