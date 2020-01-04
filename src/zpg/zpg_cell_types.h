@@ -11,6 +11,20 @@ static u8 ZPG_GetGeometryType(u8 cellTypeIndex)
     return g_types[cellTypeIndex].geometryType;
 }
 
+static u8 ZPG_GetCategory(u8 cellTypeIndex)
+{
+    if (cellTypeIndex < 0 || cellTypeIndex >= 256)
+    { return ZPG_CELL_CATEGORY_NONE; }
+    return g_types[cellTypeIndex].category;
+}
+
+static ZPGCellTypeDef* ZPG_GetType(u8 cellTypeIndex)
+{
+    if (cellTypeIndex < 0 || cellTypeIndex >= 256)
+    { return &g_types[0]; }
+    return &g_types[cellTypeIndex];
+}
+
 static void ZPG_AddCellType(
     u8 index,
     u8 geometryType,

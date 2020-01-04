@@ -112,7 +112,13 @@ union ZPGCell
     u8 arr[4];
     struct
     {
-        u8 type, tag, entType, rings;
+        u8 type,
+            //tag,
+            // rotation degrees divided by two
+            // to fit without one byte
+            halfDegrees,
+            entType,
+            rings;
     } tile;
     struct
     {

@@ -25,6 +25,16 @@ static ZPGCell* ZPG_GetCellAt(ZPGGrid* grid, i32 x, i32 y)
     return &grid->cells[i];
 }
 
+static ZPGCellTypeDef* ZPG_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y)
+{
+    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+    if (cell == NULL)
+    {
+        return ZPG_GetType(-1);
+    }
+    return ZPG_GetType(cell->tile.type);
+}
+
 static void ZPG_SetCellTypeAt(ZPGGrid* grid, i32 x, i32 y, u8 type)
 {
     ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
@@ -50,7 +60,7 @@ static void ZPG_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel)
         grid->cells[i].arr[channel] = type;
     }
 }
-
+/*
 static void ZPG_SetCellTagAt(ZPGGrid* grid, i32 x, i32 y, u8 tag)
 {
     ZPGCell *cell = ZPG_GetCellAt(grid, x, y);
@@ -67,7 +77,7 @@ static void ZPG_SetCellTagAt(ZPGGrid* grid, i32 x, i32 y, u8 tag)
     cell->tile.tag = tag;
     //printf("Tagging cell %d/%d as %d\n", x, y, tag);
 }
-
+*/
 static void ZPG_CalcStats(ZPGGrid* grid)
 {
     grid->stats.numFloorTiles = 0;
@@ -76,8 +86,17 @@ static void ZPG_CalcStats(ZPGGrid* grid)
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
+            ZPGCellTypeDef* def = ZPG_GetCellTypeAt(grid, x, y);
+            if (def->geometryType == ZPG_GEOMETRY_TYPE_PATH)
+            {
+                grid->stats.numFloorTiles++;
+            }
+            if (def->category == ZPG_CELL_CATEGORY_OBJECTIVE)
+            {
+                grid->stats.numObjectiveTags++;
+            }
+            #if 0
             ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
-            #if 1
             if (cell->tile.type != ZPG_CELL_TYPE_FLOOR) { continue; }
             grid->stats.numFloorTiles++;
             if (cell->tile.tag == ZPG_CELL_TAG_RANDOM_WALK_START)
@@ -92,6 +111,7 @@ static void ZPG_CalcStats(ZPGGrid* grid)
             }
             #endif
             #if 0
+            ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
             if (cell->tile.type == ZPG_CELL_TYPE_FLOOR)
             {
                 stats.numFloorTiles++;
