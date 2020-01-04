@@ -17,7 +17,7 @@ static i32 ZPG_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y)
     if (grid == NULL) { return NO; }
     ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
     if (cell == NULL) { return NO; }
-    return (cell->tile.type != ZPG_CELL_TYPE_NONE);
+    return (cell->tile.type != ZPG_STENCIL_TYPE_EMPTY);
 }
 
 static i32 ZPG_RandomDir(i32* seed)

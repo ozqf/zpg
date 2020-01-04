@@ -6,7 +6,7 @@ struct ZPGEntityInfo
     ZPGPoint pos;
     i32 i;
     u8 tag;
-    u8 entType;
+    u8 entType; // TODO: rename to just type
     f32 avgDist;
 };
 
@@ -64,13 +64,13 @@ static i32 ZPG_PlaceScatteredObjectives(ZPGGrid* grid, ZPGEntityInfo* ents, i32 
     qsort(ents, numEnts, sizeof(ZPGEntityInfo), ZPG_CompareEntsByDistance);
     
     // end of list is start
-    ents[numEnts - 1].entType = ZPG_ENTITY_TYPE_START;
-    ents[numEnts - 2].entType = ZPG_ENTITY_TYPE_END;
+    ents[numEnts - 1].entType = ZPG2_CELL_TYPE_START;// ZPG_ENTITY_TYPE_START;
+    ents[numEnts - 2].entType = ZPG2_CELL_TYPE_END;// ZPG_ENTITY_TYPE_END;
     // mark any remaining items to objectives
     i32 numRemainingEnts = numEnts - 2;
     for (i32 i = 0; i < numRemainingEnts; ++i)
     {
-        ents[i].entType = ZPG_ENTITY_TYPE_OBJECTIVE;
+        ents[i].entType = ZPG2_CELL_TYPE_KEY;
     }
 
     // debug
@@ -134,6 +134,20 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
     {
         for (i32 x = 0;  x < grid->width; ++x)
         {
+            ZPGCellTypeDef* def = ZPG_GetCellTypeAt(grid, x, y);
+            if (def->category == ZPG_CELL_CATEGORY_OBJECTIVE)
+            {
+                objectives[numObjectives].pos.x = x;
+                objectives[numObjectives].pos.y = y;
+                numObjectives++;
+            }
+            else if (def->value == ZPG2_CELL_TYPE_PATH)
+            {
+                emptyTiles[numEmptyTiles].x = x;
+                emptyTiles[numEmptyTiles].y = y;
+                numEmptyTiles++;
+            }
+            #if 0
             ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
             if (cell->tile.type != ZPG_CELL_TYPE_FLOOR) { continue; }
 
@@ -151,6 +165,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
                 emptyTiles[numEmptyTiles].y = y;
                 numEmptyTiles++;
             }
+            #endif
         }
     }
     printf("Build entities found %d path tiles and %d objectives\n",
@@ -178,7 +193,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
 
         // place enemy
         ZPGPoint* p = &emptyTiles[randomIndex];
-        ZPG_GetCellAt(grid, p->x, p->y)->tile.entType = ZPG_ENTITY_TYPE_ENEMY;
+        ZPG_GetCellAt(grid, p->x, p->y)->tile.entType = ZPG2_CELL_TYPE_ENEMY;
         tilesCursor--;
 
         // Reduce usable tiles

@@ -87,7 +87,7 @@ static void ZPG_DrawLine(ZPGGrid *grid, i32 aX, i32 aY, i32 bX, i32 bY, u8 typeT
     }
 }
 
-static void ZPG_DrawSegmentedLine(ZPGGrid* grid, ZPGPoint* points, i32 numPoints)
+static void ZPG_DrawSegmentedLine(ZPGGrid* grid, ZPGPoint* points, i32 numPoints, u8 typeToPaint)
 {
     i32 numLines = numPoints - 1;
     if (numLines <= 0) { return; }
@@ -95,7 +95,7 @@ static void ZPG_DrawSegmentedLine(ZPGGrid* grid, ZPGPoint* points, i32 numPoints
     {
         ZPGPoint* a = &points[i];
         ZPGPoint* b = &points[i + 1];
-        ZPG_DrawLine(grid, a->x, a->y, b->x, b->y, ZPG_CELL_TYPE_FLOOR);
+        ZPG_DrawLine(grid, a->x, a->y, b->x, b->y, typeToPaint);
     }
 }
 

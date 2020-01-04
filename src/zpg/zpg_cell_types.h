@@ -18,11 +18,28 @@ static u8 ZPG_GetCategory(u8 cellTypeIndex)
     return g_types[cellTypeIndex].category;
 }
 
+static ZPGCellTypeDef* ZPG_GetDefaultType()
+{
+    return &g_types[0];
+}
+
 static ZPGCellTypeDef* ZPG_GetType(u8 cellTypeIndex)
 {
     if (cellTypeIndex < 0 || cellTypeIndex >= 256)
     { return &g_types[0]; }
     return &g_types[cellTypeIndex];
+}
+
+static ZPGCellTypeDef* ZPG_GetTypeByAsci(u8 asciChar)
+{
+    for (i32 i = 0; i < ZPG_NUM_TYPES; ++i)
+    {
+        if (g_types[i].asciChar == asciChar)
+        {
+            return &g_types[i];
+        }
+    }
+    return ZPG_GetDefaultType();
 }
 
 static void ZPG_AddCellType(

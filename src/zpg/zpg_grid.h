@@ -30,7 +30,7 @@ static ZPGCellTypeDef* ZPG_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y)
     ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
     if (cell == NULL)
     {
-        return ZPG_GetType(-1);
+        return ZPG_GetDefaultType();
     }
     return ZPG_GetType(cell->tile.type);
 }
@@ -288,7 +288,7 @@ static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y)
     return true;
 }
 
-
+/*
 static char ZPG_CellToChar(ZPGCell* cell)
 {
     char c = ' ';
@@ -331,7 +331,7 @@ static char ZPG_CellToChar(ZPGCell* cell)
     }
     return c;
 }
-
+*/
 static void ZPG_PrintChars(ZPGGrid* grid)
 {
     printf("------ Grid %d/%d (%d path tiles, %d objectives)------\n",
@@ -344,10 +344,12 @@ static void ZPG_PrintChars(ZPGGrid* grid)
         printf("|");
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCell *cell = ZPG_GetCellAt(grid, x, y);
-            char c = ZPG_CellToChar(cell);
+            ZPGCellTypeDef* def = ZPG_GetCellTypeAt(grid, x, y);
+            printf("%c", def->asciChar);
+            //ZPGCell *cell = ZPG_GetCellAt(grid, x, y);
+            //char c = ZPG_CellToChar(cell);
             //printf("%c%d", cell->c, cell->rings);
-            printf("%c", c);
+            //printf("%c", c);
         }
         printf("|\n");
     }

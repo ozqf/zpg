@@ -18,9 +18,10 @@ extern "C" void ZPG_WriteGridAsAsci(ZPGGrid* grid, char* fileName)
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
-            char c = ZPG_CellToChar(cell);
-            fprintf(f, "%c", c);
+            fprintf(f, "%c", ZPG_GetCellTypeAt(grid, x, y)->asciChar);
+            //ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+            //char c = ZPG_CellToChar(cell);
+            //fprintf(f, "%c", c);
         }
         if (y < (grid->height - 1)) { fprintf(f, "\n"); }
     }
@@ -127,8 +128,11 @@ static ZPGGrid* ZPG_ReadGridAsci(u8* chars, i32 len)
         for (i32 i = readIndex; i < endIndex; ++i, ++x)
         {
             u8 c = chars[i];
+            ZPGCellTypeDef* def = ZPG_GetTypeByAsci(c);
             ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
             *cell = {};
+            cell->tile.type = def->value;
+            #if 0
             u8 type = ZPG_CELL_TYPE_NONE;
             u8 entType = ZPG_ENTITY_TYPE_NONE;
             u8 tag = ZPG_CELL_TAG_NONE;
@@ -167,6 +171,7 @@ static ZPGGrid* ZPG_ReadGridAsci(u8* chars, i32 len)
             cell->tile.type = type;
             cell->tile.entType = entType;
             cell->tile.tag = tag;
+            #endif
         }
     }
 

@@ -96,7 +96,8 @@ extern "C" void ZPG_GridRandomWalk(
         return;
     }
 
-    ZPG_SetCellTagAt(grid, cursor.x, cursor.y, ZPG_CELL_TAG_RANDOM_WALK_START);
+    ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_START);
+    //ZPG_SetCellTagAt(grid, cursor.x, cursor.y, ZPG_CELL_TAG_RANDOM_WALK_START);
 
     ZPGRect border;
     // setup border
@@ -144,7 +145,8 @@ extern "C" void ZPG_GridRandomWalk(
             break;
         }
     }
-    ZPG_SetCellTagAt(grid, lastPos.x, lastPos.y, ZPG_CELL_TAG_RANDOM_WALK_END);
+    //ZPG_SetCellTagAt(grid, lastPos.x, lastPos.y, ZPG_CELL_TAG_RANDOM_WALK_END);
+    ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_END);
     //printf("Drunken walk placed %d tiles in %d iterations\n",
     //    tilesPlaced, iterations);
 }
