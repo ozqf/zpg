@@ -33,6 +33,28 @@ static const char* embed_16x16_grid_pillars =
 "###            ###\r\n"
 "##################";
 
+static const char* embed_16x16_grid_left_start =
+"##################\r\n"
+"###            ###\r\n"
+"##     ####     ##\r\n"
+"#                #\r\n"
+"#                 \r\n"
+"#                #\r\n"
+"##     ####     ##\r\n"
+"###            ###\r\n"
+"##################";
+
+static const char* embed_16x16_grid_right_start =
+"##################\r\n"
+"###            ###\r\n"
+"##     ####     ##\r\n"
+"#                #\r\n"
+"                 #\r\n"
+"#                #\r\n"
+"##     ####     ##\r\n"
+"###            ###\r\n"
+"##################";
+
 static void ZPG_ScanRowForPrefabExits(
     ZPGGridPrefab* prefab,
     ZPGPoint dir,
@@ -100,6 +122,8 @@ static void ZPG_InitPrefabs()
     if (g_numPrefabs > 0) { return; }
     ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++], "embed_16x16_grid_pillars", embed_16x16_grid_pillars);
     ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++], "embed_8x8_grid_pillars", embed_8x8_grid_pillars);
+    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++], "embed_16x16_grid_left_start", embed_16x16_grid_left_start);
+    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++], "embed_16x16_grid_right_start", embed_16x16_grid_right_start);
     
     #if 0
     ZPGGridPrefab* prefab = NULL;
