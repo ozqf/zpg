@@ -10,6 +10,11 @@ struct ZPGWalkInfo
     i32 maxPoints;
 };
 
+static i32 ZPG_FillAreaForWalk()
+{
+    return 0;
+}
+
 /**
  * Returns number of directions written
  * Given array must have ZPG_NUM_DIRECTIONS of capacity
@@ -103,7 +108,8 @@ static ZPGPoint ZPG_RandomWalkAndFill(
         #if 1 // Randomly change dir
         f32 r = ZPG_Randf32(*seed);
         *seed += 1;
-        if (r < 0.3f)
+        f32 branchChance = 0.7f; //0.3f;
+        if (r < branchChance)
         {
             dir = ZPG_RandomThreeWayDir(seed, dir);
         }

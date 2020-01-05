@@ -270,9 +270,9 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
     ZPG_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
 
     i32 seed = 0;
-    const i32 numPoints = 8;
+    const i32 numPoints = 6;
     i32 numLines = numPoints - 1;
-    i32 numRivers = 4;
+    i32 numRivers = 8;
     i32 numTilesPerRiver = 80;
     i32 numTilesPerPath = 40;
 
@@ -281,6 +281,7 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
     cfg.seed = seed;
     cfg.tilesToPlace = numTilesPerRiver;
     cfg.typeToPaint = ZPG2_CELL_TYPE_VOID;
+    cfg.bigRoomChance = 0;
 
     for (i32 i = 0; i < numRivers; ++i)
     {
@@ -295,11 +296,12 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
     i32 bVertical = NO;
     ZPGPoint* points = (ZPGPoint*)malloc(sizeof(ZPGPoint) * numPoints);
     ZPG_PlotSegmentedPath(grid, &seed, points, numPoints, bVertical);
-    ZPG_DrawSegmentedLine(grid, points, numPoints, ZPG2_CELL_TYPE_PATH);
+    ZPG_DrawSegmentedLine(grid, points, numPoints, ZPG2_CELL_TYPE_PATH, 0.2f);
 
     // Draw side paths
     cfg.tilesToPlace = numTilesPerPath;
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
+    cfg.bigRoomChance = 0.1f;
     for (i32 i = 1; i < numLines; ++i)
     {
         ZPGPoint dir = {};
@@ -332,7 +334,7 @@ extern "C" ZPGGrid* ZPG_TestDrawLines()
     ZPG_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
 
     ZPG_DrawOuterBorder(grid, ZPG2_CELL_TYPE_PATH);
-    ZPG_DrawLine(grid, 0, 0, 71, 31, ZPG2_CELL_TYPE_PATH);
+    ZPG_DrawLine(grid, 0, 0, 71, 31, ZPG2_CELL_TYPE_PATH, 0);
     return grid;
 }
 
@@ -401,7 +403,7 @@ static ZPGGrid* ZPG_TestBlit(i32 seed)
 
 static ZPGGrid* ZPG_TestWalkFromPrefab(i32 seed)
 {
-    i32 w = 64, h = 32;
+    i32 w = 48, h = 48;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
     i32 gridHalfWidth = w / 2, gridHalfHeight = h / 2;

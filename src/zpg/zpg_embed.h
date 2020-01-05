@@ -23,15 +23,15 @@ static const char* embed_8x8_grid_pillars =
 "#### ####";
 
 static const char* embed_16x16_grid_pillars =
-"##################\r\n"
-"###            ###\r\n"
-"##     ####     ##\r\n"
-"#                #\r\n"
-"                  \r\n"
-"#                #\r\n"
-"##     ####     ##\r\n"
-"###            ###\r\n"
-"##################";
+"######### #########\r\n"
+"###             ###\r\n"
+"##     #####     ##\r\n"
+"#                 #\r\n"
+"                   \r\n"
+"#                 #\r\n"
+"##     #####     ##\r\n"
+"###             ###\r\n"
+"######### #########";
 
 static const char* embed_16x16_grid_left_start =
 "##################\r\n"
