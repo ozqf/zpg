@@ -23,7 +23,13 @@ static const char* embed_8x8_grid_pillars =
 "#### ####";
 
 static void ZPG_ScanRowForPrefabExits(
-    ZPGGridPrefab* prefab, ZPGPoint dir, i32 startX, i32 startY, i32 iterateX, i32 iterateY, i32 limit)
+    ZPGGridPrefab* prefab,
+    ZPGPoint dir,
+    i32 startX,
+    i32 startY,
+    i32 iterateX,
+    i32 iterateY,
+    i32 limit)
 {
     if (iterateX == 0 && iterateY == 0) { return; }
     if (prefab->numExits >= ZPG_MAX_PREFAB_EXITS) { return; }

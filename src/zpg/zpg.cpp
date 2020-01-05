@@ -425,10 +425,10 @@ static ZPGGrid* ZPG_TestWalkFromPrefab(i32 seed)
     cfg.bigRoomChance = 0.02f;
     cfg.startX = topLeft.x + (start.x + dir.x);
     cfg.startY = topLeft.y + (start.y + dir.y);
-    cfg.tilesToPlace = 4;
+    cfg.tilesToPlace = 20;
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
     //ZPGPoint end = ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
-    ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, seed);
+    ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);
     
     free(stencil);
     return grid;

@@ -44,6 +44,7 @@ static ZPGPoint ZPG_RandomWalkAndFill(
     ZPGGrid* grid, ZPGGrid* stencil, ZPGWalkCfg* cfg, ZPGPoint dir, i32* seed)
 {
     ZPGPoint cursor = { cfg->startX, cfg->startY };
+    printf("Walk starting at %d/%d\n", cursor.x, cursor.y);
     if (dir.x == 0 && dir.y == 0) { return cursor; }
     // Clear stencil tags - will use to record visits
     if (stencil != NULL)
@@ -58,6 +59,8 @@ static ZPGPoint ZPG_RandomWalkAndFill(
     info.points = (ZPGPoint*)malloc(sizeof(ZPGPoint) * info.maxPoints);
     i32 tilesPlaced = 0;
     i32 bPainting = YES;
+    i32 iterations = 0;
+    const i32 max_iterations = 99999;
     while(bPainting == YES)
     {
         // paint current
@@ -79,6 +82,7 @@ static ZPGPoint ZPG_RandomWalkAndFill(
         }
         nextPos.x = cursor.x + dir.x;
         nextPos.y = cursor.y + dir.y;
+        printf("Walk trying %d/%d\n", nextPos.x, nextPos.y);
         i32 bScanForNewTile = NO;
         if (ZPG_CheckStencilOccupied(stencil, nextPos.x, nextPos.y) == YES)
         {
@@ -98,21 +102,35 @@ static ZPGPoint ZPG_RandomWalkAndFill(
                 free(info.points);
                 return cursor;
             }
+            i32 selectIterations = 0;
             while (bSelectingTile == YES)
             {
+                // take the last tile recorded and check if it
+                // can be used to continue walking
                 ZPGPoint searchPos = info.points[recordIndex];
                 nextPos.x = cursor.x + dir.x;
                 nextPos.y = cursor.y + dir.y;
+                if (ZPG_CheckStencilOccupied(stencil, nextPos.x, nextPos.y) == YES)
+                {
+                    bSelectingTile = YES;
+                }
+                selectIterations++;
+                if (selectIterations >= max_iterations)
+                {
+                    printf("  ABORT: select previous tile ran away\n");
+                    break;
+                }
             }
         }
         nextPos.x = cursor.x + dir.x;
         nextPos.y = cursor.y + dir.y;
         // step
         cursor = nextPos;
-        if (tilesPlaced < cfg->tilesToPlace)
+        if (tilesPlaced >= cfg->tilesToPlace || iterations >= max_iterations)
         {
             bPainting = NO;
         }
+        iterations++;
     }
 
     free(info.points);
