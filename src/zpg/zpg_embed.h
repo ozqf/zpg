@@ -22,6 +22,17 @@ static const char* embed_8x8_grid_pillars =
 "#   s   #\r\n"
 "#### ####";
 
+static const char* embed_16x16_grid_pillars =
+"##################\r\n"
+"###            ###\r\n"
+"##     ####     ##\r\n"
+"#                #\r\n"
+"                  \r\n"
+"#                #\r\n"
+"##     ####     ##\r\n"
+"###            ###\r\n"
+"##################";
+
 static void ZPG_ScanRowForPrefabExits(
     ZPGGridPrefab* prefab,
     ZPGPoint dir,
@@ -76,17 +87,30 @@ static ZPGGridPrefab* ZPG_GetPrefabByIndex(i32 i)
    return &g_prefabs[i];
 }
 
+static void ZPG_SetupPrefab(ZPGGridPrefab* prefab, char* label, const char* asci)
+{
+    prefab->label = "embed_8x8_grid_pillars";
+    i32 len = strlen(asci);
+    prefab->grid = ZPG_ReadGridAsci((u8*)asci, len);
+    ZPG_ScanPrefabForExits(prefab, NO);
+}
+
 static void ZPG_InitPrefabs()
 {
     if (g_numPrefabs > 0) { return; }
-
-    ZPGGridPrefab* prefab = &g_prefabs[g_numPrefabs];
+    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++], "embed_16x16_grid_pillars", embed_16x16_grid_pillars);
+    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++], "embed_8x8_grid_pillars", embed_8x8_grid_pillars);
+    
+    #if 0
+    ZPGGridPrefab* prefab = NULL;
+    prefab = &g_prefabs[g_numPrefabs];
     prefab->label = "embed_8x8_grid_pillars";
     g_numPrefabs++;
     const char* str = embed_8x8_grid_pillars;
     i32 len = strlen(str);
     prefab->grid = ZPG_ReadGridAsci((u8*)str, len);
     ZPG_ScanPrefabForExits(prefab, NO);
+    #endif
 }
 
 #endif // ZPG_EMBED_H

@@ -125,6 +125,14 @@ static void ZPG_DrawRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPai
     ZPG_DrawLine(grid, max.x, min.y, max.x, max.y, typeToPaint);
 }
 
+static void ZPG_CapFillBounds(ZPGGrid* grid, ZPGPoint* min, ZPGPoint* max)
+{
+    if (min->x < 0) { min->x = 0; }
+    if (max->x >= grid->width) { max->x = grid->width - 1; }
+    if (min->y < 0) { min->y = 0; }
+    if (max->y >= grid->height) { max->y = grid->height - 1; }
+}
+
 static void ZPG_FillRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPaint)
 {
     //printf("Fill rect %d/%d to %d/%d with %d\n", min.x, min.y, max.x, max.y, typeToPaint);
@@ -139,6 +147,27 @@ static void ZPG_FillRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPai
             ZPG_GetCellAt(grid, x, y)->tile.type = typeToPaint;
         }
     }
+}
+
+static i32 ZPG_FillRectWithStencil(
+    ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint min, ZPGPoint max, u8 typeToPaint)
+{
+    i32 numCellsPainted = 0;
+    //printf("Fill rect %d/%d to %d/%d with %d\n", min.x, min.y, max.x, max.y, typeToPaint);
+    if (min.x < 0) { min.x = 0; }
+    if (max.x >= grid->width) { max.x = grid->width - 1; }
+    if (min.y < 0) { min.y = 0; }
+    if (max.y >= grid->height) { max.y = grid->height - 1; }
+    for (i32 y = min.y; y <= max.y; ++y)
+    {
+        for (i32 x = min.x; x <= max.x; ++x)
+        {
+            if (ZPG_CheckStencilOccupied(stencil, x, y ) == YES) { continue; }
+            ZPG_GetCellAt(grid, x, y)->tile.type = typeToPaint;
+            numCellsPainted++;
+        }
+    }
+    return numCellsPainted;
 }
 
 static void ZPG_BlitGrids(ZPGGrid* target, ZPGGrid* source, ZPGPoint topLeft, ZPGGrid* writeStencil)
