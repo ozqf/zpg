@@ -417,7 +417,8 @@ static ZPGGrid* ZPG_TestWalkFromPrefab(i32 seed)
     printf("Stencil after blit:\n");
     ZPG_Grid_PrintValues(stencil);
 
-    i32 exit = ZPG_RandArrIndex(prefab->numExits, seed++);
+    //i32 exit = ZPG_RandArrIndex(prefab->numExits, seed++);
+    i32 exit = 3; // to right
     ZPGPoint start = prefab->exits[exit];
     ZPGPoint dir = prefab->exitDirs[exit];
 
@@ -425,7 +426,7 @@ static ZPGGrid* ZPG_TestWalkFromPrefab(i32 seed)
     cfg.bigRoomChance = 0.02f;
     cfg.startX = topLeft.x + (start.x + dir.x);
     cfg.startY = topLeft.y + (start.y + dir.y);
-    cfg.tilesToPlace = 20;
+    cfg.tilesToPlace = 1000;
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
     //ZPGPoint end = ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
     ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);

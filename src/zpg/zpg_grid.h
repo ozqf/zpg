@@ -47,6 +47,14 @@ static i32 ZPG_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y)
     return (cell->tile.type != ZPG_STENCIL_TYPE_EMPTY);
 }
 
+static i32 ZPG_GetTagAt(ZPGGrid* grid, i32 x, i32 y)
+{
+    if (grid == NULL) { return NO; }
+    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+    if (cell == NULL) { return NO; }
+    return cell->tile.tag;
+}
+
 static void ZPG_SetCellTypeAt(ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGGrid* stencil)
 {
     if (ZPG_CheckStencilOccupied(stencil, x, y) == YES) { return; }
@@ -58,15 +66,17 @@ static void ZPG_SetCellTypeAt(ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGGrid* ste
 /**
  * Paint the given type on this cell only if the current value
  * has a different geometry type
+ * returns true if it performed a change
  */
-static void ZPG_SetCellTypeGeometry(
+static i32 ZPG_SetCellTypeGeometry(
     ZPGGrid* grid, i32 x, i32 y, u8 typeToPaint, u8 geometryType)
 {
     ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
-    if (cell == NULL) { return; }
+    if (cell == NULL) { return NO; }
     ZPGCellTypeDef* def = ZPG_GetType(cell->tile.type);
-    if (def->geometryType == geometryType) { return; }
+    if (def->geometryType == geometryType) { return NO; }
     cell->tile.type = typeToPaint;
+    return YES;
 }
 
 static void ZPG_SetCellTypeAll(ZPGGrid* grid, u8 type)
@@ -370,9 +380,10 @@ static char ZPG_CellToChar(ZPGCell* cell)
 */
 static void ZPG_PrintChars(ZPGGrid* grid)
 {
-    printf("------ Grid %d/%d (%d path tiles, %d objectives)------\n",
+    printf("------ Grid %d/%d (%d total tiles, %d path tiles, %d objectives)------\n",
         grid->width,
         grid->height,
+        grid->width * grid->height,
         grid->stats.numFloorTiles,
         grid->stats.numObjectiveTags);
     for (i32 y = 0; y < grid->height; ++y)

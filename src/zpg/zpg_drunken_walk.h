@@ -17,24 +17,45 @@ static i32 ZPG_StepPositionAvailable(
 
 }
 
-static void ZPG_FindAvailableDirectionsAt(
+/**
+ * Returns number of directions written
+ * Given array must have ZPG_NUM_DIRECTIONS of capacity
+ */
+static i32 ZPG_FindAvailableDirectionsAt(
     ZPGGrid* grid, ZPGGrid* stencil,
     i32 x, i32 y,
-    ZPGPoint* results, i32* numResults)
+    ZPGPoint* cellsVisited,
+    i32 numVisits,
+    ZPGPoint* results)
 {
-    *numResults = 0;
+    ZPGPoint query;
+    i32 numResults = 0;
     i32 len = ZPG_NUM_DIRECTIONS;
     for (i32 i = 0; i < len; ++i)
     {
         ZPGPoint dir = g_directions[i];
-        if (ZPG_StepPositionAvailable(grid, stencil, x + dir.x, y + dir.y) == NO)
+        query.x = x + dir.x;
+        query.y = y + dir.y;
+        if (ZPG_CheckStencilOccupied(stencil, query.x, query.y) == YES)
         {
             continue;
         }
+        i32 alreadyVisited = NO;
+        for (i32 j = numVisits - 1; j >= 0; --j)
+        {
+			ZPGPoint visit = cellsVisited[j];
+            if (visit.x == query.x && visit.y == query.y)
+            {
+				alreadyVisited = YES;
+                break;
+            }
+        }
+		if (alreadyVisited == YES) { continue; }
         // Add candidate
-        results[*numResults] = dir;
-        *numResults += 1;
+        results[numResults] = dir;
+        numResults += 1;
     }
+    return numResults;
 }
 
 /**
@@ -46,7 +67,9 @@ static ZPGPoint ZPG_RandomWalkAndFill(
     ZPGPoint cursor = { cfg->startX, cfg->startY };
     printf("Walk starting at %d/%d\n", cursor.x, cursor.y);
     if (dir.x == 0 && dir.y == 0) { return cursor; }
-    // Clear stencil tags - will use to record visits
+    // Clear stencil tags.
+    // Cells that have no valid exits are tagged. and are not
+    // added to the visits list.
     if (stencil != NULL)
     {
         ZPG_Grid_ClearAllTags(stencil);
@@ -55,77 +78,105 @@ static ZPGPoint ZPG_RandomWalkAndFill(
     ZPGCellTypeDef* def = ZPG_GetType(cfg->typeToPaint);
     ZPGWalkInfo info;
     info.numPoints = 0;
-    info.maxPoints = 1024;
+    info.maxPoints = grid->width * grid->height;
     info.points = (ZPGPoint*)malloc(sizeof(ZPGPoint) * info.maxPoints);
     i32 tilesPlaced = 0;
     i32 bPainting = YES;
     i32 iterations = 0;
     const i32 max_iterations = 99999;
+    ///////////////////////////////////////////////
+    // Painting
+    ///////////////////////////////////////////////
     while(bPainting == YES)
     {
         // paint current
-        ZPG_SetCellTypeGeometry(
-            grid, cursor.x, cursor.y, def->value, def->geometryType);
-        tilesPlaced++;
-        // record visit
-        info.points[info.numPoints] = cursor;
-        info.numPoints++;
+         
+        if (ZPG_SetCellTypeGeometry(
+            grid, cursor.x, cursor.y, def->value, def->geometryType) == YES)
+        {
+            tilesPlaced++;
+        }
+
+        // record visit if stencil tag is clear.
+        if (ZPG_GetTagAt(stencil, cursor.x, cursor.y) == 0)
+        {
+            info.points[info.numPoints] = cursor;
+            info.numPoints++;
+            printf("Walk recording %d/%d - num points %d\n", cursor.x, cursor.y, info.numPoints);
+        }
+        else
+        {
+            printf("Walk not recording %d/%d - it is tagged\n", cursor.x, cursor.y);
+        }
+        
         
         // select next
         // try and walk... if walk fails, start searching backward
         ZPGPoint nextPos;
+        #if 1 // Randomly change dir
         f32 r = ZPG_Randf32(*seed);
         *seed += 1;
         if (r < 0.3f)
         {
             dir = ZPG_RandomThreeWayDir(seed, dir);
         }
+        #endif
         nextPos.x = cursor.x + dir.x;
         nextPos.y = cursor.y + dir.y;
         printf("Walk trying %d/%d\n", nextPos.x, nextPos.y);
-        i32 bScanForNewTile = NO;
         if (ZPG_CheckStencilOccupied(stencil, nextPos.x, nextPos.y) == YES)
         {
-            bScanForNewTile = YES;
-        }
-
-        if (bScanForNewTile == YES)
-        {
+            ///////////////////////////////////////////////
+            // Blocked
+            ///////////////////////////////////////////////
             // Step failed, search back through visited tiles
             // for a few cell to continue from.
-            i32 bSelectingTile = YES;
-            i32 recordIndex = info.numPoints - 1;
-            if (recordIndex <= 0)
-            {
-                // oh dear
-                printf("ABANDONED: Walk and fill has no candidate tiles left\n");
-                free(info.points);
-                return cursor;
-            }
+            i32 bScanForNewTile = YES;
             i32 selectIterations = 0;
-            while (bSelectingTile == YES)
+            while(bScanForNewTile)
             {
-                // take the last tile recorded and check if it
-                // can be used to continue walking
-                ZPGPoint searchPos = info.points[recordIndex];
-                nextPos.x = cursor.x + dir.x;
-                nextPos.y = cursor.y + dir.y;
-                if (ZPG_CheckStencilOccupied(stencil, nextPos.x, nextPos.y) == YES)
+                if (info.numPoints == 0)
                 {
-                    bSelectingTile = YES;
+                    // Bugger
+                }
+                // Search for a viable direction
+                i32 pointIndex = info.numPoints - 1;
+                ZPGPoint searchPos = info.points[pointIndex];
+                //searchPos.x = cursor.x + dir.x;
+                //searchPos.y = cursor.y + dir.y;
+                ZPGPoint dirs[ZPG_NUM_DIRECTIONS];
+                i32 numDirs = ZPG_FindAvailableDirectionsAt(
+                    grid, stencil, searchPos.x, searchPos.y, info.points, info.numPoints, dirs);
+                if (numDirs == 0)
+                {
+                    // Pop tile from points record.
+                    // tag tile so it cannot be re-added to the point list
+                    ZPG_GetCellAt(stencil, searchPos.x, searchPos.y)->tile.tag = 1;
+                    info.numPoints--;
+                }
+                else
+                {
+                    bScanForNewTile = NO;
+                    // we have options. proceed.
+                    dir = dirs[ZPG_RandArrIndex(numDirs, cfg->seed++)];
+                    nextPos.x = searchPos.x + dir.x;
+                    nextPos.y = searchPos.y + dir.y;
                 }
                 selectIterations++;
-                if (selectIterations >= max_iterations)
+                if (selectIterations > max_iterations)
                 {
-                    printf("  ABORT: select previous tile ran away\n");
-                    break;
+                    bPainting = NO;
+                    printf("ERROR - select new tile ran away\n");
                 }
             }
         }
-        nextPos.x = cursor.x + dir.x;
-        nextPos.y = cursor.y + dir.y;
         // step
         cursor = nextPos;
+        if (ZPG_Grid_IsPositionSafe(grid, cursor.x, cursor.y) == NO)
+        {
+            printf("ERROR - walk escaped grid\n");
+            break;
+        }
         if (tilesPlaced >= cfg->tilesToPlace || iterations >= max_iterations)
         {
             bPainting = NO;
