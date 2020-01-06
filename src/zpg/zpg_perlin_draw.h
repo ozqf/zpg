@@ -46,10 +46,20 @@ static void ZPG_ApplyPerlinThreshold(
 
 static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed)
 {
+    #if 0
     f32 seedX = ZPG_Randf32(*seed) * 99999.f;
     *seed += 1;
     f32 seedY = ZPG_Randf32(*seed) * 99999.f;
     *seed += 1;
+    #endif
+    // defaults:
+    f32 seedX = 0, seedY = 0;
+    f32 scaleFactor = 5;
+    f32 noiseScaler = 50;
+    f32 freq = 2;
+    i32 depth = 2;
+    // override
+    scaleFactor = 10;
     for (i32 pixelY = 0; pixelY < grid->height; ++pixelY)
     {
         for (i32 pixelX = 0; pixelX < grid->width; ++pixelX)
@@ -61,13 +71,12 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed)
             //ColourU32* pixel = (ColourU32*)&tex->ptrMemory[pixelIndex];
             f32 result;
             #if 1 // streaks
-            f32 scaleFactor = 5;
-            f32 noiseScaler = 50;
-            f32 sampleX = (x * scaleFactor) + seedX;
             f32 sampleY = (y * scaleFactor) + seedY;
-            f32 noise = ZPG_Perlin_Get2d(sampleX, sampleY, 2, 2);
+            f32 sampleX = (x * scaleFactor) + seedX;
+            f32 noise = ZPG_Perlin_Get2d(sampleX, sampleY, freq, depth);
             //f32 noise = Perlin_Get2d((f32)(x * scaleFactor), (f32)(y * scaleFactor), 2, 2);
             f32 a = sinf((x + noise / 2) * noiseScaler);
+            //f32 a = cosf((x + noise / 2) * noiseScaler);
             result = (1 + a)  / 2;
             #endif
             #if 0 // double streaks
