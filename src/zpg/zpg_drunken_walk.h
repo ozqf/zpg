@@ -140,44 +140,50 @@ static void ZPG_PrintPointsArray(ZPGPoint* points, i32 numPoints)
 }
 
 extern "C" void ZPG_PlotSegmentedPath(
-    ZPGGrid* grid, i32* seed, ZPGPoint* points, i32 numPoints, i32 bVertical)
+    ZPGGrid* grid, i32* seed, ZPGPoint* points, i32 numPoints, i32 bVertical, i32 bEndpointsSet)
 {
+    i32 lastIndex = numPoints - 1;
     i32 numLines = (numPoints - 1);
-    if (bVertical == YES)
+    if (bEndpointsSet == NO)
     {
-        // set start
-        points[0].x = grid->width / 2;
-        points[0].y = 0;
-        // set end
-        points[numPoints - 1].x = grid->width / 2;
-        points[numPoints - 1].y = grid->height - 1;
+        if (bVertical == YES)
+        {
+            // set start
+            points[0].x = grid->width / 2;
+            points[0].y = 0;
+            // set end
+            points[numPoints - 1].x = grid->width / 2;
+            points[numPoints - 1].y = grid->height - 1;
+        }
+        else
+        {
+            // set start
+            points[0].x = 0;
+            points[0].y = grid->height / 2;
+            // set end
+            points[numPoints - 1].x = grid->width - 1;
+            points[numPoints - 1].y = grid->height / 2;
+        }
     }
-    else
-    {
-        // set start
-        points[0].x = 0;
-        points[0].y = grid->height / 2;
-        // set end
-        points[numPoints - 1].x = grid->width - 1;
-        points[numPoints - 1].y = grid->height / 2;
-    }
+    i32 lineWidth = points[lastIndex].x - points[0].x;
+    i32 lineHeight = points[lastIndex].y - points[0].y;
     
     printf("Drawing Horizontal path from %d/%d to %d/%d\n",
-        points[0].x, points[0].y, points[numPoints - 1].x, points[numPoints - 1].y);
+        points[0].x, points[0].y, points[lastIndex].x, points[lastIndex].y);
     // set mid-line node X positions
     i32 sectionLength;
-    if (bVertical == YES) { sectionLength = grid->height / numLines; }
-    else { sectionLength = grid->width / numLines; }
+    if (bVertical == YES) { sectionLength = lineHeight / numLines; }
+    else { sectionLength = lineWidth / numLines; }
     for (i32 i = 1; i < numLines; ++i)
     {
         if (bVertical == YES)
         {
-            points[i].x = (i32)ZPG_Randf32InRange(*seed, 0, (f32)(grid->width - 1));
+            points[i].x = (i32)ZPG_Randf32InRange(*seed, 0, (f32)(grid->width - 1)) + points[0].x;
             points[i].y = sectionLength * i;
         }
         else
         {
-            points[i].x = sectionLength * i;
+            points[i].x = sectionLength * i +  + points[0].x;
             points[i].y = (i32)ZPG_Randf32InRange(*seed, 0, (f32)(grid->height - 1));
         }
         seed++;

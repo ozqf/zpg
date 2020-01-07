@@ -82,10 +82,38 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
     return grid;
 }
 
-static ZPGGrid* ZPG_Test_PrefabBuildB(i32 seed)
+static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
 {
     i32 w = 96, h = 48;
-    return NULL;
+    ZPGGrid* grid = ZPG_CreateGrid(w, h);
+    ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
+
+    ZPGGridPrefab* leftRoom = ZPG_GetPrefabByIndex(2);
+    i32 roomYMax = h - leftRoom->grid->height;
+    ZPGPoint blitPosA = {};
+    blitPosA.x = 0;
+    blitPosA.y = (i32)ZPG_RandArrIndex(roomYMax, seed++);
+    ZPG_BlitGrids(grid, leftRoom->grid, blitPosA, stencil);
+    ZPGPoint leftExit = leftRoom->exits[0];
+
+    ZPGGridPrefab* rightRoom = ZPG_GetPrefabByIndex(3);
+    roomYMax = h - rightRoom->grid->height;
+    ZPGPoint blitPosB = {};
+    blitPosB.x = grid->width - rightRoom->grid->width;
+    blitPosB.y = (i32)ZPG_RandArrIndex(roomYMax, seed++);
+    ZPG_BlitGrids(grid, rightRoom->grid, blitPosB, stencil);
+    ZPGPoint rightExit = rightRoom->exits[0];
+
+    const i32 numNodes = 8;
+    ZPGPoint nodes[numNodes];
+    nodes[0].x = leftExit.x + blitPosA.x;
+    nodes[0].y = leftExit.y + blitPosA.y;
+    nodes[numNodes - 1].x = rightExit.x + blitPosB.x;
+    nodes[numNodes - 1].y = rightExit.y + blitPosB.y;
+    ZPG_PlotSegmentedPath(grid, &seed, nodes, numNodes, NO, YES);
+    ZPG_DrawSegmentedLine(grid, nodes, numNodes, ZPG2_CELL_TYPE_PATH, 0);
+
+    return grid;
 }
 
 #endif // ZPG_BUILD_PREFAB_H

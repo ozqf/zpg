@@ -302,7 +302,7 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
     // Draw main path
     i32 bVertical = NO;
     ZPGPoint* points = (ZPGPoint*)malloc(sizeof(ZPGPoint) * numPoints);
-    ZPG_PlotSegmentedPath(grid, &seed, points, numPoints, bVertical);
+    ZPG_PlotSegmentedPath(grid, &seed, points, numPoints, bVertical, NO);
     ZPG_DrawSegmentedLine(grid, points, numPoints, ZPG2_CELL_TYPE_PATH, 0.2f);
 
     // Draw side paths
@@ -471,6 +471,7 @@ extern "C" void ZPG_RunPreset(i32 mode)
             grid = ZPG_Test_PrefabBuildA(seed); 
             bPlaceEntities = NO;
             break;
+        case 12: grid = ZPG_Test_WalkBetweenPrefabs(seed); break;
         default: printf("Did not recognise test mode %d\n", mode); break;
     }
     
@@ -500,6 +501,11 @@ extern "C" void ZPG_RunPreset(i32 mode)
         }
         free(grid);
     }
+    else
+    {
+        printf("No grid was generated.\n");
+    }
+    
 
     //ZPG_TestDrunkenWalk(876987);
     //ZPG_TestDrunkenWalk(1993);
