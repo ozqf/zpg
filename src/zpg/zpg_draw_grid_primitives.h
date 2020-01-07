@@ -3,6 +3,14 @@
 
 #include "../zpg.h"
 
+
+static f32 ZPG_LerpF32(f32 start, f32 end, f32 lerp)
+{
+    //return start + lerp * (end - start);
+    return start + ((end - start) * lerp);
+}
+
+
 static void ZPG_FillRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPaint)
 {
     //printf("Fill rect %d/%d to %d/%d with %d\n", min.x, min.y, max.x, max.y, typeToPaint);

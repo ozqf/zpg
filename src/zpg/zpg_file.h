@@ -104,8 +104,8 @@ static ZPGGrid* ZPG_ReadGridAsci(u8* chars, i32 len)
     ZPGGrid* grid = NULL;
     ZPGPoint size;
     ZPG_MeasureGridInString(chars, &size, len);
-    printf("\nMeasured asci grid %d chars, size %d/%d\n",
-        len, size.x, size.y);
+    //printf("\nMeasured asci grid %d chars, size %d/%d\n",
+    //    len, size.x, size.y);
     #if 0 // print a random row
     i32 rowNum = 3;
     i32 readIndex = rowNum * (size.x + 2); // +2 for new line

@@ -139,7 +139,7 @@ static void ZPG_PrintPointsArray(ZPGPoint* points, i32 numPoints)
     }
 }
 
-extern "C" void ZPG_PlotSegmentedPath(
+extern "C" void ZPG_PlotSegmentedPath_Old(
     ZPGGrid* grid, i32* seed, ZPGPoint* points, i32 numPoints, i32 bVertical, i32 bEndpointsSet)
 {
     i32 lastIndex = numPoints - 1;
@@ -187,6 +187,41 @@ extern "C" void ZPG_PlotSegmentedPath(
             points[i].y = (i32)ZPG_Randf32InRange(*seed, 0, (f32)(grid->height - 1));
         }
         seed++;
+    }
+}
+
+/**
+ * Assumes 0 and numPoints - 1 are preset as the start/end positions
+ */
+extern "C" void ZPG_PlotSegmentedPath(
+    ZPGGrid* grid, i32* seed, ZPGPoint* points, i32 numPoints)
+{
+    i32 lastIndex = numPoints - 1;
+    i32 numLines = (numPoints - 1);
+    ZPGPoint* firstPoint = &points[0];
+    ZPGPoint* lastPoint = &points[lastIndex];
+    f32 dx = (f32)lastPoint->x - (f32)firstPoint->x;
+    if (dx < 0) { dx = -dx; }
+    f32 dy = (f32)lastPoint->y - (f32)firstPoint->y;
+    if (dy < 0) { dy = -dy; }
+    f32 length = sqrtf((dx * dx) + (dy * dy));
+    printf("Line length %.3f\n", length);
+    dx /= length;
+    dy /= length;
+    f32 normalX = -dy;
+    f32 normalY = dx;
+    printf("Left normal %.3f/%.3f\n", normalX, normalY);
+    f32 step = 1.f / (f32)numLines;
+    f32 lerp = step; // start one step in as first is already set
+    for (i32 i = 1; i < numLines; ++i)
+    {
+        f32 r = ZPG_Randf32InRange(*seed, -2.f, 2.f);
+        f32 offsetX = normalX * (r * 5.f);
+        f32 offsetY = normalY * (r * 5.f);
+        points[i].x = (i32)(ZPG_LerpF32((f32)firstPoint->x, (f32)lastPoint->x, lerp) + offsetX);
+        points[i].y = (i32)(ZPG_LerpF32((f32)firstPoint->y, (f32)lastPoint->y, lerp) + offsetY);
+        lerp += step;
+        printf("Node at %d/%d - offset %.3f/%.3f\n", points[i].x, points[i].y, offsetX, offsetY);
     }
 }
 

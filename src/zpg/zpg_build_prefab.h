@@ -84,7 +84,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
 
 static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
 {
-    i32 w = 96, h = 48;
+    i32 w = 96, h = 24;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
 
@@ -104,14 +104,19 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     ZPG_BlitGrids(grid, rightRoom->grid, blitPosB, stencil);
     ZPGPoint rightExit = rightRoom->exits[0];
 
-    const i32 numNodes = 8;
+    const i32 numNodes = 12;
     ZPGPoint nodes[numNodes];
     nodes[0].x = leftExit.x + blitPosA.x;
     nodes[0].y = leftExit.y + blitPosA.y;
     nodes[numNodes - 1].x = rightExit.x + blitPosB.x;
     nodes[numNodes - 1].y = rightExit.y + blitPosB.y;
-    ZPG_PlotSegmentedPath(grid, &seed, nodes, numNodes, NO, YES);
-    ZPG_DrawSegmentedLine(grid, nodes, numNodes, ZPG2_CELL_TYPE_PATH, 0);
+    //ZPG_PlotSegmentedPath_Old(grid, &seed, nodes, numNodes, NO, YES);
+    ZPG_PlotSegmentedPath(grid, &seed, nodes, numNodes);
+    ZPG_DrawSegmentedLine(grid, nodes, numNodes, ZPG2_CELL_TYPE_PATH, 0.2f);
+    for (i32 i = 0; i < numNodes; ++i)
+    {
+        ZPG_SetCellTypeAt(grid, nodes[i].x, nodes[i].y, ZPG2_CELL_TYPE_ENEMY, NULL);
+    }
 
     return grid;
 }
