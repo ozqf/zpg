@@ -10,7 +10,7 @@ static f32 ZPG_LerpF32(f32 start, f32 end, f32 lerp)
     return start + ((end - start) * lerp);
 }
 
-
+#if 0
 static void ZPG_FillRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPaint)
 {
     //printf("Fill rect %d/%d to %d/%d with %d\n", min.x, min.y, max.x, max.y, typeToPaint);
@@ -26,7 +26,7 @@ static void ZPG_FillRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPai
         }
     }
 }
-
+#endif
 static i32 ZPG_FillRectWithStencil(
     ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint min, ZPGPoint max, u8 typeToPaint)
 {
@@ -53,7 +53,7 @@ static i32 ZPG_FillRectWithStencil(
  * in the line are always connected horizontally - this is really important!
  */
 static void ZPG_DrawLine(
-    ZPGGrid *grid, i32 aX, i32 aY, i32 bX, i32 bY, u8 typeToPaint, f32 bigRoomChance)
+    ZPGGrid *grid, ZPGGrid* stencil, i32 aX, i32 aY, i32 bX, i32 bY, u8 typeToPaint, f32 bigRoomChance)
 {
     f32 x0 = (f32)aX, y0 = (f32)aY, x1 = (f32)bX, y1 = (f32)bY;
     float dx = x1 - x0;
@@ -122,7 +122,7 @@ static void ZPG_DrawLine(
             {
                 ZPGPoint min = { plotX - 1, plotY - 1 };
                 ZPGPoint max = { plotX + 1, plotY + 1 };
-                ZPG_FillRect(grid, min, max, typeToPaint);
+                ZPG_FillRectWithStencil(grid, stencil, min, max, typeToPaint);
             }
             else
             {
@@ -144,7 +144,7 @@ static void ZPG_DrawLine(
 }
 
 static void ZPG_DrawSegmentedLine(
-    ZPGGrid* grid, ZPGPoint* points, i32 numPoints, u8 typeToPaint, f32 bigRoomChance)
+    ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint* points, i32 numPoints, u8 typeToPaint, f32 bigRoomChance)
 {
     i32 numLines = numPoints - 1;
     if (numLines <= 0) { return; }
@@ -153,35 +153,35 @@ static void ZPG_DrawSegmentedLine(
         ZPGPoint* a = &points[i];
         ZPGPoint* b = &points[i + 1];
         
-        ZPG_DrawLine(grid, a->x, a->y, b->x, b->y, typeToPaint, bigRoomChance);
+        ZPG_DrawLine(grid, stencil, a->x, a->y, b->x, b->y, typeToPaint, bigRoomChance);
 
     }
 }
 
-static void ZPG_DrawOuterBorder(ZPGGrid* grid, u8 typeToPaint)
+static void ZPG_DrawOuterBorder(ZPGGrid* grid, ZPGGrid* stencil, u8 typeToPaint)
 {
     i32 maxX = grid->width - 1;
     i32 maxY = grid->height - 1;
     // top
-    ZPG_DrawLine(grid, 0, 0, maxX, 0, typeToPaint, 0);
+    ZPG_DrawLine(grid, stencil, 0, 0, maxX, 0, typeToPaint, 0);
     // bottom
-    ZPG_DrawLine(grid, 0, maxY, maxX, maxY, typeToPaint, 0);
+    ZPG_DrawLine(grid, stencil, 0, maxY, maxX, maxY, typeToPaint, 0);
     // left
-    ZPG_DrawLine(grid, 0, 0, 0, maxY, typeToPaint, 0);
+    ZPG_DrawLine(grid, stencil, 0, 0, 0, maxY, typeToPaint, 0);
     // right
-    ZPG_DrawLine(grid, maxX, 0, maxX, maxY, typeToPaint, 0);
+    ZPG_DrawLine(grid, stencil, maxX, 0, maxX, maxY, typeToPaint, 0);
 }
 
-static void ZPG_DrawRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPaint)
+static void ZPG_DrawRect(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint min, ZPGPoint max, u8 typeToPaint)
 {
     // top
-    ZPG_DrawLine(grid, min.x, min.y, max.x, min.y, typeToPaint, 0);
+    ZPG_DrawLine(grid, stencil, min.x, min.y, max.x, min.y, typeToPaint, 0);
     // bottom
-    ZPG_DrawLine(grid, min.x, max.y, max.x, max.y, typeToPaint, 0);
+    ZPG_DrawLine(grid, stencil, min.x, max.y, max.x, max.y, typeToPaint, 0);
     // left
-    ZPG_DrawLine(grid, min.x, min.y, min.x, max.y, typeToPaint, 0);
+    ZPG_DrawLine(grid, stencil, min.x, min.y, min.x, max.y, typeToPaint, 0);
     // right
-    ZPG_DrawLine(grid, max.x, min.y, max.x, max.y, typeToPaint, 0);
+    ZPG_DrawLine(grid, stencil, max.x, min.y, max.x, max.y, typeToPaint, 0);
 }
 
 static void ZPG_CapFillBounds(ZPGGrid* grid, ZPGPoint* min, ZPGPoint* max)

@@ -239,22 +239,44 @@ static i32 ZPG_RaycastForHitOrGridEdge(
         n += plotY - (int)y1;
         error -= (y0 - (int)y0) * dx;
     }
+    // If we hit something or step out of the grid, we want to
+    // return the LAST safe position
+    i32 lastPlotX = plotX;
+    i32 lastPlotY = plotY;
 
     for (; n > 0; --n)
     {
+        i32 bHit = NO;
         ZPGCell* cell = ZPG_GetCellAt(grid, plotX, plotY);
         if (cell != NULL)
         {
+            //ZPG_SetCellTypeAt(grid, plotX, plotY, ZPG2_CELL_TYPE_VOID, NULL);
             if (cell->tile.type != 0)
             {
-                if (result != NULL)
-                {
-                    result->x = plotX;
-                    result->y = plotY;
-                }
-                return YES;
+                bHit = YES;
+                printf("Ray hit grid at %d/%d - result %d/%d\n",
+                    plotX, plotY, lastPlotX, lastPlotY);
             }
         }
+        else
+        {
+            printf("Ray off grid at %d/%d - result %d/%d\n",
+                plotX, plotY, lastPlotX, lastPlotY);
+            bHit = YES;
+        }
+    
+        if (bHit == YES)
+        {
+            if (result != NULL)
+            {
+                result->x = lastPlotX;
+                result->y = lastPlotY;
+            }
+            return YES;
+        }
+        
+        lastPlotX = plotX;
+        lastPlotY = plotY;
 
         if (error > 0)
         {

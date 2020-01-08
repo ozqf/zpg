@@ -75,7 +75,7 @@ static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)
 {
     ZPGGrid* stencil = ZPG_CreateGrid(width, height);
     ZPG_SetCellTypeAll(stencil, ZPG_STENCIL_TYPE_EMPTY);
-    ZPG_DrawOuterBorder(stencil, ZPG_STENCIL_TYPE_FULL);
+    ZPG_DrawOuterBorder(stencil, NULL, ZPG_STENCIL_TYPE_FULL);
     return stencil;
 }
 
@@ -86,7 +86,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
     const i32 height = 32;
     ZPGGrid* grid = ZPG_CreateGrid(width, height);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(width, height);
-    ZPG_FillRect(stencil, { 16, 8 }, { 48, 24 }, ZPG_STENCIL_TYPE_FULL );
+    ZPG_FillRectWithStencil(stencil, NULL, { 16, 8 }, { 48, 24 }, ZPG_STENCIL_TYPE_FULL );
     // debug check stencil
     //ZPG_Grid_PrintValues(stencil);
     ZPGWalkCfg cfg = {};
@@ -189,7 +189,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(i32 seed)
         ZPGRect rect = squares[i];
         //ZPGRect rect = squares[1];
         printf("Draw in rect %d/%d to %d/%d\n", rect.min.x, rect.min.y, rect.max.x, rect.max.y);
-        ZPG_DrawRect(grid, rect.min, rect.max, ZPG2_CELL_TYPE_VOID);
+        ZPG_DrawRect(grid, NULL, rect.min, rect.max, ZPG2_CELL_TYPE_VOID);
         ZPGPoint dir = ZPG_RandomFourWayDir(&cfg.seed);
         ZPGPoint centre = rect.Centre();
         cfg.startX = centre.x;
@@ -303,7 +303,7 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
     i32 bVertical = NO;
     ZPGPoint* points = (ZPGPoint*)malloc(sizeof(ZPGPoint) * numPoints);
     ZPG_PlotSegmentedPath_Old(grid, &seed, points, numPoints, bVertical, NO);
-    ZPG_DrawSegmentedLine(grid, points, numPoints, ZPG2_CELL_TYPE_PATH, 0.2f);
+    ZPG_DrawSegmentedLine(grid, NULL, points, numPoints, ZPG2_CELL_TYPE_PATH, 0.2f);
 
     // Draw side paths
     cfg.tilesToPlace = numTilesPerPath;
@@ -340,8 +340,8 @@ extern "C" ZPGGrid* ZPG_TestDrawLines()
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
     ZPG_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
 
-    ZPG_DrawOuterBorder(grid, ZPG2_CELL_TYPE_PATH);
-    ZPG_DrawLine(grid, 0, 0, 71, 31, ZPG2_CELL_TYPE_PATH, 0);
+    ZPG_DrawOuterBorder(grid, NULL, ZPG2_CELL_TYPE_PATH);
+    ZPG_DrawLine(grid, NULL, 0, 0, 71, 31, ZPG2_CELL_TYPE_PATH, 0);
     return grid;
 }
 
@@ -352,7 +352,7 @@ static ZPGGrid* ZPG_TestPerlin(i32 seed)
 
     ZPGGrid* stencil = ZPG_CreateGrid(72, 32);
     ZPG_SetCellTypeAll(stencil, ZPG2_CELL_TYPE_PATH);
-    ZPG_DrawOuterBorder(stencil, ZPG2_CELL_TYPE_WALL);
+    ZPG_DrawOuterBorder(stencil, NULL, ZPG2_CELL_TYPE_WALL);
     ZPG_DrawPerlinGrid(grid, stencil, &seed);
     ZPG_IterateCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_PATH);
     return grid;
@@ -471,7 +471,10 @@ extern "C" void ZPG_RunPreset(i32 mode)
             grid = ZPG_Test_PrefabBuildA(seed); 
             bPlaceEntities = NO;
             break;
-        case 12: grid = ZPG_Test_WalkBetweenPrefabs(seed); break;
+        case 12:
+            grid = ZPG_Test_WalkBetweenPrefabs(seed);
+            bPlaceEntities = NO;
+            break;
         default: printf("Did not recognise test mode %d\n", mode); break;
     }
     

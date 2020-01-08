@@ -116,11 +116,12 @@ static void ZPG_ScanPrefabForExits(ZPGGridPrefab* prefab, i32 bPrintExits)
     ZPG_ScanRowForPrefabExits(prefab, { 1, 0 }, max.x, min.y, 0, 1, prefab->grid->height);
     if (bPrintExits == YES)
     {
-        printf("Scanned prefab for exits\n");
+        printf("Scanned prefab %s for exits\n", prefab->label);
         for (i32 i = 0; i < prefab->numExits; ++i)
         {
             ZPGPoint p = prefab->exits[i];
-            printf("Prefab exit at %d/%d\n", p.x, p.y);
+            ZPGPoint dir = prefab->exitDirs[i];
+            printf("Prefab exit at %d/%d dir %d/%d\n", p.x, p.y, dir.x, dir.y);
         }
     }
 }
@@ -133,10 +134,10 @@ static ZPGGridPrefab* ZPG_GetPrefabByIndex(i32 i)
 
 static void ZPG_SetupPrefab(ZPGGridPrefab* prefab, char* label, const char* asci)
 {
-    prefab->label = "embed_8x8_grid_pillars";
+    prefab->label = label;
     i32 len = strlen(asci);
     prefab->grid = ZPG_ReadGridAsci((u8*)asci, len);
-    ZPG_ScanPrefabForExits(prefab, NO);
+    ZPG_ScanPrefabForExits(prefab, YES);
 }
 
 static void ZPG_InitPrefabs()
