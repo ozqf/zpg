@@ -194,7 +194,12 @@ extern "C" void ZPG_PlotSegmentedPath_Old(
  * Assumes 0 and numPoints - 1 are preset as the start/end positions
  */
 extern "C" void ZPG_PlotSegmentedPath(
-    ZPGGrid* grid, ZPGGrid* stencil, i32* seed, ZPGPoint* points, i32 numPoints, f32 pointOffsetMax)
+    ZPGGrid* grid,
+    ZPGGrid* stencil,
+    i32* seed,
+    ZPGPoint* points,
+    i32 numPoints,
+    f32 pointOffsetMax)
 {
     i32 lastIndex = numPoints - 1;
     i32 numLines = (numPoints - 1);
@@ -223,20 +228,15 @@ extern "C" void ZPG_PlotSegmentedPath(
         p->x = (i32)(ZPG_LerpF32((f32)firstPoint->x, (f32)lastPoint->x, lerp));
         p->y = (i32)(ZPG_LerpF32((f32)firstPoint->y, (f32)lastPoint->y, lerp));
         lerp += step;
-
-        // TODO: ray cast
-        f32 r1 = ZPG_Randf32InRange(*seed, -pointOffsetMax, pointOffsetMax);
-        f32 r2 = ZPG_Randf32InRange(*seed, -pointOffsetMax, pointOffsetMax);
+        // cast rays from node along line normals
+        // to find the maximum possible offset positions
         ZPGPoint leftRayEnd;
         leftRayEnd.x = (i32)((f32)p->x + (leftNormalX * pointOffsetMax));
         leftRayEnd.y = (i32)((f32)p->y + (leftNormalY * pointOffsetMax));
         i32 bHit = ZPG_RaycastForHitOrGridEdge(
             stencil, p->x, p->y, leftRayEnd.x, leftRayEnd.y, &leftRayEnd);
         ZPG_SetCellTypeAt(
-            grid, leftRayEnd.x, leftRayEnd.y, ZPG2_CELL_TYPE_VOID, NULL);
-        // cast rays from node along line normals
-        // to find the maximum possible offset positions
-
+            grid, leftRayEnd.x, leftRayEnd.y, ZPG2_CELL_TYPE_PATH, NULL);
         ZPGPoint rightRayEnd;
         rightRayEnd.x = (i32)((f32)p->x + (rightNormalX * pointOffsetMax));
         rightRayEnd.y = (i32)((f32)p->y + (rightNormalY * pointOffsetMax));
@@ -244,15 +244,15 @@ extern "C" void ZPG_PlotSegmentedPath(
             stencil, p->x, p->y, rightRayEnd.x, rightRayEnd.y, &rightRayEnd);
         ZPG_SetCellTypeAt(
             grid, rightRayEnd.x, rightRayEnd.y, ZPG2_CELL_TYPE_VOID, NULL);
-
-
-        f32 r = ZPG_Randf32InRange(*seed, -pointOffsetMax, pointOffsetMax);
-        f32 offsetX = leftNormalX * (r * 5.f);
-        f32 offsetY = leftNormalY * (r * 5.f);
-        //points[i].x = (i32)(ZPG_LerpF32((f32)firstPoint->x, (f32)lastPoint->x, lerp) + offsetX);
-        //points[i].y = (i32)(ZPG_LerpF32((f32)firstPoint->y, (f32)lastPoint->y, lerp) + offsetY);
-        //lerp += step;
-        //printf("Node at %d/%d - offset %.3f/%.3f\n", points[i].x, points[i].y, offsetX, offsetY);
+        f32 r1 = ZPG_Randf32(*seed);
+        *seed += 1;
+        f32 r2 = ZPG_Randf32(*seed);
+        *seed += 1;
+        i32 offsetDX = (i32)((f32)(rightRayEnd.x - leftRayEnd.x) * r1);
+        i32 offsetDY = (i32)((f32)(rightRayEnd.y - leftRayEnd.y) * r1);
+        printf("Offsets %d/%d r1 %.3f\n", offsetDX, offsetDY, r1);
+        p->x = leftRayEnd.x + offsetDX;
+        p->y = leftRayEnd.y + offsetDY;
     }
 }
 
