@@ -111,7 +111,7 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     nodes[numNodes - 1].x = rightExit.x + blitPosB.x;
     nodes[numNodes - 1].y = rightExit.y + blitPosB.y;
     //ZPG_PlotSegmentedPath_Old(grid, &seed, nodes, numNodes, NO, YES);
-    ZPG_PlotSegmentedPath(grid, &seed, nodes, numNodes);
+    ZPG_PlotSegmentedPath(grid, stencil, &seed, nodes, numNodes);
     ZPG_DrawSegmentedLine(grid, nodes, numNodes, ZPG2_CELL_TYPE_PATH, 0.2f);
     for (i32 i = 0; i < numNodes; ++i)
     {

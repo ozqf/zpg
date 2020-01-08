@@ -194,7 +194,7 @@ extern "C" void ZPG_PlotSegmentedPath_Old(
  * Assumes 0 and numPoints - 1 are preset as the start/end positions
  */
 extern "C" void ZPG_PlotSegmentedPath(
-    ZPGGrid* grid, i32* seed, ZPGPoint* points, i32 numPoints)
+    ZPGGrid* grid, ZPGGrid* stencil, i32* seed, ZPGPoint* points, i32 numPoints)
 {
     i32 lastIndex = numPoints - 1;
     i32 numLines = (numPoints - 1);
@@ -208,16 +208,22 @@ extern "C" void ZPG_PlotSegmentedPath(
     printf("Line length %.3f\n", length);
     dx /= length;
     dy /= length;
-    f32 normalX = -dy;
-    f32 normalY = dx;
-    printf("Left normal %.3f/%.3f\n", normalX, normalY);
+    f32 leftNormalX = -dy;
+    f32 leftNormalY = dx;
+    f32 rightNormalX = dy;
+    f32 rightNormalY = -dx;
+    printf("Left normal %.3f/%.3f\n", leftNormalX, leftNormalY);
     f32 step = 1.f / (f32)numLines;
     f32 lerp = step; // start one step in as first is already set
+    f32 offsetDist = 1.5f;
     for (i32 i = 1; i < numLines; ++i)
     {
-        f32 r = ZPG_Randf32InRange(*seed, -2.f, 2.f);
-        f32 offsetX = normalX * (r * 5.f);
-        f32 offsetY = normalY * (r * 5.f);
+        // TODO: ray cast
+        // cast rays from node along line normals to find the maximum possible offset positions
+
+        f32 r = ZPG_Randf32InRange(*seed, -offsetDist, offsetDist);
+        f32 offsetX = leftNormalX * (r * 5.f);
+        f32 offsetY = leftNormalY * (r * 5.f);
         points[i].x = (i32)(ZPG_LerpF32((f32)firstPoint->x, (f32)lastPoint->x, lerp) + offsetX);
         points[i].y = (i32)(ZPG_LerpF32((f32)firstPoint->y, (f32)lastPoint->y, lerp) + offsetY);
         lerp += step;
