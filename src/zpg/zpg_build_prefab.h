@@ -119,11 +119,12 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     f32 bigRoomChance = 0;//0.2f;
     ZPG_PlotSegmentedPath(grid, stencil, &seed, nodes, numNodes, lineNodeOffsetMax);
     ZPG_DrawSegmentedLine(grid, stencil, nodes, numNodes, ZPG2_CELL_TYPE_PATH, bigRoomChance);
+    #if 0
     for (i32 i = 0; i < numNodes; ++i)
     {
         ZPG_SetCellTypeAt(grid, nodes[i].x, nodes[i].y, ZPG2_CELL_TYPE_ENEMY, NULL);
     }
-
+    #endif
     return grid;
 }
 

@@ -35,6 +35,14 @@ static ZPGCellTypeDef* ZPG_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y)
     return ZPG_GetType(cell->tile.type);
 }
 
+static void ZPG_Grid_Clear(ZPGGrid* grid)
+{
+    i32 len = grid->width * grid->height;
+    for (i32 i = 0; i < len; ++i)
+    {
+        grid->cells[i] = {};
+    }
+}
 /**
  * returns NO if type at given cell is 0 (or no stencil was supplied),
  * YES otherwise

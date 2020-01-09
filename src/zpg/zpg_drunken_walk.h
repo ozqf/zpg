@@ -217,8 +217,8 @@ extern "C" void ZPG_PlotSegmentedPath(
     f32 leftNormalY = -dx;//dx;
     f32 rightNormalX = -dy;//dy;
     f32 rightNormalY = dx;//-dx;
-    printf("Left normal %.3f/%.3f\n", leftNormalX, leftNormalY);
-    printf("Right normal %.3f/%.3f\n", rightNormalX, rightNormalY);
+    //printf("Left normal %.3f/%.3f\n", leftNormalX, leftNormalY);
+    //printf("Right normal %.3f/%.3f\n", rightNormalX, rightNormalY);
     f32 step = 1.f / (f32)numLines;
     f32 lerp = step; // start one step in as first is already set
     for (i32 i = 1; i < numLines; ++i)
@@ -235,22 +235,22 @@ extern "C" void ZPG_PlotSegmentedPath(
         leftRayEnd.y = (i32)((f32)p->y + (leftNormalY * pointOffsetMax));
         i32 bHit = ZPG_RaycastForHitOrGridEdge(
             stencil, p->x, p->y, leftRayEnd.x, leftRayEnd.y, &leftRayEnd);
-        ZPG_SetCellTypeAt(
-            grid, leftRayEnd.x, leftRayEnd.y, ZPG2_CELL_TYPE_PATH, NULL);
+        //ZPG_SetCellTypeAt(
+        //    grid, leftRayEnd.x, leftRayEnd.y, ZPG2_CELL_TYPE_PATH, NULL);
         ZPGPoint rightRayEnd;
         rightRayEnd.x = (i32)((f32)p->x + (rightNormalX * pointOffsetMax));
         rightRayEnd.y = (i32)((f32)p->y + (rightNormalY * pointOffsetMax));
         bHit = ZPG_RaycastForHitOrGridEdge(
             stencil, p->x, p->y, rightRayEnd.x, rightRayEnd.y, &rightRayEnd);
-        ZPG_SetCellTypeAt(
-            grid, rightRayEnd.x, rightRayEnd.y, ZPG2_CELL_TYPE_VOID, NULL);
+        //ZPG_SetCellTypeAt(
+        //    grid, rightRayEnd.x, rightRayEnd.y, ZPG2_CELL_TYPE_VOID, NULL);
         f32 r1 = ZPG_Randf32(*seed);
         *seed += 1;
         f32 r2 = ZPG_Randf32(*seed);
         *seed += 1;
         i32 offsetDX = (i32)((f32)(rightRayEnd.x - leftRayEnd.x) * r1);
         i32 offsetDY = (i32)((f32)(rightRayEnd.y - leftRayEnd.y) * r1);
-        printf("Offsets %d/%d r1 %.3f\n", offsetDX, offsetDY, r1);
+        //printf("Offsets %d/%d r1 %.3f\n", offsetDX, offsetDY, r1);
         p->x = leftRayEnd.x + offsetDX;
         p->y = leftRayEnd.y + offsetDY;
     }

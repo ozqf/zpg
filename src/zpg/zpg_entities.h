@@ -15,6 +15,77 @@ static i32 ZPG_CompareEntsByDistance(const void* a, const void* b)
     return ((ZPGEntityInfo*)a)->avgDist > ((ZPGEntityInfo*)b)->avgDist ? 1 : -1;
 }
 
+static i32 ZPG_Grid_CountCardinalNeighbours(
+    ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGPoint* results)
+{
+    i32 count = 0;
+    ZPGCell* cell;
+    // left
+    cell = ZPG_GetCellAt(grid, x - 1, y);
+    if (cell && cell->tile.type == type)
+    { results[count] = { -1, 0 }; }
+    // right
+    cell = ZPG_GetCellAt(grid, x + 1, y);
+    if (cell && cell->tile.type == type)
+    { results[count] = { 1, 0 }; }
+    // up
+    cell = ZPG_GetCellAt(grid, x, y - 1);
+    if (cell && cell->tile.type == type)
+    { results[count] = { 0, -1 }; }
+    // down
+    cell = ZPG_GetCellAt(grid, x, y + 1);
+    if (cell && cell->tile.type == type)
+    { results[count] = { 0, 1 }; }
+    return count;
+}
+
+static void ZPG_AnalyseCellForEntities(
+    ZPGGrid* grid, i32 x, i32 y, ZPGGrid* result, i32* seed)
+{
+    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+    if (cell == NULL) { printf("Grid cell is null\n"); return; }
+    ZPGCell* target = ZPG_GetCellAt(result, x, y);
+    if (target == NULL) { printf("target cell is null\n"); return; }
+    ZPGCellTypeDef* def = ZPG_GetType(cell->tile.type);
+    if (def == NULL) { printf("Cell type def is null\n");return;}
+    ZPGPoint dirs[4];
+    i32 count = 0;
+    switch (def->geometryType)
+    {
+        case ZPG_GEOMETRY_TYPE_PATH:
+        
+        break;
+        case ZPG_GEOMETRY_TYPE_SOLID:
+        // TODO: How to record for later usage that this cell
+        // could be used for a hidden monster trap
+        count = ZPG_Grid_CountCardinalNeighbours(
+            grid, x, y, ZPG_GEOMETRY_TYPE_SOLID, dirs);
+        for (i32 i = 0; i < count; ++i)
+        {
+            //ZPG_SetCellTypeAt(grid, )
+        }
+        break;
+        case ZPG_GEOMETRY_TYPE_VOID:
+        count = ZPG_Grid_CountCardinalNeighbours(
+            grid, x, y, ZPG_GEOMETRY_TYPE_PATH, dirs);
+        break;
+        default: return;
+    }
+}
+
+static void ZPG_AnalyseForEntities(ZPGGrid* grid, ZPGGrid* result, i32* seed)
+{
+    printf("Analysing grid for entities\n");
+    ZPG_Grid_Clear(result);
+    for (i32 y = 0; y < grid->height; ++y)
+    {
+        for (i32 x = 0; x < grid->width; ++x)
+        {
+            ZPG_AnalyseCellForEntities(grid, x, y, result, seed);
+        }
+    }
+}
+
 /**
  * Objectives are the critical parts of the path from start to end.
  * other 'objective entities are places to place, say, loot or perhaps keys.

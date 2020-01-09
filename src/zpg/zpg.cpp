@@ -473,7 +473,7 @@ extern "C" void ZPG_RunPreset(i32 mode)
             break;
         case 12:
             grid = ZPG_Test_WalkBetweenPrefabs(seed);
-            bPlaceEntities = NO;
+            bPlaceEntities = YES;
             break;
         default: printf("Did not recognise test mode %d\n", mode); break;
     }
@@ -487,6 +487,8 @@ extern "C" void ZPG_RunPreset(i32 mode)
         {
             printf("-- Grid Loaded --\ncreating entities\n");
             ZPG_CountNeighourRings(grid);
+            ZPGGrid* entData = ZPG_CreateGrid(grid->width, grid->height);
+            ZPG_AnalyseForEntities(grid, entData, &seed);
             ZPG_PlaceScatteredEntities(grid, &seed);
         }
 
