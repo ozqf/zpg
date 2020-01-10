@@ -23,19 +23,19 @@ static i32 ZPG_Grid_CountCardinalNeighbours(
     // left
     cell = ZPG_GetCellAt(grid, x - 1, y);
     if (cell && cell->tile.type == type)
-    { results[count] = { -1, 0 }; }
+    { results[count] = { -1, 0 }; count++; }
     // right
     cell = ZPG_GetCellAt(grid, x + 1, y);
     if (cell && cell->tile.type == type)
-    { results[count] = { 1, 0 }; }
+    { results[count] = { 1, 0 }; count++; }
     // up
     cell = ZPG_GetCellAt(grid, x, y - 1);
     if (cell && cell->tile.type == type)
-    { results[count] = { 0, -1 }; }
+    { results[count] = { 0, -1 }; count++; }
     // down
     cell = ZPG_GetCellAt(grid, x, y + 1);
     if (cell && cell->tile.type == type)
-    { results[count] = { 0, 1 }; }
+    { results[count] = { 0, 1 }; count++; }
     return count;
 }
 
@@ -53,26 +53,40 @@ static void ZPG_AnalyseCellForEntities(
     switch (def->geometryType)
     {
         case ZPG_GEOMETRY_TYPE_PATH:
-        
+        count = ZPG_CountNeighourRingsAt(grid, x, y);
+        ZPG_SetCellTypeAt(result, x, y, (u8)count, NULL);
         break;
         case ZPG_GEOMETRY_TYPE_SOLID:
         // TODO: How to record for later usage that this cell
         // could be used for a hidden monster trap
         count = ZPG_Grid_CountCardinalNeighbours(
-            grid, x, y, ZPG_GEOMETRY_TYPE_SOLID, dirs);
-        for (i32 i = 0; i < count; ++i)
+            grid, x, y, ZPG_GEOMETRY_TYPE_PATH, dirs);
+        ZPG_SetCellTypeAt(result, x, y, (u8)count, NULL);
+        /*for (i32 i = 0; i < count; ++i)
         {
-            //ZPG_SetCellTypeAt(grid, )
-        }
+            ZPG_SetCellTypeAt(result, x, y, (u8)count, NULL);
+        }*/
         break;
         case ZPG_GEOMETRY_TYPE_VOID:
         count = ZPG_Grid_CountCardinalNeighbours(
             grid, x, y, ZPG_GEOMETRY_TYPE_PATH, dirs);
+        ZPG_SetCellTypeAt(result, x, y, (u8)count + 4, NULL);
+        
         break;
         default: return;
     }
 }
 
+/**
+ * -- Solid tiles --
+ * > Count any neighbouring path tiles. Potentially makes this a good position for a trap
+ * or ambush enemy.
+ * -- Void tiles --
+ * > If next to a path tile - could be a jump-onto-path ambush enemy
+ * > If in cardinal line of sight of a path tile - could be a flying enemy.
+ * -- Path tiles --
+ * > If count neighbouring path tile rings. 1 ring == larger monster, 2+ could be a boss.
+ */
 static void ZPG_AnalyseForEntities(ZPGGrid* grid, ZPGGrid* result, i32* seed)
 {
     printf("Analysing grid for entities\n");
@@ -84,6 +98,8 @@ static void ZPG_AnalyseForEntities(ZPGGrid* grid, ZPGGrid* result, i32* seed)
             ZPG_AnalyseCellForEntities(grid, x, y, result, seed);
         }
     }
+    printf("Entity analysis result:\n");
+    ZPG_Grid_PrintValues(result, YES);
 }
 
 /**

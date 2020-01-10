@@ -107,7 +107,7 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     ZPGPoint rightExitDir = rightRoom->exitDirs[0];
 
     printf("Draw line segment between prefabs - Stencil state:\n");
-    ZPG_Grid_PrintValues(stencil);
+    ZPG_Grid_PrintValues(stencil, YES);
     const i32 numNodes = 12;
     ZPGPoint nodes[numNodes];
     nodes[0].x = (leftExit.x + blitPosA.x) + leftExitDir.x;

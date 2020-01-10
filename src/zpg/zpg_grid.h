@@ -326,7 +326,7 @@ static void ZPG_CountNeighourRings(ZPGGrid* grid)
     }
 }
 
-static void ZPG_Grid_PrintValues(ZPGGrid* grid)
+static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
 {
     if (grid == NULL) { return; }
     printf("------ Grid %d/%d ------\n", grid->width, grid->height);
@@ -336,7 +336,14 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid)
         for (i32 x = 0; x < grid->width; ++x)
         {
             ZPGCell *cell = ZPG_GetCellAt(grid, x, y);
-            printf("%d", cell->tile.type);
+            if (bBlankZeroes && cell->tile.type == 0)
+            {
+                printf(" ");
+            }
+            else
+            {
+                printf("%d", cell->tile.type);
+            }
         }
         printf("|\n");
     }

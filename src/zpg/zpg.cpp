@@ -110,7 +110,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
     // Draw "rivers"
     cfg.typeToPaint = ZPG2_CELL_TYPE_VOID;
     cfg.bPlaceObjectives = NO;
-    cfg.bigRoomChance = 0.1f;
+    cfg.bigRoomChance = 0.3f;
     //cfg.bigRoomChance = 0;
     //cfg.charToPlace = '.';
     for (i32 i = 0; i < numRivers; ++i)
@@ -121,7 +121,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
         if (bStepThrough)
         {
             printf("River %d:\n", i);
-            ZPG_Grid_PrintValues(grid);
+            ZPG_Grid_PrintValues(grid, YES);
             printf("Press ENTER to continue\n");
             getchar();
         }
@@ -138,7 +138,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
         if (bStepThrough)
         {
             printf("Path %d:\n", i);
-            ZPG_Grid_PrintValues(grid);
+            ZPG_Grid_PrintValues(grid, YES);
             printf("Press ENTER to continue\n");
             getchar();
         }
@@ -445,7 +445,7 @@ extern "C" void ZPG_RunPreset(i32 mode)
     printf("-- ZE PROC GEN TESTS --\n");
     ZPGGrid* grid = NULL;
     i32 bPlaceEntities = YES;
-    i32 bPrintValues = YES;
+    i32 bPrintValues = NO;
     i32 bPrintChars = YES;
     i32 bSaveGridAsci = YES;
     
@@ -494,7 +494,7 @@ extern "C" void ZPG_RunPreset(i32 mode)
 
         if (bPrintValues)
         {
-            ZPG_Grid_PrintValues(grid);
+            ZPG_Grid_PrintValues(grid, YES);
         }
         if (bPrintChars)
         {
