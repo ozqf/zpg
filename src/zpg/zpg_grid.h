@@ -415,11 +415,13 @@ static void ZPG_PrintChars(ZPGGrid* grid)
         for (i32 x = 0; x < grid->width; ++x)
         {
             ZPGCellTypeDef* def = ZPG_GetCellTypeAt(grid, x, y);
-            printf("%c", def->asciChar);
-            //ZPGCell *cell = ZPG_GetCellAt(grid, x, y);
-            //char c = ZPG_CellToChar(cell);
-            //printf("%c%d", cell->c, cell->rings);
-            //printf("%c", c);
+            u8 c = def->asciChar;
+            // Special case
+            if (c == '#')
+            {
+                c = 219;
+            }
+            printf("%c", c);
         }
         printf("|\n");
     }
