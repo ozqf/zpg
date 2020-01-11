@@ -1,72 +1,60 @@
+/**
+ * ZPG Grid manipulation functions
+ */
 #ifndef ZPG_GRID_H
 #define ZPG_GRID_H
 
 #include "../zpg.h"
-static i32 ZPG_PositionToIndex(ZPGGrid* grid, i32 x, i32 y)
+static i32 ZPG_Grid_PositionToIndex(ZPGGrid* grid, i32 x, i32 y)
 {
-    if (x < 0 || x >= grid->width)
-    {
-        return -1;
-    }
-    if (y < 0 || y >= grid->height)
-    {
-        return -1;
-    }
+    if (x < 0 || x >= grid->width) { return -1; }
+    if (y < 0 || y >= grid->height) { return -1; }
     return x + (y * grid->width);
 }
 
-static ZPGCell* ZPG_GetCellAt(ZPGGrid* grid, i32 x, i32 y)
+static ZPGCell* ZPG_Grid_GetCellAt(ZPGGrid* grid, i32 x, i32 y)
 {
-    i32 i = ZPG_PositionToIndex(grid, x, y);
-    if (i == -1)
-    {
-        return NULL;
-    }
+    i32 i = ZPG_Grid_PositionToIndex(grid, x, y);
+    if (i == -1) { return NULL; }
     return &grid->cells[i];
 }
 
-static ZPGCellTypeDef* ZPG_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y)
+static ZPGCellTypeDef* ZPG_Grid_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y)
 {
-    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
-    if (cell == NULL)
-    {
-        return ZPG_GetDefaultType();
-    }
+    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+    if (cell == NULL) { return ZPG_GetDefaultType(); }
     return ZPG_GetType(cell->tile.type);
 }
 
 static void ZPG_Grid_Clear(ZPGGrid* grid)
 {
     i32 len = grid->width * grid->height;
-    for (i32 i = 0; i < len; ++i)
-    {
-        grid->cells[i] = {};
-    }
+    for (i32 i = 0; i < len; ++i) { grid->cells[i] = {}; }
 }
 /**
  * returns NO if type at given cell is 0 (or no stencil was supplied),
  * YES otherwise
  */
-static i32 ZPG_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y)
+static i32 ZPG_Grid_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y)
 {
     if (grid == NULL) { return NO; }
-    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
     if (cell == NULL) { return NO; }
     return (cell->tile.type != ZPG_STENCIL_TYPE_EMPTY);
 }
 
-static i32 ZPG_GetTagAt(ZPGGrid* grid, i32 x, i32 y)
+static i32 ZPG_Grid_GetTagAt(ZPGGrid* grid, i32 x, i32 y)
 {
     if (grid == NULL) { return NO; }
-    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
     if (cell == NULL) { return NO; }
     return cell->tile.tag;
 }
 
-static void ZPG_SetCellTypeAt(ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGGrid* stencil)
+static void ZPG_Grid_SetCellTypeAt(ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGGrid* stencil)
 {
-    if (ZPG_CheckStencilOccupied(stencil, x, y) == YES) { return; }
-    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+    if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES) { return; }
+    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
     if (cell == NULL) { return; }
     cell->tile.type = type;
 }
@@ -76,10 +64,10 @@ static void ZPG_SetCellTypeAt(ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGGrid* ste
  * has a different geometry type
  * returns true if it performed a change
  */
-static i32 ZPG_SetCellTypeGeometry(
+static i32 ZPG_Grid_SetCellTypeGeometry(
     ZPGGrid* grid, i32 x, i32 y, u8 typeToPaint, u8 geometryType)
 {
-    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
     if (cell == NULL) { return NO; }
     ZPGCellTypeDef* def = ZPG_GetType(cell->tile.type);
     if (def->geometryType == geometryType) { return NO; }
@@ -87,7 +75,7 @@ static i32 ZPG_SetCellTypeGeometry(
     return YES;
 }
 
-static void ZPG_SetCellTypeAll(ZPGGrid* grid, u8 type)
+static void ZPG_Grid_SetCellTypeAll(ZPGGrid* grid, u8 type)
 {
     i32 totalCells = grid->width * grid->height;
     for (i32 i = 0; i < totalCells; ++i)
@@ -105,7 +93,7 @@ static void ZPG_Grid_ClearAllTags(ZPGGrid* grid)
     }
 }
 
-static void ZPG_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel)
+static void ZPG_Grid_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel)
 {
     if (channel < 0 || channel >= 4) { return; }
     i32 totalCells = grid->width * grid->height;
@@ -122,25 +110,7 @@ static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original)
     memcpy(clone->cells, original->cells, sizeof(ZPGCell) * totalCells);
 }
 
-/*
-static void ZPG_SetCellTagAt(ZPGGrid* grid, i32 x, i32 y, u8 tag)
-{
-    ZPGCell *cell = ZPG_GetCellAt(grid, x, y);
-    if (cell == NULL)
-    {
-        return;
-    }
-    if (cell->tile.tag != ZPG_CELL_TAG_NONE)
-    {
-        //printf("WARN: Cannot tag %d/%d as %d, already %d!\n",
-        //    x, y, tag, cell->tile.tag);
-        return;
-    }
-    cell->tile.tag = tag;
-    //printf("Tagging cell %d/%d as %d\n", x, y, tag);
-}
-*/
-static void ZPG_CalcStats(ZPGGrid* grid)
+static void ZPG_Grid_CalcStats(ZPGGrid* grid)
 {
     grid->stats.numFloorTiles = 0;
     grid->stats.numObjectiveTags = 0;
@@ -148,7 +118,7 @@ static void ZPG_CalcStats(ZPGGrid* grid)
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCellTypeDef* def = ZPG_GetCellTypeAt(grid, x, y);
+            ZPGCellTypeDef* def = ZPG_Grid_GetCellTypeAt(grid, x, y);
             if (def->geometryType == ZPG_GEOMETRY_TYPE_PATH)
             {
                 grid->stats.numFloorTiles++;
@@ -157,84 +127,57 @@ static void ZPG_CalcStats(ZPGGrid* grid)
             {
                 grid->stats.numObjectiveTags++;
             }
-            #if 0
-            ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
-            if (cell->tile.type != ZPG_CELL_TYPE_FLOOR) { continue; }
-            grid->stats.numFloorTiles++;
-            if (cell->tile.tag == ZPG_CELL_TAG_RANDOM_WALK_START)
-            {
-                printf("Found start tag at %d/%d\n", x, y);
-                grid->stats.numObjectiveTags++;
-            }
-            if (cell->tile.tag == ZPG_CELL_TAG_RANDOM_WALK_END)
-            {
-                printf("Found end tag at %d/%d\n", x, y);
-                grid->stats.numObjectiveTags++;
-            }
-            #endif
-            #if 0
-            ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
-            if (cell->tile.type == ZPG_CELL_TYPE_FLOOR)
-            {
-                stats.numFloorTiles++;
-            }
-            if (cell->tile.tag == ZPG_CELL_TAG_RANDOM_WALK_START
-                || cell->tile.tag == ZPG_CELL_TAG_RANDOM_WALK_END)
-            {
-                stats.numObjectiveTags++;
-            }
-            #endif
         }
     }
 }
 
-static i32 ZPG_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y)
+static i32 ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y)
 {
-    ZPGCell *cell = ZPG_GetCellAt(grid, x, y);
+    ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
     if (cell == NULL)
     {
         return 0;
     }
     u8 matchType = cell->tile.type;
     i32 neighbours = 0;
-    cell = ZPG_GetCellAt(grid, x - 1, y - 1);
+    cell = ZPG_Grid_GetCellAt(grid, x - 1, y - 1);
     if (cell != NULL && cell->tile.type == matchType)
     {
         neighbours++;
     }
-    cell = ZPG_GetCellAt(grid, x, y - 1);
+    cell = ZPG_Grid_GetCellAt(grid, x, y - 1);
     if (cell != NULL && cell->tile.type == matchType)
     {
         neighbours++;
     }
-    cell = ZPG_GetCellAt(grid, x + 1, y - 1);
-    if (cell != NULL && cell->tile.type == matchType)
-    {
-        neighbours++;
-    }
-
-    cell = ZPG_GetCellAt(grid, x - 1, y);
-    if (cell != NULL && cell->tile.type == matchType)
-    {
-        neighbours++;
-    }
-    cell = ZPG_GetCellAt(grid, x + 1, y);
+    cell = ZPG_Grid_GetCellAt(grid, x + 1, y - 1);
     if (cell != NULL && cell->tile.type == matchType)
     {
         neighbours++;
     }
 
-    cell = ZPG_GetCellAt(grid, x - 1, y + 1);
+    cell = ZPG_Grid_GetCellAt(grid, x - 1, y);
     if (cell != NULL && cell->tile.type == matchType)
     {
         neighbours++;
     }
-    cell = ZPG_GetCellAt(grid, x, y + 1);
+    cell = ZPG_Grid_GetCellAt(grid, x + 1, y);
     if (cell != NULL && cell->tile.type == matchType)
     {
         neighbours++;
     }
-    cell = ZPG_GetCellAt(grid, x + 1, y + 1);
+
+    cell = ZPG_Grid_GetCellAt(grid, x - 1, y + 1);
+    if (cell != NULL && cell->tile.type == matchType)
+    {
+        neighbours++;
+    }
+    cell = ZPG_Grid_GetCellAt(grid, x, y + 1);
+    if (cell != NULL && cell->tile.type == matchType)
+    {
+        neighbours++;
+    }
+    cell = ZPG_Grid_GetCellAt(grid, x + 1, y + 1);
     if (cell != NULL && cell->tile.type == matchType)
     {
         neighbours++;
@@ -254,9 +197,9 @@ eg:
           #.....#
           #######
 */
-static u8 ZPG_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y)
+static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y)
 {
-    ZPGCell *cell = ZPG_GetCellAt(grid, x, y);
+    ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
     if (cell == NULL)
     {
         printf("Cannot Plot ringss at %d/%d - Cell is null\n",
@@ -277,7 +220,7 @@ static u8 ZPG_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y)
                 plotX = x + iX;
                 plotY = y + iY;
                 //printf("  Test %d/%d\n", plotX, plotY);
-                ZPGCell *queryCell = ZPG_GetCellAt(grid, plotX, plotY);
+                ZPGCell *queryCell = ZPG_Grid_GetCellAt(grid, plotX, plotY);
                 if (queryCell == NULL)
                 {
                     bScanning = NO;
@@ -313,15 +256,15 @@ static u8 ZPG_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y)
     return result;
 }
 
-static void ZPG_CountNeighourRings(ZPGGrid* grid)
+static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid)
 {
     printf("Calc rings\n");
     for (i32 y = 0; y < grid->height; ++y)
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCell *cell = ZPG_GetCellAt(grid, x, y);
-            cell->tile.rings = ZPG_CountNeighourRingsAt(grid, x, y);
+            ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
+            cell->tile.rings = ZPG_Grid_CountNeighourRingsAt(grid, x, y);
         }
     }
 }
@@ -335,7 +278,7 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
         printf("|");
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCell *cell = ZPG_GetCellAt(grid, x, y);
+            ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
             if (bBlankZeroes && cell->tile.type == 0)
             {
                 printf(" ");
@@ -357,51 +300,10 @@ static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y)
     return true;
 }
 
-/*
-static char ZPG_CellToChar(ZPGCell* cell)
-{
-    char c = ' ';
-    switch (cell->tile.type)
-    {
-        case ZPG_CELL_TYPE_WALL:
-            c = (u8)ZPG_CHAR_CODE_SOLID_BLOCK;
-            break;
-        case ZPG_CELL_TYPE_FLOOR:
-            c = ' ';
-            switch (cell->tile.entType)
-            {
-                case ZPG_ENTITY_TYPE_NONE:
-                    c = ' ';
-                    break;
-                case ZPG_ENTITY_TYPE_ENEMY:
-                    c = 'x';
-                    break;
-                case ZPG_ENTITY_TYPE_START:
-                    c = 's';
-                    break;
-                case ZPG_ENTITY_TYPE_END:
-                    c = 'e';
-                    break;
-                case ZPG_ENTITY_TYPE_OBJECTIVE:
-                    c = 'k';
-                    break;
-                default:
-                    // unknown non-zero
-                    c = '?';
-                    break;
-            }
-            break;
-    case ZPG_CELL_TYPE_WATER:
-        c = '.';
-        break;
-    default:
-        c = '?';
-        break;
-    }
-    return c;
-}
-*/
-static void ZPG_PrintChars(ZPGGrid* grid)
+/**
+ * Send '\0' marker to place no special marker
+ */
+static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY)
 {
     printf("------ Grid %d/%d (%d total tiles, %d path tiles, %d objectives)------\n",
         grid->width,
@@ -414,12 +316,16 @@ static void ZPG_PrintChars(ZPGGrid* grid)
         printf("|");
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCellTypeDef* def = ZPG_GetCellTypeAt(grid, x, y);
+            ZPGCellTypeDef* def = ZPG_Grid_GetCellTypeAt(grid, x, y);
             u8 c = def->asciChar;
             // Special case
             if (c == '#')
             {
                 c = 219;
+            }
+            if (marker != '\0' && x == markerX && y == markerY)
+            {
+                c = marker;
             }
             printf("%c", c);
         }

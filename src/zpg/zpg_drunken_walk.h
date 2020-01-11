@@ -7,7 +7,7 @@ static void ZPG_RandomStepWithinRect(
     ZPGGrid* grid, ZPGRect rect, ZPGPoint* cursor, ZPGPoint* dir, i32* seed)
 {
     // if already over a stencil cell, keep moving forward.
-    /*i32 bOverStencil = ZPG_CheckStencilOccupied(stencil, cursor->x, cursor->y);
+    /*i32 bOverStencil = ZPG_Grid_CheckStencilOccupied(stencil, cursor->x, cursor->y);
     if (bOverStencil == YES)
     {
         cursor->x += dir->x;
@@ -25,7 +25,7 @@ static void ZPG_RandomStepWithinRect(
         *dir = ZPG_RandomFourWayDir(seed);
         candidate.x = cursor->x + dir->x;
         candidate.y = cursor->y + dir->y;
-        i32 bOverStencil = ZPG_CheckStencilOccupied(stencil, candidate->x, candidate->y);
+        i32 bOverStencil = ZPG_Grid_CheckStencilOccupied(stencil, candidate->x, candidate->y);
         if (bOverStencil == NO)
         {
             break;
@@ -63,7 +63,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     ZPGPoint cursor = { cfg->startX, cfg->startY };
     ZPGPoint lastPos = cursor;
     i32 bMarkStencilExitsAsStart = YES;
-    ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
+    ZPG_Grid_SetCellTypeAt(grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
     // move start out of stencil if required.
     if (ZPG_MarchOutOfStencil(grid, stencil, &cursor, &dir, YES, cfg->typeToPaint) == NO)
     {
@@ -72,9 +72,8 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     }
     if (cfg->bPlaceObjectives)
     {
-        ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_START, NULL);
+        ZPG_Grid_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_START, NULL);
     }
-
     ZPGRect border;
     // setup border
     if (borderRect == NULL)
@@ -89,14 +88,12 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     {
         border = *borderRect;
     }
-    
-
     const i32 escapeCounter = 99999;
     i32 iterations = 0;
     i32 tilesPlaced = 0;
     while (tilesPlaced < cfg->tilesToPlace)
     {
-        ZPGCell* cell = ZPG_GetCellAt(grid, cursor.x, cursor.y);
+        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, cursor.x, cursor.y);
         if (cell != NULL && cell->tile.type != cfg->typeToPaint)
         {
             f32 r = ZPG_Randf32(cfg->seed++);
@@ -104,15 +101,26 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
             {
                 ZPGPoint min = { cursor.x - 1, cursor.y - 1 };
                 ZPGPoint max = { cursor.x + 1, cursor.y + 1 };
-                ZPG_FillRectWithStencil(grid, stencil, min, max, cfg->typeToPaint);
+                if (cfg->bStepThrough == YES)
+                {
+                    printf("Paint big room %d from %d/%d to %d/%d\n",
+                        cfg->typeToPaint, min.x, min.y, max.x, max.y);
+                }
+                ZPG_FillRectWithStencil(grid, NULL, min, max, cfg->typeToPaint);
             }
             else
             {
-                ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
+                if (cfg->bStepThrough == YES)
+                {
+                    printf("Paint cell %d at %d/%d\n",
+                        cfg->typeToPaint, cursor.x, cursor.y);
+                }
+                ZPG_Grid_SetCellTypeAt(grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
             }
             lastPos = cursor;
             tilesPlaced++;
         }
+        lastPos = cursor;
         ZPG_RandomStepWithinRect(grid, border, &cursor, &dir, &cfg->seed);
         iterations++;
         if (iterations >= escapeCounter)
@@ -120,14 +128,23 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
             printf("ABORT! Walk ran away\n");
             break;
         }
+        if (cfg->bStepThrough == YES)
+        {
+            printf("Iteration %d placed %d - Cursor at %d/%d - dir %d/%d\n",
+                iterations, tilesPlaced, cursor.x, cursor.y, dir.x, dir.y);
+            ZPG_Grid_PrintChars(grid, '@', cursor.x, cursor.y);
+            printf("Press ENTER to continue\n");
+            getchar();
+        }
     }
     //ZPG_SetCellTagAt(grid, lastPos.x, lastPos.y, ZPG_CELL_TAG_RANDOM_WALK_END);
     if (cfg->bPlaceObjectives)
     {
-        ZPG_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_END, NULL);
+        ZPG_Grid_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_END, NULL);
     }
     //printf("Drunken walk placed %d tiles in %d iterations\n",
     //    tilesPlaced, iterations);
+    ZPG_Grid_PrintChars(grid, '\0', 0, 0);
     return cursor;
 }
 
@@ -192,6 +209,9 @@ extern "C" void ZPG_PlotSegmentedPath_Old(
 
 /**
  * Assumes 0 and numPoints - 1 are preset as the start/end positions
+ * The stencil (if provided) is used to restrict node offsetting to 
+ * create the path so the straight body of the line from start to
+ * end should not touch the stencil
  */
 extern "C" void ZPG_PlotSegmentedPath(
     ZPGGrid* grid,
@@ -213,12 +233,10 @@ extern "C" void ZPG_PlotSegmentedPath(
     printf("Line length %.3f\n", length);
     dx /= length;
     dy /= length;
-    f32 leftNormalX = dy;// -dy;
-    f32 leftNormalY = -dx;//dx;
-    f32 rightNormalX = -dy;//dy;
-    f32 rightNormalY = dx;//-dx;
-    //printf("Left normal %.3f/%.3f\n", leftNormalX, leftNormalY);
-    //printf("Right normal %.3f/%.3f\n", rightNormalX, rightNormalY);
+    f32 leftNormalX = dy;
+    f32 leftNormalY = -dx;
+    f32 rightNormalX = -dy;
+    f32 rightNormalY = dx;
     f32 step = 1.f / (f32)numLines;
     f32 lerp = step; // start one step in as first is already set
     for (i32 i = 1; i < numLines; ++i)
@@ -233,24 +251,19 @@ extern "C" void ZPG_PlotSegmentedPath(
         ZPGPoint leftRayEnd;
         leftRayEnd.x = (i32)((f32)p->x + (leftNormalX * pointOffsetMax));
         leftRayEnd.y = (i32)((f32)p->y + (leftNormalY * pointOffsetMax));
-        i32 bHit = ZPG_RaycastForHitOrGridEdge(
+        ZPG_RaycastForHitOrGridEdge(
             stencil, p->x, p->y, leftRayEnd.x, leftRayEnd.y, &leftRayEnd);
-        //ZPG_SetCellTypeAt(
-        //    grid, leftRayEnd.x, leftRayEnd.y, ZPG2_CELL_TYPE_PATH, NULL);
+        
         ZPGPoint rightRayEnd;
         rightRayEnd.x = (i32)((f32)p->x + (rightNormalX * pointOffsetMax));
         rightRayEnd.y = (i32)((f32)p->y + (rightNormalY * pointOffsetMax));
-        bHit = ZPG_RaycastForHitOrGridEdge(
+        ZPG_RaycastForHitOrGridEdge(
             stencil, p->x, p->y, rightRayEnd.x, rightRayEnd.y, &rightRayEnd);
-        //ZPG_SetCellTypeAt(
-        //    grid, rightRayEnd.x, rightRayEnd.y, ZPG2_CELL_TYPE_VOID, NULL);
+        
         f32 r1 = ZPG_Randf32(*seed);
-        *seed += 1;
-        f32 r2 = ZPG_Randf32(*seed);
         *seed += 1;
         i32 offsetDX = (i32)((f32)(rightRayEnd.x - leftRayEnd.x) * r1);
         i32 offsetDY = (i32)((f32)(rightRayEnd.y - leftRayEnd.y) * r1);
-        //printf("Offsets %d/%d r1 %.3f\n", offsetDX, offsetDY, r1);
         p->x = leftRayEnd.x + offsetDX;
         p->y = leftRayEnd.y + offsetDY;
     }

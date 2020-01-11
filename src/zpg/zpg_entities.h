@@ -21,19 +21,19 @@ static i32 ZPG_Grid_CountCardinalNeighbours(
     i32 count = 0;
     ZPGCell* cell;
     // left
-    cell = ZPG_GetCellAt(grid, x - 1, y);
+    cell = ZPG_Grid_GetCellAt(grid, x - 1, y);
     if (cell && cell->tile.type == type)
     { results[count] = { -1, 0 }; count++; }
     // right
-    cell = ZPG_GetCellAt(grid, x + 1, y);
+    cell = ZPG_Grid_GetCellAt(grid, x + 1, y);
     if (cell && cell->tile.type == type)
     { results[count] = { 1, 0 }; count++; }
     // up
-    cell = ZPG_GetCellAt(grid, x, y - 1);
+    cell = ZPG_Grid_GetCellAt(grid, x, y - 1);
     if (cell && cell->tile.type == type)
     { results[count] = { 0, -1 }; count++; }
     // down
-    cell = ZPG_GetCellAt(grid, x, y + 1);
+    cell = ZPG_Grid_GetCellAt(grid, x, y + 1);
     if (cell && cell->tile.type == type)
     { results[count] = { 0, 1 }; count++; }
     return count;
@@ -42,9 +42,9 @@ static i32 ZPG_Grid_CountCardinalNeighbours(
 static void ZPG_AnalyseCellForEntities(
     ZPGGrid* grid, i32 x, i32 y, ZPGGrid* result, i32* seed)
 {
-    ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
     if (cell == NULL) { printf("Grid cell is null\n"); return; }
-    ZPGCell* target = ZPG_GetCellAt(result, x, y);
+    ZPGCell* target = ZPG_Grid_GetCellAt(result, x, y);
     if (target == NULL) { printf("target cell is null\n"); return; }
     ZPGCellTypeDef* def = ZPG_GetType(cell->tile.type);
     if (def == NULL) { printf("Cell type def is null\n");return;}
@@ -53,24 +53,24 @@ static void ZPG_AnalyseCellForEntities(
     switch (def->geometryType)
     {
         case ZPG_GEOMETRY_TYPE_PATH:
-        count = ZPG_CountNeighourRingsAt(grid, x, y);
-        ZPG_SetCellTypeAt(result, x, y, (u8)count, NULL);
+        count = ZPG_Grid_CountNeighourRingsAt(grid, x, y);
+        ZPG_Grid_SetCellTypeAt(result, x, y, (u8)count, NULL);
         break;
         case ZPG_GEOMETRY_TYPE_SOLID:
         // TODO: How to record for later usage that this cell
         // could be used for a hidden monster trap
         count = ZPG_Grid_CountCardinalNeighbours(
             grid, x, y, ZPG_GEOMETRY_TYPE_PATH, dirs);
-        ZPG_SetCellTypeAt(result, x, y, (u8)count, NULL);
+        ZPG_Grid_SetCellTypeAt(result, x, y, (u8)count, NULL);
         /*for (i32 i = 0; i < count; ++i)
         {
-            ZPG_SetCellTypeAt(result, x, y, (u8)count, NULL);
+            ZPG_Grid_SetCellTypeAt(result, x, y, (u8)count, NULL);
         }*/
         break;
         case ZPG_GEOMETRY_TYPE_VOID:
         count = ZPG_Grid_CountCardinalNeighbours(
             grid, x, y, ZPG_GEOMETRY_TYPE_PATH, dirs);
-        ZPG_SetCellTypeAt(result, x, y, (u8)count + 4, NULL);
+        ZPG_Grid_SetCellTypeAt(result, x, y, (u8)count + 4, NULL);
         
         break;
         default: return;
@@ -196,7 +196,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
     */
     /////////////////////////////////////////////
     // calculate capacity for working arrays
-    ZPG_CalcStats(grid);
+    ZPG_Grid_CalcStats(grid);
     if (grid->stats.numObjectiveTags < 2)
     {
         printf("Abort: Only %d ents! Must have at least TWO for objectives\n",
@@ -221,7 +221,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
     {
         for (i32 x = 0;  x < grid->width; ++x)
         {
-            ZPGCellTypeDef* def = ZPG_GetCellTypeAt(grid, x, y);
+            ZPGCellTypeDef* def = ZPG_Grid_GetCellTypeAt(grid, x, y);
             if (def->category == ZPG_CELL_CATEGORY_OBJECTIVE)
             {
                 objectives[numObjectives].pos.x = x;
@@ -245,7 +245,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
         for (i32 i = numObjectives - 1; i >= 0; --i)
         {
             ZPGEntityInfo* info = &objectives[i];
-            ZPG_SetCellTypeAt(grid, info->pos.x, info->pos.y, info->entType, NULL);
+            ZPG_Grid_SetCellTypeAt(grid, info->pos.x, info->pos.y, info->entType, NULL);
         }
     }
     // Randomly place enemies on remaining tiles:
@@ -260,7 +260,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
 
         // place enemy
         ZPGPoint* p = &emptyTiles[randomIndex];
-        ZPG_SetCellTypeAt(grid, p->x, p->y, ZPG2_CELL_TYPE_ENEMY, NULL);
+        ZPG_Grid_SetCellTypeAt(grid, p->x, p->y, ZPG2_CELL_TYPE_ENEMY, NULL);
         tilesCursor--;
 
         // Reduce usable tiles

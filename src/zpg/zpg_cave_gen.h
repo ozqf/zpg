@@ -18,12 +18,12 @@ extern "C" void ZPG_SeedCaves(ZPGGrid* grid, ZPGGrid* stencil, u8 paintType, i32
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
-            if (ZPG_CheckStencilOccupied(stencil, x, y) == YES) { continue; }
+            if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES) { continue; }
             f32 rand = ZPG_Randf32(*seed);
             *seed += 1;
             if (rand < seedChance)
             {
-                ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
+                ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
                 cell->tile.type = paintType;
             }
         }
@@ -40,9 +40,9 @@ extern "C" void ZPG_IterateCaves(ZPGGrid* grid, ZPGGrid* stencil, u8 solidType, 
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
-            if (ZPG_CheckStencilOccupied(stencil, x, y) == YES) { continue; }
-            ZPGCell* cell = ZPG_GetCellAt(grid, x, y);
-            i32 neighbours = ZPG_CountNeighboursAt(grid, x, y);
+            if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES) { continue; }
+            ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+            i32 neighbours = ZPG_Grid_CountNeighboursAt(grid, x, y);
             if (neighbours < ZPG_CAVE_GEN_CRITICAL_NEIGHBOUR_COUNT)
             {
                 if (cell->tile.type == solidType)

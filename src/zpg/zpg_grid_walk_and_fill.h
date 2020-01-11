@@ -34,7 +34,7 @@ static i32 ZPG_FindAvailableDirectionsAt(
         ZPGPoint dir = g_directions[i];
         query.x = x + dir.x;
         query.y = y + dir.y;
-        if (ZPG_CheckStencilOccupied(stencil, query.x, query.y) == YES)
+        if (ZPG_Grid_CheckStencilOccupied(stencil, query.x, query.y) == YES)
         {
             continue;
         }
@@ -89,14 +89,14 @@ static ZPGPoint ZPG_RandomWalkAndFill(
     while(bPainting == YES)
     {
         // paint current
-        if (ZPG_SetCellTypeGeometry(
+        if (ZPG_Grid_SetCellTypeGeometry(
             grid, cursor.x, cursor.y, def->value, def->geometryType) == YES)
         {
             tilesPlaced++;
         }
 
         // record visit if stencil tag is clear.
-        if (ZPG_GetTagAt(stencil, cursor.x, cursor.y) == 0)
+        if (ZPG_Grid_GetTagAt(stencil, cursor.x, cursor.y) == 0)
         {
             info.points[info.numPoints] = cursor;
             info.numPoints++;
@@ -117,7 +117,7 @@ static ZPGPoint ZPG_RandomWalkAndFill(
         nextPos.x = cursor.x + dir.x;
         nextPos.y = cursor.y + dir.y;
         //printf("Walk trying %d/%d\n", nextPos.x, nextPos.y);
-        if (ZPG_CheckStencilOccupied(stencil, nextPos.x, nextPos.y) == YES)
+        if (ZPG_Grid_CheckStencilOccupied(stencil, nextPos.x, nextPos.y) == YES)
         {
             ///////////////////////////////////////////////
             // Blocked
@@ -148,7 +148,7 @@ static ZPGPoint ZPG_RandomWalkAndFill(
                 {
                     // Pop tile from points record.
                     // tag tile so it cannot be re-added to the point list
-                    ZPG_GetCellAt(stencil, searchPos.x, searchPos.y)->tile.tag = 1;
+                    ZPG_Grid_GetCellAt(stencil, searchPos.x, searchPos.y)->tile.tag = 1;
                     info.numPoints--;
                 }
                 else

@@ -104,6 +104,7 @@ struct ZPGWalkCfg
     i32 tilesToPlace;
     u8 typeToPaint;
     u8 bPlaceObjectives;
+    u8 bStepThrough;
 };
 
 #pragma pack(push, 1)

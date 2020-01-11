@@ -26,7 +26,7 @@ static ZPGPoint ZPG_RandomGridCellOutsideStencil(ZPGGrid* grid, ZPGGrid* stencil
         *seed++;
         p.y = (i32)ZPG_Randf32InRange(*seed, 0, (f32)grid->height - 1);
         *seed++;
-        if (ZPG_CheckStencilOccupied(stencil, p.x, p.y) == NO)
+        if (ZPG_Grid_CheckStencilOccupied(stencil, p.x, p.y) == NO)
         {
             bBadPos = NO;
         }
@@ -152,7 +152,7 @@ static i32 ZPG_MarchOutOfStencil(
     ZPGPoint nextPos = {};
     while (bMoving)
     {
-        i32 bOverStencil = ZPG_CheckStencilOccupied(stencil, cursor->x, cursor->y);
+        i32 bOverStencil = ZPG_Grid_CheckStencilOccupied(stencil, cursor->x, cursor->y);
         if (bOverStencil == YES)
         {
             nextPos.x = cursor->x + dir->x;
@@ -161,9 +161,9 @@ static i32 ZPG_MarchOutOfStencil(
             *cursor = nextPos;
             if (bPaintPath == YES)
             {
-                ZPG_SetCellTypeGeometry(
+                ZPG_Grid_SetCellTypeGeometry(
                     grid, cursor->x, cursor->y, typeToPaint, def->geometryType);
-                //ZPG_SetCellTypeAt(grid, cursor->x, cursor->y, typeToPaint);
+                //ZPG_Grid_SetCellTypeAt(grid, cursor->x, cursor->y, typeToPaint);
             }
         }
         else
@@ -247,10 +247,10 @@ static i32 ZPG_RaycastForHitOrGridEdge(
     for (; n > 0; --n)
     {
         i32 bHit = NO;
-        ZPGCell* cell = ZPG_GetCellAt(grid, plotX, plotY);
+        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, plotX, plotY);
         if (cell != NULL)
         {
-            //ZPG_SetCellTypeAt(grid, plotX, plotY, ZPG2_CELL_TYPE_VOID, NULL);
+            //ZPG_Grid_SetCellTypeAt(grid, plotX, plotY, ZPG2_CELL_TYPE_VOID, NULL);
             if (cell->tile.type != 0)
             {
                 bHit = YES;

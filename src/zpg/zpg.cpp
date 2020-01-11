@@ -74,12 +74,12 @@ extern "C" ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)
 {
     ZPGGrid* stencil = ZPG_CreateGrid(width, height);
-    ZPG_SetCellTypeAll(stencil, ZPG_STENCIL_TYPE_EMPTY);
+    ZPG_Grid_SetCellTypeAll(stencil, ZPG_STENCIL_TYPE_EMPTY);
     ZPG_DrawOuterBorder(stencil, NULL, ZPG_STENCIL_TYPE_FULL);
     return stencil;
 }
 
-extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
+extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
 {
     printf("Generate: Drunken walk - start from centre\n");
     const i32 width = 64;
@@ -96,8 +96,8 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
     cfg.bigRoomChance = 0.01f;
     cfg.tilesToPlace = 40;//256;
 
-    i32 numRivers = 4;
-    i32 numPaths = 4;
+    i32 numRivers = 0;
+    i32 numPaths = 1;
     printf("Drawing %d rivers and %d paths\n", numRivers, numPaths);
     const i32 numDirections = 4;
     ZPGPoint directions[] =
@@ -111,6 +111,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
     cfg.typeToPaint = ZPG2_CELL_TYPE_VOID;
     cfg.bPlaceObjectives = NO;
     cfg.bigRoomChance = 0.3f;
+    cfg.bStepThrough = NO;
     //cfg.bigRoomChance = 0;
     //cfg.charToPlace = '.';
     for (i32 i = 0; i < numRivers; ++i)
@@ -118,7 +119,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
         //ZPGPoint dir = ZPG_RandomFourWayDir(&cfg.seed);
         ZPGPoint dir = directions[i % numDirections];
         ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
-        if (bStepThrough)
+        if (bbStepThrough)
         {
             printf("River %d:\n", i);
             ZPG_Grid_PrintValues(grid, YES);
@@ -135,7 +136,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bStepThrough)
         //ZPGPoint dir = ZPG_RandomFourWayDir(&cfg.seed);
         ZPGPoint dir = directions[i % numDirections];
         ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
-        if (bStepThrough)
+        if (bbStepThrough)
         {
             printf("Path %d:\n", i);
             ZPG_Grid_PrintValues(grid, YES);
@@ -252,7 +253,7 @@ extern "C" ZPGGrid* ZPG_TestCaveGen(i32 seed)
 {
     // Create canvas
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
-    ZPG_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
+    ZPG_Grid_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
     // Stencil grid - blocks writing of tiles
     ZPGGrid* stencil = ZPG_CreateBorderStencil(72, 32);
     //ZPGGrid* stencil = ZPG_CreateGrid(72, 32);
@@ -260,7 +261,7 @@ extern "C" ZPGGrid* ZPG_TestCaveGen(i32 seed)
     //ZPG_DrawOuterBorder(stencil, ZPG_CELL_TYPE_FLOOR);
 
     ZPG_SeedCaves(grid, stencil, ZPG2_CELL_TYPE_PATH, &seed);
-    ZPG_PrintChars(grid);
+    ZPG_Grid_PrintChars(grid, '\0', 0, 0);
     i32 numIterations = 2;
     for (i32 i = 0; i < numIterations; ++i)
     {
@@ -274,7 +275,7 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
     const i32 width = 72;
     const i32 height = 32;
     ZPGGrid* grid = ZPG_CreateGrid(width, height);
-    ZPG_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
+    ZPG_Grid_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
 
     i32 seed = 0;
     const i32 numPoints = 6;
@@ -324,11 +325,11 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
         cfg.startY = points[i].y;
         ZPGPoint end = ZPG_GridRandomWalk(grid, NULL, NULL, &cfg, dir);
         // place objective at the end
-        ZPG_SetCellTypeAt(grid, end.x, end.y, ZPG2_CELL_TYPE_KEY, NULL);
+        ZPG_Grid_SetCellTypeAt(grid, end.x, end.y, ZPG2_CELL_TYPE_KEY, NULL);
     }
     // play start/end points
-    ZPG_SetCellTypeAt(grid, points[0].x, points[0].y, ZPG2_CELL_TYPE_START, NULL);
-    ZPG_SetCellTypeAt(grid, points[numPoints - 1].x, points[numPoints - 1].y, ZPG2_CELL_TYPE_END, NULL);
+    ZPG_Grid_SetCellTypeAt(grid, points[0].x, points[0].y, ZPG2_CELL_TYPE_START, NULL);
+    ZPG_Grid_SetCellTypeAt(grid, points[numPoints - 1].x, points[numPoints - 1].y, ZPG2_CELL_TYPE_END, NULL);
 
     // cleanup
     free(points);
@@ -338,7 +339,7 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
 extern "C" ZPGGrid* ZPG_TestDrawLines()
 {
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
-    ZPG_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
+    ZPG_Grid_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
 
     ZPG_DrawOuterBorder(grid, NULL, ZPG2_CELL_TYPE_PATH);
     ZPG_DrawLine(grid, NULL, 0, 0, 71, 31, ZPG2_CELL_TYPE_PATH, 0);
@@ -348,10 +349,10 @@ extern "C" ZPGGrid* ZPG_TestDrawLines()
 static ZPGGrid* ZPG_TestPerlin(i32 seed)
 {
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
-    ZPG_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
+    ZPG_Grid_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
 
     ZPGGrid* stencil = ZPG_CreateGrid(72, 32);
-    ZPG_SetCellTypeAll(stencil, ZPG2_CELL_TYPE_PATH);
+    ZPG_Grid_SetCellTypeAll(stencil, ZPG2_CELL_TYPE_PATH);
     ZPG_DrawOuterBorder(stencil, NULL, ZPG2_CELL_TYPE_WALL);
     ZPG_DrawPerlinGrid(grid, stencil, &seed);
     ZPG_IterateCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_PATH);
@@ -436,13 +437,20 @@ extern "C" void ZPG_Init()
 extern "C" void ZPG_RunPreset(i32 mode)
 {
     ZPG_Init();
+    i32 srandSeed;
     // Seed randomly
-    srand((i32)time(NULL));
+    srandSeed = (i32)time(NULL);
     // seed specifically
-    //srand(0);
+    srandSeed = 1578760952;
+    srand(srandSeed);
 
     i32 seed = 0;
-    printf("-- ZE PROC GEN TESTS --\n");
+    char titleBorder[81];
+    titleBorder[80] = '\0';
+    memset(titleBorder, '-', 80);
+    printf("%s\n", titleBorder);
+    printf("-- ZPG RUN PRESET mode %d seed %d--\n", mode, srandSeed);
+    printf("%s\n", titleBorder);
     ZPGGrid* grid = NULL;
     i32 bPlaceEntities = YES;
     i32 bPrintValues = NO;
@@ -486,7 +494,7 @@ extern "C" void ZPG_RunPreset(i32 mode)
         if (bPlaceEntities)
         {
             printf("-- Grid Loaded --\ncreating entities\n");
-            ZPG_CountNeighourRings(grid);
+            ZPG_Grid_CountNeighourRings(grid);
             ZPGGrid* entData = ZPG_CreateGrid(grid->width, grid->height);
             ZPG_AnalyseForEntities(grid, entData, &seed);
             ZPG_PlaceScatteredEntities(grid, &seed);
@@ -498,7 +506,7 @@ extern "C" void ZPG_RunPreset(i32 mode)
         }
         if (bPrintChars)
         {
-            ZPG_PrintChars(grid);    
+            ZPG_Grid_PrintChars(grid, '\0', 0, 0);    
         }
         if (bSaveGridAsci)
         {

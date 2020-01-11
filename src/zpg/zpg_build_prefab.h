@@ -65,7 +65,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
         ZPGPoint start = prefab->exits[i];
         ZPGPoint dir = prefab->exitDirs[i];
         //printf("Grid before random walk:\n");
-        //ZPG_PrintChars(grid);
+        //ZPG_Grid_PrintChars(grid, '\0', 0, 0);
         printf("Walk starting at %d/%d\n", start.x, start.y);
         ZPGWalkCfg cfg = {};
         cfg.bigRoomChance = 0.02f;
@@ -74,7 +74,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
         cfg.tilesToPlace = 80;
         cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
         ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);
-        ZPG_SetCellTypeAt(grid, end.x, end.y, ZPG2_CELL_TYPE_KEY, NULL);
+        ZPG_Grid_SetCellTypeAt(grid, end.x, end.y, ZPG2_CELL_TYPE_KEY, NULL);
     }
     #endif
 
@@ -122,7 +122,7 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     #if 0
     for (i32 i = 0; i < numNodes; ++i)
     {
-        ZPG_SetCellTypeAt(grid, nodes[i].x, nodes[i].y, ZPG2_CELL_TYPE_ENEMY, NULL);
+        ZPG_Grid_SetCellTypeAt(grid, nodes[i].x, nodes[i].y, ZPG2_CELL_TYPE_ENEMY, NULL);
     }
     #endif
     return grid;

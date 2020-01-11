@@ -22,7 +22,7 @@ static void ZPG_FillRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPai
     {
         for (i32 x = min.x; x <= max.x; ++x)
         {
-            ZPG_GetCellAt(grid, x, y)->tile.type = typeToPaint;
+            ZPG_Grid_GetCellAt(grid, x, y)->tile.type = typeToPaint;
         }
     }
 }
@@ -40,8 +40,8 @@ static i32 ZPG_FillRectWithStencil(
     {
         for (i32 x = min.x; x <= max.x; ++x)
         {
-            if (ZPG_CheckStencilOccupied(stencil, x, y ) == YES) { continue; }
-            ZPG_GetCellAt(grid, x, y)->tile.type = typeToPaint;
+            if (ZPG_Grid_CheckStencilOccupied(stencil, x, y ) == YES) { continue; }
+            ZPG_Grid_GetCellAt(grid, x, y)->tile.type = typeToPaint;
             numCellsPainted++;
         }
     }
@@ -114,7 +114,7 @@ static void ZPG_DrawLine(
 
     for (; n > 0; --n)
     {
-        ZPGCell* cell = ZPG_GetCellAt(grid, plotX, plotY);
+        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, plotX, plotY);
         if (cell != NULL)
         {
             f32 r = ZPG_Randf32(0);
@@ -205,16 +205,16 @@ static void ZPG_BlitGrids(ZPGGrid* target, ZPGGrid* source, ZPGPoint topLeft, ZP
     {
         for(i32 sourceX = 0; sourceX < source->width; ++sourceX)
         {
-            ZPGCell* sourceCell = ZPG_GetCellAt(source, sourceX, sourceY);
+            ZPGCell* sourceCell = ZPG_Grid_GetCellAt(source, sourceX, sourceY);
             ZPGPoint tarPos;
             tarPos.x = topLeft.x + sourceX;
             tarPos.y = topLeft.y + sourceY;
-            ZPGCell* targetCell = ZPG_GetCellAt(target, tarPos.x, tarPos.y);
+            ZPGCell* targetCell = ZPG_Grid_GetCellAt(target, tarPos.x, tarPos.y);
             if (sourceCell == NULL || targetCell == NULL) { continue; }
             *targetCell = *sourceCell;
             if (writeStencil != NULL)
             {
-                ZPG_SetCellTypeAt(
+                ZPG_Grid_SetCellTypeAt(
                     writeStencil, tarPos.x, tarPos.y, ZPG_STENCIL_TYPE_FULL, NULL);
             }
         }
