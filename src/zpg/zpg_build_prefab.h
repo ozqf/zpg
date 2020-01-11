@@ -119,12 +119,18 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     f32 bigRoomChance = 0;//0.2f;
     ZPG_PlotSegmentedPath(grid, stencil, &seed, nodes, numNodes, lineNodeOffsetMax);
     ZPG_DrawSegmentedLine(grid, stencil, nodes, numNodes, ZPG2_CELL_TYPE_PATH, bigRoomChance);
-    #if 0
-    for (i32 i = 0; i < numNodes; ++i)
+    // random walk from nodes along the line
+    ZPGWalkCfg cfg = {};
+    cfg.tilesToPlace = 20;
+    cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
+    cfg.bigRoomChance = 0.1f;
+    for (i32 i = 1; i < (numNodes - 1); ++i)
     {
-        ZPG_Grid_SetCellTypeAt(grid, nodes[i].x, nodes[i].y, ZPG2_CELL_TYPE_ENEMY, NULL);
+        ZPGPoint dir = ZPG_RandomFourWayDir(&seed);
+        cfg.startX = nodes[i].x;
+        cfg.startY = nodes[i].y;
+        ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);
     }
-    #endif
     return grid;
 }
 

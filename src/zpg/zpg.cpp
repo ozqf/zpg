@@ -96,8 +96,8 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
     cfg.bigRoomChance = 0.01f;
     cfg.tilesToPlace = 40;//256;
 
-    i32 numRivers = 0;
-    i32 numPaths = 1;
+    i32 numRivers = 4;
+    i32 numPaths = 4;
     printf("Drawing %d rivers and %d paths\n", numRivers, numPaths);
     const i32 numDirections = 4;
     ZPGPoint directions[] =

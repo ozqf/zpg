@@ -199,7 +199,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
     ZPG_Grid_CalcStats(grid);
     if (grid->stats.numObjectiveTags < 2)
     {
-        printf("Abort: Only %d ents! Must have at least TWO for objectives\n",
+        printf("Abort: Got %d ents - must have at least TWO for objectives\n",
             grid->stats.numObjectiveTags);
         return 1;
     }

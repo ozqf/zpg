@@ -77,7 +77,7 @@ static ZPGPoint ZPG_RandomWalkAndFill(
     info.numPoints = 0;
     info.maxPoints = grid->width * grid->height;
     i32 pointArrayBytes = sizeof(ZPGPoint) * info.maxPoints;
-    printf("%d bytes for points array\n", pointArrayBytes);
+    //printf("%d bytes for points array\n", pointArrayBytes);
     info.points = (ZPGPoint*)malloc(pointArrayBytes);
     i32 tilesPlaced = 0;
     i32 bPainting = YES;
