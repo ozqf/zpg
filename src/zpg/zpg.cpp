@@ -441,7 +441,7 @@ extern "C" void ZPG_RunPreset(i32 mode)
     // Seed randomly
     srandSeed = (i32)time(NULL);
     // seed specifically
-    srandSeed = 1578760952;
+    //srandSeed = 1578760952;
     srand(srandSeed);
 
     i32 seed = 0;

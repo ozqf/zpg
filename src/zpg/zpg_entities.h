@@ -249,7 +249,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
         }
     }
     // Randomly place enemies on remaining tiles:
-    i32 numEnemies = numEmptyTiles / 4;
+    i32 numEnemies = numEmptyTiles / 8;
     i32 tilesCursor = numEmptyTiles;
     while ((numEnemies > 0))
     {

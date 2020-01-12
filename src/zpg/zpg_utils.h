@@ -16,15 +16,15 @@ static i32 ZPG_RandomDir(i32* seed)
     else { return 1; }
 }
 
-static ZPGPoint ZPG_RandomGridCellOutsideStencil(ZPGGrid* grid, ZPGGrid* stencil, i32* seed)
+static ZPGPoint ZPG_RandomGridCellOutsideStencil(ZPGGrid* stencil, i32* seed)
 {
     i32 bBadPos = YES;
     ZPGPoint p = {};
     while (bBadPos)
     {
-        p.x = (i32)ZPG_Randf32InRange(*seed, 0, (f32)grid->width - 1);
+        p.x = (i32)ZPG_Randf32InRange(*seed, 0, (f32)stencil->width - 1);
         *seed++;
-        p.y = (i32)ZPG_Randf32InRange(*seed, 0, (f32)grid->height - 1);
+        p.y = (i32)ZPG_Randf32InRange(*seed, 0, (f32)stencil->height - 1);
         *seed++;
         if (ZPG_Grid_CheckStencilOccupied(stencil, p.x, p.y) == NO)
         {

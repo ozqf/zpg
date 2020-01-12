@@ -29,7 +29,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
     for (i32 i = 0; i < numRivers; ++i)
     {
         printf("Draw river %d\n", i + 1);
-        ZPGPoint riverStart = ZPG_RandomGridCellOutsideStencil(grid, stencil, &seed);
+        ZPGPoint riverStart = ZPG_RandomGridCellOutsideStencil(stencil, &seed);
         ZPGWalkCfg river = {};
         river.bigRoomChance = 0.02f;
         river.startX = riverStart.x;
@@ -84,53 +84,83 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
 
 static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
 {
-    i32 w = 96, h = 24;
+    i32 w = 96, h = 64;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
+    i32 prefabIndex = 1;
 
-    ZPGGridPrefab* leftRoom = ZPG_GetPrefabByIndex(2);
+    ZPGGridPrefab* leftRoom = ZPG_GetPrefabByIndex(prefabIndex);
     i32 roomYMax = h - leftRoom->grid->height;
     ZPGPoint blitPosA = {};
     blitPosA.x = 0;
     blitPosA.y = (i32)ZPG_RandArrIndex(roomYMax, seed++);
     ZPG_BlitGrids(grid, leftRoom->grid, blitPosA, stencil);
-    ZPGPoint leftExit = leftRoom->exits[0];
-    ZPGPoint leftExitDir = leftRoom->exitDirs[0];
+    // TODO Choose exit - assuming prefab has one (and only one)
+    i32 leftExitIndex = ZPG_Prefab_GetExitIndexByDirection(leftRoom, { 1, 0 });
+    if (leftExitIndex == -1) { printf("ABORT: No right exit on prefab\n"); return grid; }
+    ZPGPoint leftExit = leftRoom->exits[leftExitIndex];
+    ZPGPoint leftExitDir = leftRoom->exitDirs[leftExitIndex];
 
-    ZPGGridPrefab* rightRoom = ZPG_GetPrefabByIndex(3);
+    ZPGGridPrefab* rightRoom = ZPG_GetPrefabByIndex(prefabIndex);
     roomYMax = h - rightRoom->grid->height;
     ZPGPoint blitPosB = {};
     blitPosB.x = grid->width - rightRoom->grid->width;
     blitPosB.y = (i32)ZPG_RandArrIndex(roomYMax, seed++);
     ZPG_BlitGrids(grid, rightRoom->grid, blitPosB, stencil);
-    ZPGPoint rightExit = rightRoom->exits[0];
-    ZPGPoint rightExitDir = rightRoom->exitDirs[0];
+    // TODO Choose exit - assuming prefab has one (and only one)
+    i32 rightExitIndex = ZPG_Prefab_GetExitIndexByDirection(rightRoom, { -1, 0 });
+    if (rightExitIndex == -1) { printf("ABORT: No right exit on prefab\n"); return grid; }
+    ZPGPoint rightExit = rightRoom->exits[rightExitIndex];
+    ZPGPoint rightExitDir = rightRoom->exitDirs[rightExitIndex];
+
+    // draw rivers
+    ZPGWalkCfg cfg = {};
+    cfg.tilesToPlace = 30;
+    cfg.bigRoomChance = 0.1f;
+    #if 1
+    cfg.typeToPaint = ZPG2_CELL_TYPE_VOID;
+    for (i32 i = 1; i < 16; ++i)
+    {
+        ZPGPoint dir = ZPG_RandomFourWayDir(&seed);
+        ZPGPoint pos = ZPG_RandomGridCellOutsideStencil(stencil, &seed);
+        cfg.startX = pos.x;
+        cfg.startY = pos.y;
+        ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);
+    }
+    #endif
 
     printf("Draw line segment between prefabs - Stencil state:\n");
     ZPG_Grid_PrintValues(stencil, YES);
     const i32 numNodes = 12;
+    i32 numNodesMinusOne = numNodes - 1;
     ZPGPoint nodes[numNodes];
     nodes[0].x = (leftExit.x + blitPosA.x) + leftExitDir.x;
     nodes[0].y = (leftExit.y + blitPosA.y) + leftExitDir.y;
-    nodes[numNodes - 1].x = (rightExit.x + blitPosB.x) + rightExitDir.x;
-    nodes[numNodes - 1].y = (rightExit.y + blitPosB.y) + rightExitDir.y;
+    nodes[numNodesMinusOne].x = (rightExit.x + blitPosB.x) + rightExitDir.x;
+    nodes[numNodesMinusOne].y = (rightExit.y + blitPosB.y) + rightExitDir.y;
     //ZPG_PlotSegmentedPath_Old(grid, &seed, nodes, numNodes, NO, YES);
     f32 lineNodeOffsetMax = 10;//1.5f;
     f32 bigRoomChance = 0;//0.2f;
     ZPG_PlotSegmentedPath(grid, stencil, &seed, nodes, numNodes, lineNodeOffsetMax);
     ZPG_DrawSegmentedLine(grid, stencil, nodes, numNodes, ZPG2_CELL_TYPE_PATH, bigRoomChance);
     // random walk from nodes along the line
-    ZPGWalkCfg cfg = {};
-    cfg.tilesToPlace = 20;
+    #if 1
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
-    cfg.bigRoomChance = 0.1f;
-    for (i32 i = 1; i < (numNodes - 1); ++i)
+    cfg.tilesToPlace = 40;
+    cfg.bigRoomChance = 0.2f;
+    cfg.bPlaceObjectives = YES;
+    for (i32 i = 1; i < numNodesMinusOne; ++i)
     {
         ZPGPoint dir = ZPG_RandomFourWayDir(&seed);
         cfg.startX = nodes[i].x;
         cfg.startY = nodes[i].y;
-        ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);
+        ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);
+        if (cfg.bPlaceObjectives == YES)
+        {
+            ZPG_Grid_SetCellTypeAt(grid, end.x, end.y, ZPG2_CELL_TYPE_KEY, NULL);
+        }
     }
+    #endif
     return grid;
 }
 

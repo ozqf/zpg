@@ -323,6 +323,10 @@ static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 marke
             {
                 c = 219;
             }
+            if (c == '.')
+            {
+                c = 176;
+            }
             if (marker != '\0' && x == markerX && y == markerY)
             {
                 c = marker;

@@ -55,28 +55,50 @@ static const char* embed_16x16_grid_right_start =
 "###            ###\r\n"
 "##################";
 
-static const char* embed_dead_simple = 
+static const char* embed_dead_simple_wide_exits = 
+"##########  ##########\r\n"
+"#                    #\r\n"
+"#                    #\r\n"
+"#                    #\r\n"
+"#                    #\r\n"
+"#     ##      ##     #\r\n"
+"#     ##      ##     #\r\n"
+"#                    #\r\n"
+"#                    #\r\n"
 "                      \r\n"
-" #################### \r\n"
-" #################### \r\n"
-" #################### \r\n"
-" #################### \r\n"
-" #####  ######  ##### \r\n"
-" #####  ######  ##### \r\n"
-" #################### \r\n"
-" #################### \r\n"
-"######################\r\n"
-"######################\r\n"
-" #################### \r\n"
-" #################### \r\n"
-" #####  ######  ##### \r\n"
-" #####  ######  ##### \r\n"
-" #################### \r\n"
-" #################### \r\n"
-" #################### \r\n"
-" #################### \r\n"
-" #################### \r\n"
-"          ##          ";
+"                      \r\n"
+"#                    #\r\n"
+"#                    #\r\n"
+"#     ##      ##     #\r\n"
+"#     ##      ##     #\r\n"
+"#                    #\r\n"
+"#                    #\r\n"
+"#                    #\r\n"
+"#                    #\r\n"
+"#                    #\r\n"
+"##########  ##########";
+
+static const char* embed_dead_simple_2 = 
+"######### ########\r\n"
+"########   #######\r\n"
+"##              ##\r\n"
+"##              ##\r\n"
+"##              ##\r\n"
+"##   ##     ##  ##\r\n"
+"##   ##     ##  ##\r\n"
+"##              ##\r\n"
+"#                #\r\n"
+"                  \r\n"
+"#                #\r\n"
+"##              ##\r\n"
+"##   ##     ##  ##\r\n"
+"##   ##     ##  ##\r\n"
+"##              ##\r\n"
+"##              ##\r\n"
+"##              ##\r\n"
+"########   #######\r\n"
+"######### ########";
+
 static void ZPG_ScanRowForPrefabExits(
     ZPGGridPrefab* prefab,
     ZPGPoint dir,
@@ -132,6 +154,18 @@ static ZPGGridPrefab* ZPG_GetPrefabByIndex(i32 i)
    return &g_prefabs[i];
 }
 
+static i32 ZPG_Prefab_GetExitIndexByDirection(ZPGGridPrefab* prefab, ZPGPoint dir)
+{
+    for (i32 i = 0; i < prefab->numExits; ++i)
+    {
+        if (prefab->exitDirs[i].x == dir.x && prefab->exitDirs[i].y == dir.y)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 static void ZPG_SetupPrefab(ZPGGridPrefab* prefab, char* label, const char* asci)
 {
     prefab->label = label;
@@ -143,10 +177,16 @@ static void ZPG_SetupPrefab(ZPGGridPrefab* prefab, char* label, const char* asci
 static void ZPG_InitPrefabs()
 {
     if (g_numPrefabs > 0) { return; }
-    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++], "embed_16x16_grid_pillars", embed_16x16_grid_pillars);
-    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++], "embed_8x8_grid_pillars", embed_8x8_grid_pillars);
-    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++], "embed_16x16_grid_left_start", embed_16x16_grid_left_start);
-    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++], "embed_16x16_grid_right_start", embed_16x16_grid_right_start);
+    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
+        "embed_16x16_grid_pillars", embed_16x16_grid_pillars);
+    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
+        "embed_dead_simple_2", embed_dead_simple_2);
+    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
+        "embed_8x8_grid_pillars", embed_8x8_grid_pillars);
+    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
+        "embed_16x16_grid_left_start", embed_16x16_grid_left_start);
+    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
+        "embed_16x16_grid_right_start", embed_16x16_grid_right_start);
     
     #if 0
     ZPGGridPrefab* prefab = NULL;
