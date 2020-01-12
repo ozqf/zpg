@@ -353,6 +353,7 @@ extern "C" ZPGGrid* ZPG_TestDrawLines()
 static ZPGGrid* ZPG_TestPerlin(i32 seed)
 {
     i32 w = 96, h = 48;
+    //i32 w = 8, h = 8;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPG_Grid_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
 
@@ -365,8 +366,10 @@ static ZPGGrid* ZPG_TestPerlin(i32 seed)
     {
         ZPG_IterateCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_PATH);
     }
-    ZPG_Grid_PrintValues(grid, YES);
+    //ZPG_Grid_PrintValues(grid, YES);
     ZPG_Grid_PerlinToGreyscale(grid, NULL);
+    //ZPG_Grid_PrintTexture(grid, YES);
+    ZPG_Grid_PrintTexture(grid, NO);
     return grid;
 }
 
@@ -454,7 +457,7 @@ void ZPG_RunPreset(i32 mode)
     srandSeed = (i32)time(NULL);
     // seed specifically
     //srandSeed = 1578760952;
-    srand(srandSeed);
+    //srand(srandSeed);
 
     i32 seed = 0;
     char titleBorder[81];
@@ -483,7 +486,7 @@ void ZPG_RunPreset(i32 mode)
         case 6: grid = ZPG_TestDrunkenWalk_WithinSpace(seed); break;
         case 7:
             grid = ZPG_TestPerlin(seed);
-            bPrintValues = YES;
+            bPrintValues = NO;
             bPrintChars = NO;
             bPlaceEntities = NO;
             break;

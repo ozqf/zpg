@@ -341,14 +341,42 @@ static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 marke
 /**
  * Goes by red channel only. assumes 0-255 range
  */
-static void ZPG_Grid_PrintTexture(ZPGGrid* grid)
+static void ZPG_Grid_PrintTexture(ZPGGrid* grid, i32 bColourIndices)
 {
     const u8 white = 219;
     const u8 lightGrey = 178;
     const u8 middleGrey = 177;
     const u8 darkGrey = 176;
     const u8 black = ' ';
-    u8 chars[] = { white, lightGrey, middleGrey, darkGrey, black };
+    u8 colours[] = { white, lightGrey, middleGrey, darkGrey, black };
+    //u8 colours[] = { white, lightGrey, middleGrey, darkGrey };
+    //u8 colours[] = { lightGrey, middleGrey, darkGrey, white };
+    u8 numColours = sizeof(colours);
+
+    u8 divider = (u8)(255 / (numColours - 1));
+    //divider -= 1;
+    printf("Sizeof(colours): %d divider %d\n", sizeof(colours), divider);
+    printf("------ Grayscale texture %d/%d ------\n", grid->width, grid->height);
+    for (i32 y = 0; y < grid->height; ++y)
+    {
+        for (i32 x = 0; x < grid->width; ++x)
+        {
+            u8 r = grid->cells[x + (y * grid->width)].colour.r;
+            u8 outputIndex = (u8)((f32)((f32)r / (f32)divider) + 0.5f);
+            u8 ch = colours[outputIndex];
+            //if (outputIndex >= numColours) { outputIndex = numColours - 1; }
+            if (bColourIndices == YES)
+            {
+                printf("%3d: (%3d),", r, outputIndex);
+            }
+            else
+            {
+                printf("%c", ch);
+            }
+        }
+        printf("\n");
+    }
+    printf("----------------------\n");
 }
 
 /**

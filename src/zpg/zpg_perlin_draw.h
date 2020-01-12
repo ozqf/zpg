@@ -59,7 +59,8 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed, i32 b
     f32 freq = 2;
     i32 depth = 2;
     // override
-    scaleFactor = 10;
+    scaleFactor = 5;
+    noiseScaler = 15;//25;
     for (i32 pixelY = 0; pixelY < grid->height; ++pixelY)
     {
         for (i32 pixelX = 0; pixelX < grid->width; ++pixelX)
@@ -70,7 +71,7 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed, i32 b
             //u32 pixelIndex = pixelX + (pixelY * grid->width); \
             //ColourU32* pixel = (ColourU32*)&tex->ptrMemory[pixelIndex];
             f32 result;
-            #if 1 // streaks
+            #if 0 // streaks
             f32 sampleY = (y * scaleFactor) + seedY;
             f32 sampleX = (x * scaleFactor) + seedX;
             f32 noise = ZPG_Perlin_Get2d(sampleX, sampleY, freq, depth);
@@ -79,12 +80,13 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed, i32 b
             //f32 a = cosf((x + noise / 2) * noiseScaler);
             result = (1 + a)  / 2;
             #endif
-            #if 0 // double streaks
-            f32 scaleFactorX = 5;
-            f32 scaleFactorY = 5;
-            f32 noiseScalerX = 25;//50;
-            f32 noiseScalerY = 25;//50;
-            f32 noise = Perlin_Get2d((f32)(x * scaleFactorX), (f32)(y * scaleFactorY), 2, 2);
+            #if 1 // double streaks
+
+            f32 scaleFactorX = scaleFactor;
+            f32 scaleFactorY = scaleFactor;
+            f32 noiseScalerX = noiseScaler;
+            f32 noiseScalerY = noiseScaler;
+            f32 noise = ZPG_Perlin_Get2d((f32)(x * scaleFactorX), (f32)(y * scaleFactorY), 2, 2);
             f32 a = sinf((x + noise / 2) * noiseScalerX);
             a = (1 + a)  / 2;
             f32 b = sinf((y + noise / 2) * noiseScalerY);
