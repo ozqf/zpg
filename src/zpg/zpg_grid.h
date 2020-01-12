@@ -339,6 +339,19 @@ static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 marke
 }
 
 /**
+ * Goes by red channel only. assumes 0-255 range
+ */
+static void ZPG_Grid_PrintTexture(ZPGGrid* grid)
+{
+    const u8 white = 219;
+    const u8 lightGrey = 178;
+    const u8 middleGrey = 177;
+    const u8 darkGrey = 176;
+    const u8 black = ' ';
+    u8 chars[] = { white, lightGrey, middleGrey, darkGrey, black };
+}
+
+/**
  * If no destination is supplied, write the new values back into the source;
  */
 static void ZPG_Grid_PerlinToGreyscale(ZPGGrid* source, ZPGGrid* destination)
