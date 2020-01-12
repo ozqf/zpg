@@ -355,8 +355,14 @@ static ZPGGrid* ZPG_TestPerlin(i32 seed)
     ZPGGrid* stencil = ZPG_CreateGrid(w, h);
     ZPG_Grid_SetCellTypeAll(stencil, ZPG2_CELL_TYPE_PATH);
     ZPG_DrawOuterBorder(stencil, NULL, ZPG2_CELL_TYPE_WALL);
-    ZPG_DrawPerlinGrid(grid, stencil, &seed);
-    ZPG_IterateCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_PATH);
+    ZPG_DrawPerlinGrid(grid, stencil, &seed, NO);
+    i32 caveIterations = 0;
+    for (i32 i = 0; i < caveIterations; ++i)
+    {
+        ZPG_IterateCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_PATH);
+    }
+    ZPG_Grid_PrintValues(grid, YES);
+    ZPG_Grid_PerlinToGreyscale(grid, NULL);
     return grid;
 }
 
@@ -457,6 +463,7 @@ extern "C" void ZPG_RunPreset(i32 mode)
     i32 bPrintValues = NO;
     i32 bPrintChars = YES;
     i32 bSaveGridAsci = YES;
+    i32 bSaveGridPNG = YES;
     
     //////////////////////////////////////////
     // Generate geometry
@@ -469,7 +476,12 @@ extern "C" void ZPG_RunPreset(i32 mode)
         case 4: grid = ZPG_TestDrawOffsetLines(); break;
         case 5: grid = ZPG_TestDrawLines(); break;
         case 6: grid = ZPG_TestDrunkenWalk_WithinSpace(seed); break;
-        case 7: grid = ZPG_TestPerlin(seed);  break;
+        case 7:
+            grid = ZPG_TestPerlin(seed);
+            bPrintValues = YES;
+            bPrintChars = NO;
+            bPlaceEntities = NO;
+            break;
         case 8:
             grid = ZPG_TestLoadAsciFile();
             bSaveGridAsci = NO;
@@ -512,6 +524,10 @@ extern "C" void ZPG_RunPreset(i32 mode)
         if (bSaveGridAsci)
         {
             ZPG_WriteGridAsAsci(grid, "test_grid.txt");
+        }
+        if (bSaveGridPNG)
+        {
+            ZPG_WriteGridAsPNG(grid, "test_grid.png");
         }
         free(grid);
     }

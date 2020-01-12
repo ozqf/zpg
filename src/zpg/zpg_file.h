@@ -25,10 +25,9 @@ extern "C" void ZPG_WriteGridAsAsci(ZPGGrid* grid, char* fileName)
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
+            // Note: Keep to regular non-extended asci here to avoid
+            // garbling output in some text editors
             fprintf(f, "%c", ZPG_Grid_GetCellTypeAt(grid, x, y)->asciChar);
-            //ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-            //char c = ZPG_CellToChar(cell);
-            //fprintf(f, "%c", c);
         }
         if (y < (grid->height - 1)) { fprintf(f, "\n"); }
     }
@@ -38,7 +37,12 @@ extern "C" void ZPG_WriteGridAsAsci(ZPGGrid* grid, char* fileName)
 
 static void ZPG_WriteGridAsPNG(ZPGGrid* grid, char* fileName)
 {
-
+    i32 err = stbi_write_png(fileName, grid->width, grid->height, 4, grid->cells, 0);
+    if (err == 0)
+    {
+        return;
+    }
+    printf("ERROR %d saving to png \"%s\"\n", err, fileName);
 }
 
 static void ZPG_MeasureGridInString(u8* str, ZPGPoint* size, i32 numChars)
@@ -134,7 +138,7 @@ static ZPGGrid* ZPG_ReadGridAsci(u8* chars, i32 len)
     for (i32 y = 0; y < grid->height; ++y)
     {
         // Read line
-        i32 readIndex = y * (size.x + 2); // +2 for new line
+        i32 readIndex = y * (size.x + 2); // +2 for new line \r\n
         i32 endIndex = readIndex + size.x;
         i32 x = 0;
         for (i32 i = readIndex; i < endIndex; ++i, ++x)
@@ -144,46 +148,6 @@ static ZPGGrid* ZPG_ReadGridAsci(u8* chars, i32 len)
             ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
             *cell = {};
             cell->tile.type = def->value;
-            #if 0
-            u8 type = ZPG_CELL_TYPE_NONE;
-            u8 entType = ZPG_ENTITY_TYPE_NONE;
-            u8 tag = ZPG_CELL_TAG_NONE;
-            switch (c)
-            {
-                case ' ':
-                    type = ZPG_CELL_TYPE_FLOOR;
-                    break;
-                case '.':
-                    type = ZPG_CELL_TYPE_WATER;
-                    break;
-                case 'x':
-                    type = ZPG_CELL_TYPE_FLOOR;
-                    entType = ZPG_ENTITY_TYPE_ENEMY;
-                    break;
-                case 'k':
-                    type = ZPG_CELL_TYPE_FLOOR;
-                    entType = ZPG_ENTITY_TYPE_OBJECTIVE;
-                    break;
-                case 's':
-                    type = ZPG_CELL_TYPE_FLOOR;
-                    entType = ZPG_ENTITY_TYPE_START;
-                    break;
-                case 'e':
-                    type = ZPG_CELL_TYPE_FLOOR;
-                    entType = ZPG_ENTITY_TYPE_END;
-                    break;
-                case '#':
-                case (u8)ZPG_CHAR_CODE_SOLID_BLOCK:
-                    type = ZPG_CELL_TYPE_WALL;
-                    break;
-                default:
-                    printf("Unknown char %c (%d)\n", c, c);
-                    break;
-            }
-            cell->tile.type = type;
-            cell->tile.entType = entType;
-            cell->tile.tag = tag;
-            #endif
         }
     }
 

@@ -44,7 +44,7 @@ static void ZPG_ApplyPerlinThreshold(
     }
 }
 
-static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed)
+static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed, i32 bApplyThreshold)
 {
     #if 0
     f32 seedX = ZPG_Randf32(*seed) * 99999.f;
@@ -92,6 +92,7 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed)
             result = (a * 0.5f) + (b * 0.5f);
             #endif
             #if 0 // double sine
+
             f32 a = (1 + sinf(x * 50 )) / 2;
             f32 b = (1 + sinf(y * 50 )) / 2;
             result = (a * 0.5f) + (b * 0.5f);
@@ -107,16 +108,20 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed)
             ZPG_Grid_GetCellAt(grid, pixelX, pixelY)->tile.type = (u8)(255.f * result);
         }
     }
-    #if 0
-    //u8 types[] = { ZPG_CELL_TYPE_WALL, ZPG_CELL_TYPE_FLOOR, ZPG_CELL_TYPE_WATER };
-    //u8 types[] = { ZPG_CELL_TYPE_WATER, ZPG_CELL_TYPE_FLOOR, ZPG_CELL_TYPE_WALL };
-    u8 types[] = { ZPG_CELL_TYPE_WALL, ZPG_CELL_TYPE_WATER, ZPG_CELL_TYPE_FLOOR };
-    ZPG_ApplyPerlinThreshold(grid, stencil, types, 3);
-    #endif
-    #if 1
-    u8 types[] = { ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_PATH };
-    ZPG_ApplyPerlinThreshold(grid, stencil, types, 2);
-    #endif
+    if (bApplyThreshold == YES)
+    {
+        #if 0
+        //u8 types[] = { ZPG_CELL_TYPE_WALL, ZPG_CELL_TYPE_FLOOR, ZPG_CELL_TYPE_WATER };
+        //u8 types[] = { ZPG_CELL_TYPE_WATER, ZPG_CELL_TYPE_FLOOR, ZPG_CELL_TYPE_WALL };
+        u8 types[] = { ZPG_CELL_TYPE_WALL, ZPG_CELL_TYPE_WATER, ZPG_CELL_TYPE_FLOOR };
+        ZPG_ApplyPerlinThreshold(grid, stencil, types, 3);
+        #endif
+        #if 1
+        u8 types[] = { ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_PATH };
+        ZPG_ApplyPerlinThreshold(grid, stencil, types, 2);
+        #endif
+    }
+    
 }
 
 #endif // ZPG_PERLIN_DRAW_H

@@ -338,4 +338,33 @@ static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 marke
     printf("------------------\n");
 }
 
+/**
+ * If no destination is supplied, write the new values back into the source;
+ */
+static void ZPG_Grid_PerlinToGreyscale(ZPGGrid* source, ZPGGrid* destination)
+{
+    if (source == NULL) { return; }
+    u8 highest = 0;
+    i32 numPixels = source->width * source->height;
+    for (i32 i = 0; i < numPixels; ++i)
+    {
+        u8 cellValue = source->cells[i].tile.type;
+        if (cellValue > highest)
+        {
+            highest = cellValue;
+        }
+    }
+    if (destination == NULL) { destination = source; }
+    u8 step = 255 / highest;
+    printf("Grayscale conversion highest value %d - step %d\n", highest, step);
+    for (i32 i = 0; i < numPixels; ++i)
+    {
+        u8 cellValue = source->cells[i].tile.type;
+        source->cells[i].colour.r = cellValue * step;
+        source->cells[i].colour.g = 0;//cellValue * step;
+        source->cells[i].colour.b = 0;//cellValue * step;
+        source->cells[i].colour.a = 255;
+    }
+}
+
 #endif // ZPG_GRID_H
