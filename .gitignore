@@ -5,6 +5,7 @@
 # Temp directories for compile
 /bin/
 /buildwintemp/
+/buildwin_dlltemp/
 
 # IDEs
 *.db
