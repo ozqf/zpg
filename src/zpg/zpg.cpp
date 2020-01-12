@@ -348,10 +348,11 @@ extern "C" ZPGGrid* ZPG_TestDrawLines()
 
 static ZPGGrid* ZPG_TestPerlin(i32 seed)
 {
-    ZPGGrid* grid = ZPG_CreateGrid(72, 32);
+    i32 w = 96, h = 48;
+    ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPG_Grid_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
 
-    ZPGGrid* stencil = ZPG_CreateGrid(72, 32);
+    ZPGGrid* stencil = ZPG_CreateGrid(w, h);
     ZPG_Grid_SetCellTypeAll(stencil, ZPG2_CELL_TYPE_PATH);
     ZPG_DrawOuterBorder(stencil, NULL, ZPG2_CELL_TYPE_WALL);
     ZPG_DrawPerlinGrid(grid, stencil, &seed);

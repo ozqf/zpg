@@ -3,6 +3,13 @@
 
 #include "../zpg.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "../../lib/stb_image.h"
+
+#define STB_IMAGE_WRITE_STATIC
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../../lib/stb_image_write.h"
+
 extern "C" void ZPG_WriteGridAsAsci(ZPGGrid* grid, char* fileName)
 {
     if (grid == NULL) { return; }
@@ -27,6 +34,11 @@ extern "C" void ZPG_WriteGridAsAsci(ZPGGrid* grid, char* fileName)
     }
     printf("Wrote %d chars to %s\n", ftell(f), fileName);
     fclose(f);
+}
+
+static void ZPG_WriteGridAsPNG(ZPGGrid* grid, char* fileName)
+{
+
 }
 
 static void ZPG_MeasureGridInString(u8* str, ZPGPoint* size, i32 numChars)
