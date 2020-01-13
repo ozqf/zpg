@@ -120,7 +120,9 @@ static void ZPG_DrawPerlinGrid(
                 (f32)(y * scaleFactorY),
                 cfg->freq,
                 cfg->depth);
+            noise = -noise;
             f32 a = sinf((x + noise / 2) * noiseScalerX);
+            a = -a;
             a = (1 + a)  / 2;
             f32 b = sinf((y + noise / 2) * noiseScalerY);
             b = (1 + b) / 2;
@@ -134,8 +136,9 @@ static void ZPG_DrawPerlinGrid(
             #endif
             #if 0 // scatter
             // Scale factor of 1 means little variation. 10 for a lot
-            f32 cfg->scaleFactor = 4;//10;//5;
-            f32 noise = Perlin_Get2d((f32)(x * cfg->scaleFactor), (f32)(y * cfg->scaleFactor), 2, 2);
+            //cfg->scaleFactor = 4;//10;//5;
+            f32 noise = ZPG_Perlin_Get2d(
+                (f32)(x * cfg->scaleFactor), (f32)(y * cfg->scaleFactor), cfg->freq, cfg->depth);
             //result = noise > 0.5f ? 1.0f : 0.0f; // make result binary
             result = noise;
             #endif

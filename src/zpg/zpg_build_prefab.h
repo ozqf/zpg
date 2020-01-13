@@ -84,7 +84,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
 
 static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
 {
-    i32 w = 96, h = 64;
+    i32 w = 96, h = 48;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
     i32 prefabIndex = 1;
@@ -147,7 +147,7 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     #if 1
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
     cfg.tilesToPlace = 40;
-    cfg.bigRoomChance = 0.2f;
+    cfg.bigRoomChance = 0.3f;
     cfg.bPlaceObjectives = YES;
     for (i32 i = 1; i < numNodesMinusOne; ++i)
     {

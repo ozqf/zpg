@@ -362,7 +362,7 @@ static ZPGGrid* ZPG_TestPerlin(i32 seed)
     ZPG_Grid_SetCellTypeAll(stencil, ZPG2_CELL_TYPE_PATH);
     ZPG_DrawOuterBorder(stencil, NULL, ZPG2_CELL_TYPE_WALL);
     zpg_perlin_cfg cfg = {};
-    ZPG_Perlin_SetCfgPreset(&cfg, 1);
+    ZPG_Perlin_SetCfgPreset(&cfg, 7);
     ZPG_DrawPerlinGrid(grid, stencil, &seed, &cfg);
     i32 caveIterations = 0;
     for (i32 i = 0; i < caveIterations; ++i)
@@ -463,7 +463,7 @@ void ZPG_RunPreset(i32 mode)
     srandSeed = (i32)time(NULL);
     // seed specifically
     //srandSeed = 1578760952;
-    //srand(srandSeed);
+    srand(srandSeed);
 
     i32 seed = 0;
     char titleBorder[81];
@@ -477,7 +477,7 @@ void ZPG_RunPreset(i32 mode)
     i32 bPrintValues = NO;
     i32 bPrintChars = YES;
     i32 bSaveGridAsci = YES;
-    i32 bSaveGridPNG = YES;
+    i32 bSaveGridPNG = NO;
     
     //////////////////////////////////////////
     // Generate geometry
@@ -495,6 +495,8 @@ void ZPG_RunPreset(i32 mode)
             bPrintValues = NO;
             bPrintChars = NO;
             bPlaceEntities = NO;
+            bSaveGridAsci = NO;
+            bSaveGridPNG = YES;
             break;
         case 8:
             grid = ZPG_TestLoadAsciFile();

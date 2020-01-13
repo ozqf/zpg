@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 		//ZPG_RunPreset(9); // embed
 		//ZPG_RunPreset(10); // blit
 		//ZPG_RunPreset(11); // walk fnrom prefab
-		//ZPG_RunPreset(12); // walk between prefabs via line segment
+		ZPG_RunPreset(12); // walk between prefabs via line segment
 		#if 0
 		//printf("Press ENTER to exit\n");
 		//getchar();
