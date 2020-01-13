@@ -348,7 +348,8 @@ static void ZPG_Grid_PrintTexture(ZPGGrid* grid, i32 bColourIndices)
     const u8 middleGrey = 177;
     const u8 darkGrey = 176;
     const u8 black = ' ';
-    u8 colours[] = { white, lightGrey, middleGrey, darkGrey, black };
+    //u8 colours[] = { white, lightGrey, middleGrey, darkGrey, black };
+    u8 colours[] = { black, darkGrey, middleGrey, lightGrey, white };
     //u8 colours[] = { white, lightGrey, middleGrey, darkGrey };
     //u8 colours[] = { lightGrey, middleGrey, darkGrey, white };
     u8 numColours = sizeof(colours);

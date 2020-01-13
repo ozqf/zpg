@@ -4,6 +4,16 @@
 #include "../zpg.h"
 #include "zpg_perlin.h"
 
+struct zpg_perlin_cfg
+{
+    f32 scaleFactor; // eg 5 - 50
+    f32 noiseScalar; // eg 5 - 50
+    f32 freq;
+    i32 depth;
+    // icky way to force noise to discreet values
+    i32 bApplyThreshold;
+};
+
 // Convert a byte (0...255) to float (0...1)
 static f32 ZPG_ByteToFloat(u8 byte)
 {
@@ -14,6 +24,30 @@ static f32 ZPG_ByteToFloat(u8 byte)
 static u8 ZPG_FloatToByte(f32 f)
 {
     return (u8)(255 * f);
+}
+
+static void ZPG_Perlin_SetCfg(zpg_perlin_cfg* cfg,
+    f32 scale, f32 noise, f32 freq, i32 depth)
+{
+    cfg->scaleFactor = scale;
+    cfg->noiseScalar = noise;
+    cfg->freq = freq;
+    cfg->depth = depth;
+}
+
+static void ZPG_Perlin_SetCfgPreset(zpg_perlin_cfg* cfg,
+    i32 preset)
+{
+    switch (preset)
+    {
+        case 1: ZPG_Perlin_SetCfg(cfg, 15, 25, 2, 20); break;
+        case 6: ZPG_Perlin_SetCfg(cfg, 10, 25, 2, 2); break;
+        case 7: ZPG_Perlin_SetCfg(cfg, 50, 25, 2, 2); break;
+        case 8: ZPG_Perlin_SetCfg(cfg, 50, 5, 10, 2); break;
+        case 9: ZPG_Perlin_SetCfg(cfg, 50, 5, 2, 2); break;
+        case 10: ZPG_Perlin_SetCfg(cfg, 50, 15, 10, 2); break;
+        default: ZPG_Perlin_SetCfg(cfg, 5, 50, 2, 2); break;
+    }
 }
 
 /**
@@ -28,7 +62,8 @@ static void ZPG_ApplyPerlinThreshold(
     {
         for (i32 pixelX = 0; pixelX < grid->width; ++pixelX)
         {
-            if (ZPG_Grid_CheckStencilOccupied(stencil, pixelX, pixelY)) { continue; }
+            if (ZPG_Grid_CheckStencilOccupied(stencil, pixelX, pixelY))
+            { continue; }
             ZPGCell* cell = ZPG_Grid_GetCellAt(grid, pixelX, pixelY);
             f32 value = ZPG_ByteToFloat(cell->tile.type);
             #if 0
@@ -44,7 +79,8 @@ static void ZPG_ApplyPerlinThreshold(
     }
 }
 
-static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed, i32 bApplyThreshold)
+static void ZPG_DrawPerlinGrid(
+    ZPGGrid* grid, ZPGGrid* stencil, i32* seed, zpg_perlin_cfg* cfg)
 {
     f32 seedX = 0, seedY = 0;
     #if 1
@@ -53,16 +89,6 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed, i32 b
     seedY = ZPG_Randf32(*seed) * 99999.f;
     *seed += 1;
     #endif
-    // defaults:
-    f32 scaleFactor = 5;
-    f32 noiseScaler = 50;
-    f32 freq = 2;
-    i32 depth = 2;
-    // override
-    scaleFactor = 5;
-    // low noise scale (eg 5) creates small number of larger blotchy features
-    // high (50) very noisy, lots of smaller features
-    noiseScaler = 10;//15;//25;
     for (i32 pixelY = 0; pixelY < grid->height; ++pixelY)
     {
         for (i32 pixelX = 0; pixelX < grid->width; ++pixelX)
@@ -73,22 +99,27 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed, i32 b
             //u32 pixelIndex = pixelX + (pixelY * grid->width); \
             //ColourU32* pixel = (ColourU32*)&tex->ptrMemory[pixelIndex];
             f32 result;
-            #if 1 // vertical streaks
-            f32 sampleY = (y * scaleFactor) + seedY;
-            f32 sampleX = (x * scaleFactor) + seedX;
-            f32 noise = ZPG_Perlin_Get2d(sampleX, sampleY, freq, depth);
-            //f32 noise = Perlin_Get2d((f32)(x * scaleFactor), (f32)(y * scaleFactor), 2, 2);
-            f32 a = sinf((x + noise / 2) * noiseScaler);
-            //f32 a = cosf((x + noise / 2) * noiseScaler);
+            #if 0 // vertical streaks
+
+            f32 sampleY = (y * cfg->scaleFactor) + seedY;
+            f32 sampleX = (x * cfg->scaleFactor) + seedX;
+            f32 noise = ZPG_Perlin_Get2d(sampleX, sampleY, cfg->freq, depth);
+            //f32 noise = Perlin_Get2d((f32)(x * cfg->scaleFactor), (f32)(y * cfg->scaleFactor), 2, 2);
+            f32 a = sinf((x + noise / 2) * cfg->noiseScalar);
+            //f32 a = cosf((x + noise / 2) * cfg->noiseScalar);
             result = (1 + a)  / 2;
             #endif
-            #if 0 // double streaks - top left to bottom right
+            #if 1 // double streaks - top left to bottom right
 
-            f32 scaleFactorX = scaleFactor;
-            f32 scaleFactorY = scaleFactor;
-            f32 noiseScalerX = noiseScaler;
-            f32 noiseScalerY = noiseScaler;
-            f32 noise = ZPG_Perlin_Get2d((f32)(x * scaleFactorX), (f32)(y * scaleFactorY), 2, 2);
+            f32 scaleFactorX = cfg->scaleFactor;
+            f32 scaleFactorY = cfg->scaleFactor;
+            f32 noiseScalerX = cfg->noiseScalar;
+            f32 noiseScalerY = cfg->noiseScalar;
+            f32 noise = ZPG_Perlin_Get2d(
+                (f32)(x * scaleFactorX),
+                (f32)(y * scaleFactorY),
+                cfg->freq,
+                cfg->depth);
             f32 a = sinf((x + noise / 2) * noiseScalerX);
             a = (1 + a)  / 2;
             f32 b = sinf((y + noise / 2) * noiseScalerY);
@@ -103,8 +134,8 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed, i32 b
             #endif
             #if 0 // scatter
             // Scale factor of 1 means little variation. 10 for a lot
-            f32 scaleFactor = 4;//10;//5;
-            f32 noise = Perlin_Get2d((f32)(x * scaleFactor), (f32)(y * scaleFactor), 2, 2);
+            f32 cfg->scaleFactor = 4;//10;//5;
+            f32 noise = Perlin_Get2d((f32)(x * cfg->scaleFactor), (f32)(y * cfg->scaleFactor), 2, 2);
             //result = noise > 0.5f ? 1.0f : 0.0f; // make result binary
             result = noise;
             #endif
@@ -112,7 +143,7 @@ static void ZPG_DrawPerlinGrid(ZPGGrid* grid, ZPGGrid* stencil, i32* seed, i32 b
             ZPG_Grid_GetCellAt(grid, pixelX, pixelY)->tile.type = (u8)(255.f * result);
         }
     }
-    if (bApplyThreshold == YES)
+    if (cfg->bApplyThreshold == YES)
     {
         #if 0
         //u8 types[] = { ZPG_CELL_TYPE_WALL, ZPG_CELL_TYPE_FLOOR, ZPG_CELL_TYPE_WATER };

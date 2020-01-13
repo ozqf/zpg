@@ -38,7 +38,7 @@ extern "C" void ZPG_WriteGridAsAsci(ZPGGrid* grid, char* fileName)
 static void ZPG_WriteGridAsPNG(ZPGGrid* grid, char* fileName)
 {
     i32 err = stbi_write_png(fileName, grid->width, grid->height, 4, grid->cells, 0);
-    if (err == 0)
+    if (err == 1)
     {
         return;
     }
