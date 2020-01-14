@@ -1,6 +1,12 @@
 #ifndef ZPG_H
 #define ZPG_H
 
+#ifdef ZPG_WINDOWS_DLL 
+#define ZPG_EXPORT extern "C" __declspec(dllexport)
+#else
+#define ZPG_EXPORT extern "C"
+#endif
+
 #include "zpg/zpg_common.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -162,17 +168,17 @@ struct ZPGGridPrefab
 //////////////////////////////////////////
 // Functions
 //////////////////////////////////////////
-extern "C" void ZPG_Init();
-extern "C" void ZPG_RunPreset(i32 mode);
+ZPG_EXPORT void ZPG_Init();
+ZPG_EXPORT void ZPG_RunPreset(i32 mode);
 /**
  * allocates a new grid.
  * The struct and cells array are in a single allocation
  * so to free the grid, just call free(gridPointer)
  */
-extern "C" ZPGGrid *ZPG_CreateGrid(i32 width, i32 height);
+ZPG_EXPORT ZPGGrid *ZPG_CreateGrid(i32 width, i32 height);
 
-extern "C" ZPGPoint ZPG_GridRandomWalk(ZPGGrid* grid, ZPGGrid* stencil, ZPGRect* borderRect, ZPGWalkCfg* cfg, ZPGPoint dir);
-extern "C" void ZPG_SeedCaves(ZPGGrid *grid, ZPGGrid *stencil, u8 paintType, i32 *seed);
-extern "C" void ZPG_IterateCaves(ZPGGrid *grid, ZPGGrid *stencil, u8 solidType, u8 emptyType);
+ZPG_EXPORT ZPGPoint ZPG_GridRandomWalk(ZPGGrid* grid, ZPGGrid* stencil, ZPGRect* borderRect, ZPGWalkCfg* cfg, ZPGPoint dir);
+ZPG_EXPORT void ZPG_SeedCaves(ZPGGrid *grid, ZPGGrid *stencil, u8 paintType, i32 *seed);
+ZPG_EXPORT void ZPG_IterateCaves(ZPGGrid *grid, ZPGGrid *stencil, u8 solidType, u8 emptyType);
 
 #endif // ZPG_H
