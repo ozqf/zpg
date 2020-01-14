@@ -1,8 +1,8 @@
 #ifndef ZE_PROC_GEN_CPP
 #define ZE_PROC_GEN_CPP
 
-#ifndef ZPG_DLL_EXPORT
-#define ZPG_DLL_EXPORT
+#ifndef ZPG_EXPORT
+#define ZPG_EXPORT extern "C"
 #endif
 
 #include "../zpg.h"
@@ -454,7 +454,7 @@ extern "C" void ZPG_Init()
     ZPG_InitPrefabs();
 }
 
-extern "C" ZPG_DLL_EXPORT
+extern "C" ZPG_EXPORT
 void ZPG_RunPreset(i32 mode)
 {
     ZPG_Init();
