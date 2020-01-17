@@ -1,7 +1,7 @@
 #ifndef ZPG_UTILS_H
 #define ZPG_UTILS_H
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 
 static f32 ZPG_Distance(ZPGPoint a, ZPGPoint b)
 {

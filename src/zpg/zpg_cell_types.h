@@ -1,7 +1,7 @@
 #ifndef ZPG_CELL_TYPES_H
 #define ZPG_CELL_TYPES_H
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 #include "zpg.cpp"
 
 static u8 ZPG_GetGeometryType(u8 cellTypeIndex)

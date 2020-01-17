@@ -3,7 +3,7 @@
 /*
 TODO: How did this get so messy again...?
 */
-#include "../zpg.h"
+#include "zpg_internal.h"
 #include <time.h>
 #include <math.h>
 

@@ -5,7 +5,7 @@
 //#define ZPG_EXPORT extern "C"
 //#endif
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 
 /*
 Research material
@@ -54,6 +54,8 @@ static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);
 // Combined generation functions
 #include "zpg_build_prefab.h"
 #include "zpg_build_perlin.h"
+
+#include "zpg_script.h"
 
 extern "C" ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
 {

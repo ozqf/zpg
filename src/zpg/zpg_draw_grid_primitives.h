@@ -1,7 +1,7 @@
 #ifndef ZPG_DRAW_GRID_PRIMITIVES_H
 #define ZPG_DRAW_GRID_PRIMITIVES_H
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 
 
 static f32 ZPG_LerpF32(f32 start, f32 end, f32 lerp)

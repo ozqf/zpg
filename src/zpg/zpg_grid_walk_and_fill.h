@@ -1,7 +1,7 @@
 #ifndef ZPG_GRID_WALK_AND_FILL
 #define ZPG_GRID_WALK_AND_FILL
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 
 struct ZPGWalkInfo
 {

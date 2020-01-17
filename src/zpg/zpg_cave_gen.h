@@ -1,7 +1,7 @@
 #ifndef ZPG_CAVE_GEN_H
 #define ZPG_CAVE_GEN_H
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 
 // 0.45 very little paint chance. 0.55 much higher.
 #define ZPG_CAVE_GEN_DEFAULT_CELL_SEED_CHANCE 0.55f

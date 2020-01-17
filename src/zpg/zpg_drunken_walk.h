@@ -1,7 +1,7 @@
 #ifndef ZPG_RANDOM_WALK_H
 #define ZPG_RANDOM_WALK_H
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 
 static void ZPG_RandomStepWithinRect(
     ZPGGrid* grid, ZPGRect rect, ZPGPoint* cursor, ZPGPoint* dir, i32* seed)

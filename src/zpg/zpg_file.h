@@ -1,7 +1,7 @@
 #ifndef ZPG_FILE_H
 #define ZPG_FILE_H
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../lib/stb_image.h"

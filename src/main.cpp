@@ -7,6 +7,7 @@ int main(int argc, char** argv)
 {
 	printf("Zealous Procedural Generator Init\n");
 	ZPG_Init();
+	#if 0
 	printf("Read %d params\n", argc);
 	if (argc == 1)
 	{
@@ -27,6 +28,33 @@ int main(int argc, char** argv)
 		//printf("Press ENTER to exit\n");
 		//getchar();
 		#endif
+	}
+	#endif
+	#if 1
+	i32 dashes = 80;
+	while (dashes-- > 0) { printf("-"); }
+	printf("\n");
+	char* path = "test_script.txt";
+	FILE* f;
+	fopen_s(&f, path, "r");
+	if (f == NULL)
+	{
+		printf("Failed to open script %s\n", path);
 		return 0;
 	}
+	fseek(f, 0, SEEK_END);
+	i32 size = ftell(f);
+	printf("Reading %d chars\n", size);
+	fseek(f, 0, SEEK_SET);
+	u8* buf = (u8*)malloc(size);
+	fread(buf, 1, size, f);
+	fclose(f);
+	printf("Read script:\n%s\n", buf);
+	ZPG_RunScript(buf, size);
+	free(buf);
+
+	#endif
+
+	printf("...Done\n");
+	return 0;
 }

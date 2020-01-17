@@ -1,7 +1,7 @@
 #ifndef ZPG_PERLIN_DRAW_H
 #define ZPG_PERLIN_DRAW_H
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 #include "zpg_perlin.h"
 
 struct zpg_perlin_cfg

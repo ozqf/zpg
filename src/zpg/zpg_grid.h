@@ -4,7 +4,7 @@
 #ifndef ZPG_GRID_H
 #define ZPG_GRID_H
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 static i32 ZPG_Grid_PositionToIndex(ZPGGrid* grid, i32 x, i32 y)
 {
     if (x < 0 || x >= grid->width) { return -1; }

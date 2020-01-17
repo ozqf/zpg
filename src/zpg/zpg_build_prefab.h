@@ -1,7 +1,7 @@
 #ifndef ZPG_BUILD_PREFAB_H
 #define ZPG_BUILD_PREFAB_H
 
-#include "../zpg.h"
+#include "zpg_internal.h"
 
 static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
 {
