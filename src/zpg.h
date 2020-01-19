@@ -168,7 +168,7 @@ struct ZPGGridPrefab
 // Functions
 //////////////////////////////////////////
 ZPG_EXPORT void ZPG_Init();
-ZPG_EXPORT void ZPG_RunPreset(i32 mode);
+ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath);
 ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength);
 /**
  * allocates a new grid.

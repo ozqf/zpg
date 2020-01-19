@@ -433,7 +433,7 @@ extern "C" void ZPG_Init()
 }
 
 extern "C" ZPG_EXPORT
-void ZPG_RunPreset(i32 mode)
+void ZPG_RunPreset(i32 mode, char* outputPath)
 {
     ZPG_Init();
     i32 srandSeed;
@@ -517,7 +517,7 @@ void ZPG_RunPreset(i32 mode)
         }
         if (bSaveGridAsci)
         {
-            ZPG_WriteGridAsAsci(grid, "test_grid.txt");
+            ZPG_WriteGridAsAsci(grid, outputPath);
         }
         if (bSaveGridPNG)
         {

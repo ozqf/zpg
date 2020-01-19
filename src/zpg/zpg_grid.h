@@ -275,7 +275,6 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
     printf("------ Grid %d/%d ------\n", grid->width, grid->height);
     for (i32 y = 0; y < grid->height; ++y)
     {
-        printf("|");
         for (i32 x = 0; x < grid->width; ++x)
         {
             ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
@@ -288,7 +287,7 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
                 printf("%d", cell->tile.type);
             }
         }
-        printf("|\n");
+        printf("\n");
     }
     printf("------------------\n");
 }
@@ -313,7 +312,6 @@ static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 marke
         grid->stats.numObjectiveTags);
     for (i32 y = 0; y < grid->height; ++y)
     {
-        printf("|");
         for (i32 x = 0; x < grid->width; ++x)
         {
             ZPGCellTypeDef* def = ZPG_Grid_GetCellTypeAt(grid, x, y);
@@ -333,7 +331,7 @@ static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 marke
             }
             printf("%c", c);
         }
-        printf("|\n");
+        printf("\n");
     }
     printf("------------------\n");
 }

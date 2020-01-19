@@ -84,7 +84,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
 
 static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
 {
-    i32 w = 96, h = 48;
+    i32 w = 96, h = 32;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
     i32 prefabIndex = 1;
