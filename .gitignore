@@ -3,7 +3,8 @@
 /.vscode/
 
 # Temp directories for compile
-/bin/
+/bin/*
+!/bin/test_script.txt
 /buildwintemp/
 /buildwin_dlltemp/
 

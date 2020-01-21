@@ -1,0 +1,6 @@
+set width 64
+set height 64
+
+grid main
+
+fill main 0
