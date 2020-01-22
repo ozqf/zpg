@@ -138,12 +138,12 @@ static void ZPG_ScanPrefabForExits(ZPGGridPrefab* prefab, i32 bPrintExits)
     ZPG_ScanRowForPrefabExits(prefab, { 1, 0 }, max.x, min.y, 0, 1, prefab->grid->height);
     if (bPrintExits == YES)
     {
-        printf("Scanned prefab %s for exits\n", prefab->label);
+        //printf("Scanned prefab %s for exits\n", prefab->label);
         for (i32 i = 0; i < prefab->numExits; ++i)
         {
             ZPGPoint p = prefab->exits[i];
             ZPGPoint dir = prefab->exitDirs[i];
-            printf("Prefab exit at %d/%d dir %d/%d\n", p.x, p.y, dir.x, dir.y);
+            //printf("Prefab exit at %d/%d dir %d/%d\n", p.x, p.y, dir.x, dir.y);
         }
     }
 }

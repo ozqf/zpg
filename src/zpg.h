@@ -10,6 +10,9 @@
 #include "zpg/zpg_common.h"
 #include <stdlib.h>
 
+#define ZPG_API_FLAG_PRINT_RESULT 1
+#define ZPG_API_FLAG_PRINT_WORKING 2
+
 //#define ZPG_CHAR_CODE_SOLID_BLOCK 35
 #define ZPG_CHAR_CODE_SOLID_BLOCK 219
 
@@ -167,9 +170,15 @@ struct ZPGGridPrefab
 //////////////////////////////////////////
 // Functions
 //////////////////////////////////////////
-ZPG_EXPORT void ZPG_Init();
-ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath);
-ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength);
+// API version is for external users to check the interface they are calling
+ZPG_EXPORT i32 ZPG_ApiVersion();
+// On error init returns a none 0 code
+// TODO: Init is called automatically anyway in run functions
+ZPG_EXPORT i32 ZPG_Init();
+// Shutdown clears any still allocated memory on error returns none 0
+ZPG_EXPORT i32 ZPG_Shutdown();
+ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags);
+ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags);
 /**
  * allocates a new grid.
  * The struct and cells array are in a single allocation

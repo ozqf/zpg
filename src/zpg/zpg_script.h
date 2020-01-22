@@ -121,7 +121,7 @@ static u8* ZPG_ScanForLineEnd(u8* buf, u8* end, i32* lineEndSize)
     return result;
 }
 
-ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength)
+ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags)
 {
     printf("Running script (%d chars)\n", textLength);
     u8* end = text + textLength;

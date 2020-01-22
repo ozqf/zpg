@@ -18,7 +18,8 @@ static void print_help(char* exeName)
 static void run_preset(char* modeStr, char* outputFileName)
 {
 	i32 mode = atoi(modeStr);
-	ZPG_RunPreset(mode, outputFileName);
+	i32 flags = ZPG_API_FLAG_PRINT_WORKING | ZPG_API_FLAG_PRINT_RESULT;
+	ZPG_RunPreset(mode, outputFileName, flags);
 
 	//ZPG_RunPreset(1); // standard drunken walk
 	//ZPG_RunPreset(2); // scattered walks
@@ -59,7 +60,8 @@ static void run_script(char* inputFileName, char* outputFileName)
 	fread(buf, 1, size, f);
 	fclose(f);
 	printf("Read script:\n%s\n", buf);
-	ZPG_RunScript(buf, size);
+	i32 flags = ZPG_API_FLAG_PRINT_WORKING | ZPG_API_FLAG_PRINT_RESULT;
+	ZPG_RunScript(buf, size, flags);
 	free(buf);
 
 }

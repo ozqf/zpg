@@ -56,8 +56,8 @@ static void ZPG_AddCellType(
     def->category = category;
     def->asciChar = asciChar;
     def->label = label;
-    printf("Init cell def %d (%s) geo %d, cat %d, display %c\n",
-        index, label, geometryType, category, asciChar);
+    //printf("Init cell def %d (%s) geo %d, cat %d, display %c\n",
+    //    index, label, geometryType, category, asciChar);
     g_numTypes++;
 }
 
@@ -81,7 +81,7 @@ static void ZPG_InitCellTypes()
         ZPG_CELL_CATEGORY_ENEMY, 'x' , "Enemy");
 
 
-    printf("%d Cell Types defined\n", g_numTypes);
+    //printf("%d Cell Types defined\n", g_numTypes);
 }
 
 #endif // ZPG_CELL_TYPES_H

@@ -1,10 +1,6 @@
 #ifndef ZE_PROC_GEN_CPP
 #define ZE_PROC_GEN_CPP
 
-//#ifndef ZPG_EXPORT
-//#define ZPG_EXPORT extern "C"
-//#endif
-
 #include "zpg_internal.h"
 
 /*
@@ -13,31 +9,11 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 
 */
 
-// Grid type is 1 byte so hard limit on types
-#define ZPG_TYPES_LIST_SIZE 255
-#define ZPG_NUM_TYPES 256
-static u8 g_bInitialised = NO;
-static ZPGCellTypeDef g_types[ZPG_TYPES_LIST_SIZE];
-static u8 g_numTypes = 0;
-
-#define ZPG_MAX_PREFABS 255
-static ZPGGridPrefab g_prefabs[ZPG_MAX_PREFABS];
-static i32 g_numPrefabs = 0;
-
-#define ZPG_NUM_DIRECTIONS 4
-#define ZPG_DIR_RIGHT 0
-#define ZPG_DIR_UP 1
-#define ZPG_DIR_LEFT 2
-#define ZPG_DIR_DOWN 3
-static ZPGPoint g_directions[ZPG_NUM_DIRECTIONS];
-
-extern "C" ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);
-static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);
-
 #include "string.h"
 #include "time.h"
 #include "zpg_random_table.h"
 #include "zpg_cell_types.h"
+#include "zpg_alloc.h"
 #include "zpg_grid.h"
 #include "zpg_utils.h"
 #include "zpg_file.h"
@@ -57,7 +33,7 @@ static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);
 
 #include "zpg_script.h"
 
-extern "C" ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
+static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
 {
     i32 totalCells = width * height;
     i32 memForGrid = (sizeof(ZPGCell) * totalCells);
@@ -90,7 +66,7 @@ static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)
     return stencil;
 }
 
-extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
+static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
 {
     printf("Generate: Drunken walk - start from centre\n");
     const i32 width = 64;
@@ -162,7 +138,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
 /**
  * Define some rects within a grid and random walk within
  */
-extern "C" ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(i32 seed)
+static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(i32 seed)
 {
     printf("Generate: Drunken walk - Within borders\n");
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
@@ -227,7 +203,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(i32 seed)
    return grid;
 }
 
-extern "C" ZPGGrid* ZPG_TestDrunkenWalk_Scattered(i32 seed)
+static ZPGGrid* ZPG_TestDrunkenWalk_Scattered(i32 seed)
 {
     printf("Generate: Drunken walk - scattered starting points\n");
     ZPGGrid* grid = ZPG_CreateGrid(64, 32);
@@ -260,7 +236,7 @@ extern "C" ZPGGrid* ZPG_TestDrunkenWalk_Scattered(i32 seed)
     return grid;
 }
 
-extern "C" ZPGGrid* ZPG_TestCaveGen(i32 seed)
+static ZPGGrid* ZPG_TestCaveGen(i32 seed)
 {
     // Create canvas
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
@@ -281,7 +257,7 @@ extern "C" ZPGGrid* ZPG_TestCaveGen(i32 seed)
     return grid;
 }
 
-extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
+static ZPGGrid* ZPG_TestDrawOffsetLines()
 {
     const i32 width = 72;
     const i32 height = 32;
@@ -347,7 +323,7 @@ extern "C" ZPGGrid* ZPG_TestDrawOffsetLines()
     return grid;
 }
 
-extern "C" ZPGGrid* ZPG_TestDrawLines()
+static ZPGGrid* ZPG_TestDrawLines()
 {
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
     ZPG_Grid_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
@@ -407,9 +383,9 @@ static ZPGGrid* ZPG_TestBlit(i32 seed)
     return grid;
 }
 
-extern "C" void ZPG_Init()
+extern "C" i32 ZPG_Init()
 {
-    if (g_bInitialised == YES) { return; }
+    if (g_bInitialised == YES) { return 0; }
     g_bInitialised = YES;
     g_directions[ZPG_DIR_RIGHT] = { 1, 0 };
     g_directions[ZPG_DIR_UP] = { 0, -1 };
@@ -430,10 +406,11 @@ extern "C" void ZPG_Init()
 
     ZPG_InitCellTypes();
     ZPG_InitPrefabs();
+    return 0;
 }
 
-extern "C" ZPG_EXPORT
-void ZPG_RunPreset(i32 mode, char* outputPath)
+ZPG_EXPORT
+void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags)
 {
     ZPG_Init();
     i32 srandSeed;
@@ -533,6 +510,16 @@ void ZPG_RunPreset(i32 mode, char* outputPath)
 
     //ZPG_TestDrunkenWalk(876987);
     //ZPG_TestDrunkenWalk(1993);
+}
+
+ZPG_EXPORT i32 ZPG_Shutdown()
+{
+    return 0;
+}
+
+ZPG_EXPORT i32 ZPG_ApiVersion()
+{
+    return 1;
 }
 
 #endif // ZE_PROC_GEN_CPP
