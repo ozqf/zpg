@@ -41,11 +41,11 @@ static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
     //printf("Make grid %d by %d (%d cells, %d bytes)\n",
     //    width, height, (width * height), memTotal);
     u8* ptr = (u8*)ZPG_Alloc(memTotal);
-    // Create grid struct
-    ZPGGrid* grid = (ZPGGrid*)ptr;
+    // Create grid struct at END of cells array
+    ZPGGrid* grid = (ZPGGrid*)(ptr + memForGrid);
     *grid = {};
     // init grid memory
-    ptr += sizeof(ZPGGrid);
+    //ptr += sizeof(ZPGGrid);
     //memset(ptr, ' ', memForGrid);
     grid->cells = (ZPGCell*)ptr;
     for (i32 i = 0; i < totalCells; ++i)
@@ -56,6 +56,11 @@ static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
     grid->width = width;
     grid->height = height;
     return grid;
+}
+
+static void ZPG_FreeGrid(ZPGGrid* grid)
+{
+    ZPG_Free(grid->cells);
 }
 
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)
@@ -132,6 +137,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
         }
     }
     //printf("Final seed value: %d\n", cfg.seed);
+    ZPG_FreeGrid(stencil);
     return grid;
 }
 
@@ -254,6 +260,7 @@ static ZPGGrid* ZPG_TestCaveGen(i32 seed)
     {
         ZPG_IterateCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_PATH);
     }
+    ZPG_FreeGrid(stencil);
     return grid;
 }
 
@@ -319,7 +326,7 @@ static ZPGGrid* ZPG_TestDrawOffsetLines()
     ZPG_Grid_SetCellTypeAt(grid, points[numPoints - 1].x, points[numPoints - 1].y, ZPG2_CELL_TYPE_END, NULL);
 
     // cleanup
-    free(points);
+    ZPG_Free(points);
     return grid;
 }
 
@@ -346,7 +353,7 @@ static ZPGGrid* ZPG_TestLoadAsciFile()
     #endif
 
     // clean up
-    free(chars);
+    ZPG_Free(chars);
     return grid;
 }
 
@@ -379,6 +386,9 @@ static ZPGGrid* ZPG_TestBlit(i32 seed)
     topLeft.x = grid->width - source->width;
     topLeft.x = grid->height - source->height;
     ZPG_BlitGrids(grid, source, topLeft, NULL);
+
+    ZPG_FreeGrid(stencil);
+    ZPG_FreeGrid(source);
 
     return grid;
 }
@@ -500,7 +510,7 @@ void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags)
         {
             ZPG_WriteGridAsPNG(grid, "test_grid.png");
         }
-        free(grid);
+        ZPG_FreeGrid(grid);
     }
     else
     {

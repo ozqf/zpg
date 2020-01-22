@@ -179,15 +179,5 @@ ZPG_EXPORT i32 ZPG_Init();
 ZPG_EXPORT i32 ZPG_Shutdown();
 ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags);
 ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags);
-/**
- * allocates a new grid.
- * The struct and cells array are in a single allocation
- * so to free the grid, just call free(gridPointer)
- */
-//ZPG_EXPORT ZPGGrid *ZPG_CreateGrid(i32 width, i32 height);
-
-//ZPG_EXPORT ZPGPoint ZPG_GridRandomWalk(ZPGGrid* grid, ZPGGrid* stencil, ZPGRect* borderRect, ZPGWalkCfg* cfg, ZPGPoint dir);
-//ZPG_EXPORT void ZPG_SeedCaves(ZPGGrid *grid, ZPGGrid *stencil, u8 paintType, i32 *seed);
-//ZPG_EXPORT void ZPG_IterateCaves(ZPGGrid *grid, ZPGGrid *stencil, u8 solidType, u8 emptyType);
 
 #endif // ZPG_H

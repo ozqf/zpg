@@ -106,7 +106,7 @@ static void ZPG_ExecuteLine(u8* cursor, u8* end, i32 lineNumber)
     i32 numTokens = 0;
     ZPG_script_tokenise(lineBuf, lineLength, tokens, &numTokens, maxTokens);
 
-    free(lineBuf);
+    ZPG_Free(lineBuf);
 }
 
 static u8* ZPG_ScanForLineEnd(u8* buf, u8* end, i32* lineEndSize)

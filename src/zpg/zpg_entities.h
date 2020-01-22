@@ -170,7 +170,7 @@ static i32 ZPG_PlaceScatteredObjectives(ZPGGrid* grid, ZPGEntityInfo* ents, i32 
     #endif
 
     // Cleanup
-    free(avgDistWorking);
+    ZPG_Free(avgDistWorking);
     return 0;
 }
 
@@ -282,8 +282,8 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
     }
 
     // clean up working arrays
-    free(emptyTiles);
-    free(objectives);
+    ZPG_Free(emptyTiles);
+    ZPG_Free(objectives);
     return 0;
 }
 

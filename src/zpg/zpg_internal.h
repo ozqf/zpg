@@ -24,5 +24,6 @@ static ZPGPoint g_directions[ZPG_NUM_DIRECTIONS];
 
 static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);
+static void ZPG_FreeGrid(ZPGGrid* grid);
 
 #endif // ZPG_INTERNAL_H

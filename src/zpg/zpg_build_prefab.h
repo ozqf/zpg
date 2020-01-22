@@ -78,7 +78,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
     }
     #endif
 
-    free(stencil);
+    ZPG_FreeGrid(stencil);
     return grid;
 }
 

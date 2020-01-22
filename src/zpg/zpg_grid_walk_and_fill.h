@@ -183,7 +183,7 @@ static ZPGPoint ZPG_RandomWalkAndFill(
         iterations++;
     }
 
-    free(info.points);
+    ZPG_Free(info.points);
     return cursor;
 }
 
