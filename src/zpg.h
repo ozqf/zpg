@@ -181,7 +181,8 @@ ZPG_EXPORT i32 ZPG_ApiVersion();
 ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree);
 // Shutdown clears any still allocated memory on error returns none 0
 ZPG_EXPORT i32 ZPG_Shutdown();
-ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags);
+ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags,
+    u8** resultPtr, i32* resultWidth, i32* resultHeight);
 ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags);
 
 #endif // ZPG_H

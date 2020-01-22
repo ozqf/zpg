@@ -443,7 +443,9 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
 }
 
 ZPG_EXPORT
-void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags)
+void ZPG_RunPreset(
+    i32 mode, char* outputPath, i32 apiFlags,
+    u8** resultPtr, i32* resultWidth, i32* resultHeight)
 {
     if (g_bInitialised == false) { return; }
     i32 srandSeed;
@@ -533,12 +535,24 @@ void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags)
         {
             ZPG_WriteGridAsPNG(grid, "test_grid.png");
         }
-        ZPG_FreeGrid(grid);
     }
     else
     {
         printf("No grid was generated.\n");
     }
+
+    if (resultPtr != NULL && resultWidth != NULL && resultHeight != NULL)
+    {
+        *resultPtr = (u8*)grid->cells;
+        *resultWidth = grid->width;
+        *resultHeight = grid->height;
+    }
+    else if (grid != NULL)
+    {
+        ZPG_FreeGrid(grid);
+    }
+    
+
     ZPG_PrintAllocations();
     //ZPG_TestDrunkenWalk(876987);
     //ZPG_TestDrunkenWalk(1993);

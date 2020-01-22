@@ -19,7 +19,10 @@ static void run_preset(char* modeStr, char* outputFileName)
 {
 	i32 mode = atoi(modeStr);
 	i32 flags = ZPG_API_FLAG_PRINT_WORKING | ZPG_API_FLAG_PRINT_RESULT;
-	ZPG_RunPreset(mode, outputFileName, flags);
+	u8* cells;
+	i32 width, height;
+	ZPG_RunPreset(mode, outputFileName, flags, &cells, &width, &height);
+	printf("Main read grid size %d/%d\n", width, height);
 
 	//ZPG_RunPreset(1); // standard drunken walk
 	//ZPG_RunPreset(2); // scattered walks
