@@ -40,7 +40,7 @@ static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
     i32 memTotal = sizeof(ZPGGrid) + memForGrid;
     //printf("Make grid %d by %d (%d cells, %d bytes)\n",
     //    width, height, (width * height), memTotal);
-    u8* ptr = (u8*)malloc(memTotal);
+    u8* ptr = (u8*)ZPG_Alloc(memTotal);
     // Create grid struct
     ZPGGrid* grid = (ZPGGrid*)ptr;
     *grid = {};
@@ -289,7 +289,7 @@ static ZPGGrid* ZPG_TestDrawOffsetLines()
 
     // Draw main path
     i32 bVertical = NO;
-    ZPGPoint* points = (ZPGPoint*)malloc(sizeof(ZPGPoint) * numPoints);
+    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(sizeof(ZPGPoint) * numPoints);
     ZPG_PlotSegmentedPath_Old(grid, &seed, points, numPoints, bVertical, NO);
     ZPG_DrawSegmentedLine(grid, NULL, points, numPoints, ZPG2_CELL_TYPE_PATH, 0.2f);
 

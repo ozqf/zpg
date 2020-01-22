@@ -96,7 +96,7 @@ static void ZPG_ExecuteLine(u8* cursor, u8* end, i32 lineNumber)
 {
     i32 lineLength = end - cursor;
     //printf("Exec line (%d chars)\n", lineLength + 1);
-    u8* lineBuf = (u8*)malloc(lineLength + 1);
+    u8* lineBuf = (u8*)ZPG_Alloc(lineLength + 1);
     memset(lineBuf, 0, lineLength + 1);
     memcpy(lineBuf, cursor, lineLength);
     printf("Read line %d (%d chars): \"%s\"\t", lineNumber, lineLength + 1, lineBuf);

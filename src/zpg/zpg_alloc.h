@@ -17,7 +17,7 @@ struct ZPGAlloc
 static ZPGAlloc g_allocs[ZPG_MAX_ALLOCATIONS];
 static i32 g_numAllocs = 0;
 
-static void* ZPG_Allocate(i32 numBytes)
+static void* ZPG_Alloc(i32 numBytes)
 {
     ZPGAlloc* record = &g_allocs[g_numAllocs++];
     record->size = numBytes;

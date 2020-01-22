@@ -116,7 +116,7 @@ static i32 ZPG_PlaceScatteredObjectives(ZPGGrid* grid, ZPGEntityInfo* ents, i32 
     }
     // record distances from each tile to every other tile here
     i32 totalDistances = numEnts * numEnts;
-    f32* avgDistWorking = (f32*)malloc(sizeof(f32) * totalDistances);
+    f32* avgDistWorking = (f32*)ZPG_Alloc(sizeof(f32) * totalDistances);
 
     // calculate distances from ent to ent
     for (i32 i = 0; i < numEnts; ++i)
@@ -208,10 +208,10 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
     // allocate working arrays
 
     // empty tiles are all floor tiles with no objective
-    ZPGPoint* emptyTiles = (ZPGPoint*)malloc(sizeof(ZPGPoint) * grid->stats.numFloorTiles);
+    ZPGPoint* emptyTiles = (ZPGPoint*)ZPG_Alloc(sizeof(ZPGPoint) * grid->stats.numFloorTiles);
     i32 numEmptyTiles = 0;
     // list of floor tiles with an 'objective'
-    ZPGEntityInfo* objectives = (ZPGEntityInfo*)malloc(
+    ZPGEntityInfo* objectives = (ZPGEntityInfo*)ZPG_Alloc(
         sizeof(ZPGEntityInfo) * grid->stats.numObjectiveTags);
     i32 numObjectives = 0;
     
