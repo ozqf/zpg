@@ -4,6 +4,9 @@
 #include "../zpg.h"
 #include <stdio.h>
 
+static zpg_allocate_fn g_ptrAlloc = NULL;
+static zpg_free_fn g_ptrFree = NULL;
+
 // Grid type is 1 byte so hard limit on types
 #define ZPG_TYPES_LIST_SIZE 255
 #define ZPG_NUM_TYPES 256

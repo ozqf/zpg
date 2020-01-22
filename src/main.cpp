@@ -76,7 +76,7 @@ int main(int argc, char** argv)
 		print_help(argv[0]);
 		return 0;
 	}
-	ZPG_Init();
+	ZPG_Init(NULL, NULL);
 	if (strcmp(argv[1], "preset") == 0)
 	{
 		run_preset(argv[2], argv[3]);

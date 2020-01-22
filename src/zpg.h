@@ -167,6 +167,10 @@ struct ZPGGridPrefab
     ZPGPoint exitDirs[ZPG_MAX_PREFAB_EXITS];
 };
 
+// void *(__cdecl *)(size_t)
+typedef void* (*zpg_allocate_fn)(size_t size);
+typedef void (*zpg_free_fn)(void* ptr);
+
 //////////////////////////////////////////
 // Functions
 //////////////////////////////////////////
@@ -174,7 +178,7 @@ struct ZPGGridPrefab
 ZPG_EXPORT i32 ZPG_ApiVersion();
 // On error init returns a none 0 code
 // TODO: Init is called automatically anyway in run functions
-ZPG_EXPORT i32 ZPG_Init();
+ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree);
 // Shutdown clears any still allocated memory on error returns none 0
 ZPG_EXPORT i32 ZPG_Shutdown();
 ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags);

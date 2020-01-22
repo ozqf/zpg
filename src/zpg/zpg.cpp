@@ -393,10 +393,32 @@ static ZPGGrid* ZPG_TestBlit(i32 seed)
     return grid;
 }
 
-extern "C" i32 ZPG_Init()
+extern "C" ZPG_EXPORT void ZPG_SetMemoryFunctions(
+    zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree)
+{
+    
+}
+
+extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree)
 {
     if (g_bInitialised == YES) { return 0; }
+    
+    if (ptrAlloc == NULL || ptrFree == NULL)
+    {
+        #if 0
+        printf("ZPG INIT FAILED - null allocator functions\n");
+        return 1;
+        #endif
+        #if 1
+        ptrAlloc = malloc;
+        ptrFree = free;
+        #endif
+    }
     g_bInitialised = YES;
+
+    g_ptrAlloc = ptrAlloc;
+    g_ptrFree = ptrFree;
+
     g_directions[ZPG_DIR_RIGHT] = { 1, 0 };
     g_directions[ZPG_DIR_UP] = { 0, -1 };
     g_directions[ZPG_DIR_LEFT] = { -1, 0 };
@@ -416,13 +438,14 @@ extern "C" i32 ZPG_Init()
 
     ZPG_InitCellTypes();
     ZPG_InitPrefabs();
+    printf("Init complete - %d allocs\n", ZPG_GetNumAllocs());
     return 0;
 }
 
 ZPG_EXPORT
 void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags)
 {
-    ZPG_Init();
+    if (g_bInitialised == false) { return; }
     i32 srandSeed;
     // Seed randomly
     srandSeed = (i32)time(NULL);
@@ -516,8 +539,7 @@ void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags)
     {
         printf("No grid was generated.\n");
     }
-    
-
+    ZPG_PrintAllocations();
     //ZPG_TestDrunkenWalk(876987);
     //ZPG_TestDrunkenWalk(1993);
 }

@@ -123,6 +123,7 @@ static u8* ZPG_ScanForLineEnd(u8* buf, u8* end, i32* lineEndSize)
 
 ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags)
 {
+    if (g_bInitialised == false) { return 1; }
     printf("Running script (%d chars)\n", textLength);
     u8* end = text + textLength;
     u8* cursor = text;
@@ -144,6 +145,7 @@ ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags)
         cursor = cursorEnd + lineEndSize;
         line++;
     }
+    ZPG_PrintAllocations();
     return 0;
 }
 

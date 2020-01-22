@@ -170,6 +170,7 @@ static void ZPG_SetupPrefab(ZPGGridPrefab* prefab, char* label, const char* asci
 {
     prefab->label = label;
     i32 len = strlen(asci);
+    printf("Allocate prefab \"%s\" - ", label);
     prefab->grid = ZPG_ReadGridAsci((u8*)asci, len);
     ZPG_ScanPrefabForExits(prefab, YES);
 }
