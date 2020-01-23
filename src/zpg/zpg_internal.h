@@ -6,6 +6,8 @@
 
 #define ZPG_STRLEN(ptrToCharArray) strlen(ptrToCharArray)
 
+#define ZPG_STRCMP(stringA, stringB) strcmp(##stringA##, stringB##)
+
 #define ZPG_MEMSET(ptrToMemory, valueToSet, numBytesToSet) \
 memset(##ptrToMemory##, valueToSet##, numBytesToSet##)
 
@@ -36,5 +38,7 @@ static ZPGPoint g_directions[ZPG_NUM_DIRECTIONS];
 static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);
 static void ZPG_FreeGrid(ZPGGrid* grid);
+
+static i32 ZPG_ExecSet(char** tokens, i32 numTokens);
 
 #endif // ZPG_INTERNAL_H

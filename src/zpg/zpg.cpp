@@ -31,6 +31,7 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 #include "zpg_build_prefab.h"
 #include "zpg_build_perlin.h"
 
+#include "zpg_command.h"
 #include "zpg_script.h"
 
 static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)

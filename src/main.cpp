@@ -59,7 +59,9 @@ static void run_script(char* inputFileName, char* outputFileName)
 	i32 size = ftell(f);
 	printf("Reading %d chars\n", size);
 	fseek(f, 0, SEEK_SET);
-	u8* buf = (u8*)malloc(size);
+	u8* buf = (u8*)malloc(size + 1);
+	memset(buf, 0, size);
+	buf[size] = '\0';
 	fread(buf, 1, size, f);
 	fclose(f);
 	printf("Read script:\n%s\n", buf);

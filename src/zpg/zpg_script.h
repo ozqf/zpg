@@ -2,11 +2,19 @@
 #define ZPG_SCRIPT_H
 
 #include "zpg_internal.h"
-/**
- * TODO: Restore this tokenise code.
- */
+
+static i32 ZPG_ExecuteCommand(char** tokens, i32 numTokens)
+{
+    if (ZPG_STRCMP(tokens[0], "set") == 0)
+    { return ZPG_ExecSet(tokens, numTokens); }
+    if (ZPG_STRCMP(tokens[0], "grid") == 0) { return 0; }
+    if (ZPG_STRCMP(tokens[0], "fill") == 0) { return 0; }
+    return 1;
+}
+
 #if 1
-static i32 ZPG_ReadTokens(char* source, char* destination, char** tokens)
+static i32 ZPG_ReadTokens(
+    char* source, char* destination, char** tokens)
 {
     i32 len = ZPG_STRLEN(source);
     i32 tokensCount = 0;
@@ -85,15 +93,8 @@ char* ZPG_RunToNewLine(char* buffer)
 }
 
 #endif
-// static void ZPG_script_tokenise(
-//     u8* str, i32 length, char** tokens, i32* numTokens, i32 maxTokens)
-// {
-//     printf("Tokenise - \n");
-//     // TODO: See unfinished tokenise code above!
-//     i32 numTokens = ZPG_ReadTokens(str, )
-// }
 
-static void ZPG_ExecuteLine(u8* cursor, u8* end, i32 lineNumber)
+static i32 ZPG_ExecuteLine(u8* cursor, u8* end, i32 lineNumber)
 {
     const int tempBufferSize = 256;
     i32 lineLength = end - cursor;
@@ -102,21 +103,24 @@ static void ZPG_ExecuteLine(u8* cursor, u8* end, i32 lineNumber)
 
     u8 workBuf[tempBufferSize];
     ZPG_MEMCPY(workBuf, cursor, lineLength);
+    workBuf[lineLength] = '\0';
     workBuf[lineLength + 1] = '\0';
 
-    printf("Read line %d (%d chars): \"%s\"\t", lineNumber, lineLength + 1, workBuf);
+    printf("Read line %d (%d chars): \"%s\"\t",
+        lineNumber, lineLength + 1, workBuf);
 
     const i32 maxTokens = 24;
     char* tokens[maxTokens];
-    i32 numTokens = ZPG_ReadTokens((char*)workBuf, (char*)tokensBuf, tokens);
+    i32 numTokens = ZPG_ReadTokens(
+        (char*)workBuf, (char*)tokensBuf, tokens);
     printf("\tTokens:\t");
     for (i32 i = 0; i < numTokens; ++i)
     {
         printf("%s, ", tokens[i]);
     }
     printf("\n");
-    //ZPG_script_tokenise(tokensBuf, lineLength, tokens, &numTokens, maxTokens);
-    //ZPG_Free(tokensBuf);
+    i32 result = ZPG_ExecuteCommand(tokens, numTokens);
+    return result;
 }
 
 static u8* ZPG_ScanForLineEnd(u8* buf, u8* end, i32* lineEndSize)
@@ -126,8 +130,10 @@ static u8* ZPG_ScanForLineEnd(u8* buf, u8* end, i32* lineEndSize)
     {
         if (*result == '\n') { *lineEndSize = 1; break; }
         else if (*result == '\r') { *lineEndSize = 2; break; }
+        else if (*result == '\0') { break; }
         result++;
     }
+    printf("EoL code %d\n", *result);
     return result;
 }
 
@@ -146,7 +152,12 @@ ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags)
         i32 len = cursorEnd - cursor;
         if (len >= 2)
         {
-            ZPG_ExecuteLine(cursor, cursorEnd, line);
+            i32 err = ZPG_ExecuteLine(cursor, cursorEnd, line);
+            if (err != 0)
+            {
+                printf("ABORT Error %d executing line\n", err);
+                break;
+            }
         }
         /*else
         {
