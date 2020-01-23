@@ -169,7 +169,7 @@ static i32 ZPG_Prefab_GetExitIndexByDirection(ZPGGridPrefab* prefab, ZPGPoint di
 static void ZPG_SetupPrefab(ZPGGridPrefab* prefab, char* label, const char* asci)
 {
     prefab->label = label;
-    i32 len = strlen(asci);
+    i32 len = ZPG_STRLEN(asci);
     printf("Allocate prefab \"%s\" - ", label);
     prefab->grid = ZPG_ReadGridAsci((u8*)asci, len);
     ZPG_ScanPrefabForExits(prefab, YES);
@@ -195,7 +195,7 @@ static void ZPG_InitPrefabs()
     prefab->label = "embed_8x8_grid_pillars";
     g_numPrefabs++;
     const char* str = embed_8x8_grid_pillars;
-    i32 len = strlen(str);
+    i32 len = ZPG_STRLEN(str);
     prefab->grid = ZPG_ReadGridAsci((u8*)str, len);
     ZPG_ScanPrefabForExits(prefab, NO);
     #endif

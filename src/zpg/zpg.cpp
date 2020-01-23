@@ -361,7 +361,7 @@ static ZPGGrid* ZPG_TestEmbed(i32 seed)
 {
     ZPGGrid* grid = NULL;
     const char* str = embed_8x8_grid_pillars;
-    i32 len = strlen(str);
+    i32 len = ZPG_STRLEN(str);
     grid = ZPG_ReadGridAsci((u8*)str, len);
 
     return grid;
@@ -374,7 +374,7 @@ static ZPGGrid* ZPG_TestBlit(i32 seed)
     ZPGGrid* source = NULL;
     ZPGGrid* stencil = NULL;
     const char* str = embed_8x8_grid_pillars;
-    i32 len = strlen(str);
+    i32 len = ZPG_STRLEN(str);
     source = ZPG_ReadGridAsci((u8*)str, len);
 
     grid = ZPG_CreateGrid(source->width * 2, source->height * 2);

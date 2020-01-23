@@ -4,6 +4,14 @@
 #include "../zpg.h"
 #include <stdio.h>
 
+#define ZPG_STRLEN(ptrToCharArray) strlen(ptrToCharArray)
+
+#define ZPG_MEMSET(ptrToMemory, valueToSet, numBytesToSet) \
+memset(##ptrToMemory##, valueToSet##, numBytesToSet##)
+
+#define ZPG_MEMCPY(destinationPtr, sourcePtr, numBytesToCopy) \
+memcpy(##destinationPtr##, sourcePtr##, numBytesToCopy##)
+
 static zpg_allocate_fn g_ptrAlloc = NULL;
 static zpg_free_fn g_ptrFree = NULL;
 

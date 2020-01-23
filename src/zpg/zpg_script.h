@@ -5,10 +5,10 @@
 /**
  * TODO: Restore this tokenise code.
  */
-#if 0
-i32 COM_ReadTokens(char* source, char* destination, char** tokens)
+#if 1
+static i32 ZPG_ReadTokens(char* source, char* destination, char** tokens)
 {
-    i32 len = COM_StrLen(source);
+    i32 len = ZPG_STRLEN(source);
     i32 tokensCount = 0;
 
     i32 readPos = 0;
@@ -67,7 +67,7 @@ i32 COM_ReadTokens(char* source, char* destination, char** tokens)
 }
 
 
-char* COM_RunToNewLine(char* buffer)
+char* ZPG_RunToNewLine(char* buffer)
 {
     u8 reading = true;
     while (reading)
@@ -85,28 +85,38 @@ char* COM_RunToNewLine(char* buffer)
 }
 
 #endif
-static void ZPG_script_tokenise(
-    u8* str, i32 length, char** tokens, i32* numTokens, i32 maxTokens)
-{
-    printf("Tokenise - \n");
-    // TODO: See unfinished tokenise code above!
-}
+// static void ZPG_script_tokenise(
+//     u8* str, i32 length, char** tokens, i32* numTokens, i32 maxTokens)
+// {
+//     printf("Tokenise - \n");
+//     // TODO: See unfinished tokenise code above!
+//     i32 numTokens = ZPG_ReadTokens(str, )
+// }
 
 static void ZPG_ExecuteLine(u8* cursor, u8* end, i32 lineNumber)
 {
+    const int tempBufferSize = 256;
     i32 lineLength = end - cursor;
-    //printf("Exec line (%d chars)\n", lineLength + 1);
-    u8* lineBuf = (u8*)ZPG_Alloc(lineLength + 1);
-    memset(lineBuf, 0, lineLength + 1);
-    memcpy(lineBuf, cursor, lineLength);
-    printf("Read line %d (%d chars): \"%s\"\t", lineNumber, lineLength + 1, lineBuf);
+    u8 tokensBuf[tempBufferSize];
+    ZPG_MEMSET(tokensBuf, 0, tempBufferSize);
+
+    u8 workBuf[tempBufferSize];
+    ZPG_MEMCPY(workBuf, cursor, lineLength);
+    workBuf[lineLength + 1] = '\0';
+
+    printf("Read line %d (%d chars): \"%s\"\t", lineNumber, lineLength + 1, workBuf);
 
     const i32 maxTokens = 24;
     char* tokens[maxTokens];
-    i32 numTokens = 0;
-    ZPG_script_tokenise(lineBuf, lineLength, tokens, &numTokens, maxTokens);
-
-    ZPG_Free(lineBuf);
+    i32 numTokens = ZPG_ReadTokens((char*)workBuf, (char*)tokensBuf, tokens);
+    printf("\tTokens:\t");
+    for (i32 i = 0; i < numTokens; ++i)
+    {
+        printf("%s, ", tokens[i]);
+    }
+    printf("\n");
+    //ZPG_script_tokenise(tokensBuf, lineLength, tokens, &numTokens, maxTokens);
+    //ZPG_Free(tokensBuf);
 }
 
 static u8* ZPG_ScanForLineEnd(u8* buf, u8* end, i32* lineEndSize)
