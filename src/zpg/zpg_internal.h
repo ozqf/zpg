@@ -4,9 +4,11 @@
 #include "../zpg.h"
 #include <stdio.h>
 
-#define ZPG_STRLEN(ptrToCharArray) strlen(ptrToCharArray)
+#define ZPG_STRLEN(ptrToCharArray) \
+strlen(ptrToCharArray)
 
-#define ZPG_STRCMP(stringA, stringB) strcmp(##stringA##, stringB##)
+#define ZPG_STRCMP(stringA, stringB) \
+strcmp(##stringA##, stringB##)
 
 #define ZPG_MEMSET(ptrToMemory, valueToSet, numBytesToSet) \
 memset(##ptrToMemory##, valueToSet##, numBytesToSet##)
@@ -34,6 +36,11 @@ static i32 g_numPrefabs = 0;
 #define ZPG_DIR_LEFT 2
 #define ZPG_DIR_DOWN 3
 static ZPGPoint g_directions[ZPG_NUM_DIRECTIONS];
+
+// struct ZPGStore
+// {
+
+// };
 
 static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);

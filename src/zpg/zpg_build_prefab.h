@@ -89,6 +89,9 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
     i32 prefabIndex = 1;
 
+    /*
+    TODO: Automation of room selection and exit linking
+    */
     ZPGGridPrefab* leftRoom = ZPG_GetPrefabByIndex(prefabIndex);
     i32 roomYMax = h - leftRoom->grid->height;
     ZPGPoint blitPosA = {};
