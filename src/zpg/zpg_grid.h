@@ -310,8 +310,19 @@ static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 marke
         grid->width * grid->height,
         grid->stats.numFloorTiles,
         grid->stats.numObjectiveTags);
+    i32 xNum = 0;
+    i32 yNum = 0;
+    printf(" ");
+    for (i32 x = 0; x < grid->width; ++x)
+    {
+        printf("%d", xNum++);
+        if (xNum >= 10) { xNum = 0; }
+    }
+    printf("\n");
     for (i32 y = 0; y < grid->height; ++y)
     {
+        printf("%d", yNum++);
+        if (yNum >= 10) { yNum = 0; }
         for (i32 x = 0; x < grid->width; ++x)
         {
             ZPGCellTypeDef* def = ZPG_Grid_GetCellTypeAt(grid, x, y);

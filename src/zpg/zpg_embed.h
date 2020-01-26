@@ -75,29 +75,49 @@ static const char* embed_dead_simple_wide_exits =
 "#                    #\r\n"
 "#                    #\r\n"
 "#                    #\r\n"
-"#                    #\r\n"
 "##########  ##########";
 
 static const char* embed_dead_simple_2 = 
-"######### ########\r\n"
-"########   #######\r\n"
-"##              ##\r\n"
-"##              ##\r\n"
-"##              ##\r\n"
-"##   ##     ##  ##\r\n"
-"##   ##     ##  ##\r\n"
-"##              ##\r\n"
-"#                #\r\n"
-"                  \r\n"
-"#                #\r\n"
-"##              ##\r\n"
-"##   ##     ##  ##\r\n"
-"##   ##     ##  ##\r\n"
-"##              ##\r\n"
-"##              ##\r\n"
-"##              ##\r\n"
-"########   #######\r\n"
-"######### ########";
+"######### #########\r\n"
+"########   ########\r\n"
+"##               ##\r\n"
+"##               ##\r\n"
+"##               ##\r\n"
+"##   ##     ##   ##\r\n"
+"##   ##     ##   ##\r\n"
+"##               ##\r\n"
+"#                 #\r\n"
+"                   \r\n"
+"#                 #\r\n"
+"##               ##\r\n"
+"##   ##     ##   ##\r\n"
+"##   ##     ##   ##\r\n"
+"##               ##\r\n"
+"##               ##\r\n"
+"##               ##\r\n"
+"########   ########\r\n"
+"######### #########";
+
+static const char* embed_dead_simple_3 = 
+"####   ############\r\n"
+"##### #############\r\n"
+"##               ##\r\n"
+"##               ##\r\n"
+"##                #\r\n"
+"##   ##     ##     \r\n"
+"##   ##     ##    #\r\n"
+"##               ##\r\n"
+"##               ##\r\n"
+"##               ##\r\n"
+"##               ##\r\n"
+"##               ##\r\n"
+"#    ##     ##   ##\r\n"
+"     ##     ##   ##\r\n"
+"#                ##\r\n"
+"##               ##\r\n"
+"##               ##\r\n"
+"############   ####\r\n"
+"############# #####";
 
 static void ZPG_ScanRowForPrefabExits(
     ZPGGridPrefab* prefab,
@@ -188,6 +208,8 @@ static void ZPG_InitPrefabs()
         "embed_16x16_grid_left_start", embed_16x16_grid_left_start);
     ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
         "embed_16x16_grid_right_start", embed_16x16_grid_right_start);
+    ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
+        "embed_dead_simple_3", embed_dead_simple_3);
     
     #if 0
     ZPGGridPrefab* prefab = NULL;
@@ -199,6 +221,29 @@ static void ZPG_InitPrefabs()
     prefab->grid = ZPG_ReadGridAsci((u8*)str, len);
     ZPG_ScanPrefabForExits(prefab, NO);
     #endif
+}
+
+ZPG_EXPORT void ZPG_PrintPrefabs()
+{
+    printf("=== PRINT PREFABS ===\n");
+    for (i32 i = 0; i < g_numPrefabs; ++i)
+    {
+        ZPGGridPrefab* prefab = &g_prefabs[i];
+        printf("Prefab %d: \"%s\" (%d exits)\n", i, prefab->label, prefab->numExits);
+        ZPG_Grid_PrintChars(prefab->grid, '\0', 0, 0);
+    }
+}
+
+ZPG_EXPORT void ZPG_PrintTileTypes()
+{
+    printf("=== PRINT TILE TYPES ===\n");
+    printf(" Geometry types 0: Path, 1: Solid, 2: Void\n");
+    for (i32 i = 0; i < g_numTypes; ++i)
+    {
+        ZPGCellTypeDef* def = &g_types[i];
+        printf("%d: type %d, geom %d, char %c, label \"%s\"\n",
+            i, def->value, def->geometryType, def->asciChar, def->label);
+    }
 }
 
 #endif // ZPG_EMBED_H

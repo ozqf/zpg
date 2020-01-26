@@ -85,12 +85,10 @@ int main(int argc, char** argv)
 	if (strcmp(argv[1], "preset") == 0)
 	{
 		run_preset(argv[2], argv[3]);
-		return 0;
 	}
-	if (strcmp(argv[1], "script") == 0)
+	else if (strcmp(argv[1], "script") == 0)
 	{
 		run_script(argv[2], argv[3]);
-		return 0;
 	}
 	#if 0
 	printf("Read %d params\n", argc);
@@ -115,10 +113,8 @@ int main(int argc, char** argv)
 		#endif
 	}
 	#endif
-	#if 1
-	
-	#endif
-
+	ZPG_PrintTileTypes();
+	ZPG_PrintPrefabs();
 	printf("...Done\n");
 	return 0;
 }

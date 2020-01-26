@@ -184,5 +184,7 @@ ZPG_EXPORT i32 ZPG_Shutdown();
 ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags,
     u8** resultPtr, i32* resultWidth, i32* resultHeight);
 ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags);
+ZPG_EXPORT void ZPG_PrintPrefabs();
+ZPG_EXPORT void ZPG_PrintTileTypes();
 
 #endif // ZPG_H
