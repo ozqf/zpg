@@ -167,4 +167,34 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     return grid;
 }
 
+static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(i32 seed)
+{
+    const i32 w = 96;
+    const i32 h = 64;
+    ZPGGrid* grid = ZPG_CreateGrid(w, h);
+    ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
+    ZPGGridPrefab* room = ZPG_GetPrefabByIndex(0);
+    i32 step = 5;
+    i32 pointX = w - (room->grid->width) - step;
+    i32 pointY = h - (room->grid->height) - step;
+    ZPGPoint blitNorthWest = { step, step };
+    ZPGPoint blitNorthEast = { pointX, step };
+    ZPGPoint blitSouthWest = { step, pointY };
+    ZPGPoint blitSouthEast = { pointX, pointY };
+    ZPG_BlitGrids(grid, room->grid, blitNorthWest, stencil);
+    ZPG_BlitGrids(grid, room->grid, blitNorthEast, stencil);
+    ZPG_BlitGrids(grid, room->grid, blitSouthWest, stencil);
+    ZPG_BlitGrids(grid, room->grid, blitSouthEast, stencil);
+    
+    i32 exitA = ZPG_Prefab_GetExitIndexByDirection(room, { 1, 0 });
+    i32 exitB = ZPG_Prefab_GetExitIndexByDirection(room, { -1, 0 });
+    ZPGPoint a, b;
+    a.x = blitNorthWest.x + room->exits[exitA].x;
+    a.y = blitNorthWest.y + room->exits[exitA].y;
+    b.x = blitNorthEast.x + room->exits[exitB].x;
+    b.y = blitNorthEast.y + room->exits[exitB].y;
+    ZPG_DrawLine(grid, stencil, a.x, a.y, b.x, b.y, ZPG2_CELL_TYPE_PATH, 0);
+    return grid;
+}
+
 #endif // ZPG_BUILD_PREFAB_H

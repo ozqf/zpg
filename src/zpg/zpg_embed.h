@@ -99,8 +99,8 @@ static const char* embed_dead_simple_2 =
 "######### #########";
 
 static const char* embed_dead_simple_3 = 
-"####   ############\r\n"
 "##### #############\r\n"
+"####   ############\r\n"
 "##               ##\r\n"
 "##               ##\r\n"
 "##                #\r\n"
@@ -199,7 +199,7 @@ static void ZPG_InitPrefabs()
 {
     if (g_numPrefabs > 0) { return; }
     ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
-        "embed_16x16_grid_pillars", embed_16x16_grid_pillars);
+        "embed_dead_simple_3", embed_dead_simple_3);
     ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
         "embed_dead_simple_2", embed_dead_simple_2);
     ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
@@ -209,7 +209,7 @@ static void ZPG_InitPrefabs()
     ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
         "embed_16x16_grid_right_start", embed_16x16_grid_right_start);
     ZPG_SetupPrefab(&g_prefabs[g_numPrefabs++],
-        "embed_dead_simple_3", embed_dead_simple_3);
+        "embed_16x16_grid_pillars", embed_16x16_grid_pillars);
     
     #if 0
     ZPGGridPrefab* prefab = NULL;

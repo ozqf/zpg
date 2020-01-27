@@ -113,8 +113,10 @@ int main(int argc, char** argv)
 		#endif
 	}
 	#endif
+	#if 0
 	ZPG_PrintTileTypes();
 	ZPG_PrintPrefabs();
+	#endif
 	printf("...Done\n");
 	return 0;
 }

@@ -183,7 +183,7 @@ void ZPG_RunPreset(
             bPlaceEntities = YES;
             break;
         case 13:
-            grid = ZPG_Test_WalkBetweenPrefabs(seed);
+            grid = ZPG_Preset_PrefabsLinesCaves(seed);
             bPlaceEntities = YES;
             break;
         default: printf("Did not recognise test mode %d\n", mode); break;
@@ -237,7 +237,7 @@ void ZPG_RunPreset(
     }
     
 
-    ZPG_PrintAllocations();
+    //ZPG_PrintAllocations();
     //ZPG_TestDrunkenWalk(876987);
     //ZPG_TestDrunkenWalk(1993);
 }
