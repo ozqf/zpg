@@ -167,12 +167,92 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     return grid;
 }
 
+static void ZPG_PlotAndDrawSegmentedPath(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint a, ZPGPoint b)
+{
+    const i32 numNodes = 8;
+    i32 numNodesMinusOne = numNodes - 1;
+    ZPGPoint nodes[numNodes];
+    nodes[0].x = a.x;
+    nodes[0].y = a.y;
+    nodes[numNodesMinusOne].x = b.x;
+    nodes[numNodesMinusOne].y = b.y;
+
+    f32 nodeOffsetMax = 5;
+    i32 seed = 0;
+    ZPG_PlotSegmentedPath(grid, stencil, &seed, nodes, numNodes, nodeOffsetMax);
+    ZPG_DrawSegmentedLine(grid, stencil, nodes, numNodes, ZPG2_CELL_TYPE_PATH, 0);
+
+    ZPGWalkCfg cfg = {};
+    cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
+    cfg.tilesToPlace = 10;
+    cfg.bigRoomChance = 0.3f;
+    cfg.bPlaceObjectives = YES;
+    for (i32 i = 1; i < numNodesMinusOne; ++i)
+    {
+        ZPGPoint dir = ZPG_RandomFourWayDir(&seed);
+        cfg.startX = nodes[i].x;
+        cfg.startY = nodes[i].y;
+        ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);
+        if (cfg.bPlaceObjectives == YES)
+        {
+            ZPG_Grid_SetCellTypeAt(grid, end.x, end.y, ZPG2_CELL_TYPE_KEY, NULL);
+        }
+    }
+}
+
+static i32 ZPG_FindRoomConnectionPoints(
+    ZPGGridPrefab* prefabA, ZPGGridPrefab* prefabB,
+    ZPGPoint topLeftA, ZPGPoint topLeftB,
+    ZPGPoint* resultStart, ZPGPoint* resultEnd)
+{
+    ZPG_PARAM_NULL(prefabA, 1);
+    ZPG_PARAM_NULL(prefabB, 1);
+    ZPG_PARAM_NULL(resultStart, 1);
+    ZPG_PARAM_NULL(resultEnd, 1);
+    // decide on direction of connection
+    f32 dx = (f32)topLeftB.x - (f32)topLeftA.x;
+    f32 dy = (f32)topLeftB.y - (f32)topLeftA.y;
+    //printf("Rooms DX/DY: %.3f, %.3f\n", dx, dy);
+    ZPGPoint connectionDir = {};
+    if (dx > 0) { connectionDir.x = 1; }
+    if (dx < 0) { connectionDir.x = -1; }
+    if (dy > 0) { connectionDir.y = 1; }
+    if (dy < 0) { connectionDir.y = -1; }
+
+    ZPGPoint dirFlip;
+    dirFlip.x = -connectionDir.x;
+    dirFlip.y = -connectionDir.y;
+    i32 exitIndexA = ZPG_Prefab_GetExitIndexByDirection(prefabA, connectionDir);
+    if (exitIndexA == -1) { printf("No suitable exit from prefab A"); return 1; }
+    i32 exitIndexB = ZPG_Prefab_GetExitIndexByDirection(prefabB, dirFlip);
+    if (exitIndexB == -1) { printf("No suitable exit from prefab B"); return 1; }
+
+    resultStart->x = topLeftA.x + prefabA->exits[exitIndexA].x;
+    resultStart->y = topLeftA.y + prefabA->exits[exitIndexA].y;
+
+    resultEnd->x = topLeftB.x + prefabB->exits[exitIndexB].x;
+    resultEnd->y = topLeftB.y + prefabB->exits[exitIndexB].y;
+    //printf("Connection points %d/%d to %d/%d\n",
+    //    resultStart->x, resultStart->y, resultEnd->x, resultEnd->y);
+    return 0;
+}
+
 static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(i32 seed)
 {
     const i32 w = 96;
     const i32 h = 64;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
+    ZPG_FillRectWithStencil(grid, stencil, { 1, 1 }, { w - 1, h - 1}, ZPG2_CELL_TYPE_VOID);
+    ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    ZPG_SeedCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, &seed);
+    ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    for (i32 i = 0; i < 5; ++i)
+    {
+        ZPG_IterateCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_VOID);
+    }
+    
+    ZPG_Grid_PrintChars(grid, '\0', 0, 0);
     ZPGGridPrefab* room = ZPG_GetPrefabByIndex(0);
     i32 step = 5;
     i32 pointX = w - (room->grid->width) - step;
@@ -186,14 +266,23 @@ static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(i32 seed)
     ZPG_BlitGrids(grid, room->grid, blitSouthWest, stencil);
     ZPG_BlitGrids(grid, room->grid, blitSouthEast, stencil);
     
-    i32 exitA = ZPG_Prefab_GetExitIndexByDirection(room, { 1, 0 });
-    i32 exitB = ZPG_Prefab_GetExitIndexByDirection(room, { -1, 0 });
     ZPGPoint a, b;
-    a.x = blitNorthWest.x + room->exits[exitA].x;
-    a.y = blitNorthWest.y + room->exits[exitA].y;
-    b.x = blitNorthEast.x + room->exits[exitB].x;
-    b.y = blitNorthEast.y + room->exits[exitB].y;
-    ZPG_DrawLine(grid, stencil, a.x, a.y, b.x, b.y, ZPG2_CELL_TYPE_PATH, 0);
+    ZPG_FindRoomConnectionPoints(
+        room, room, blitNorthWest, blitNorthEast, &a, &b);
+    ZPG_PlotAndDrawSegmentedPath(grid, stencil, a, b);
+
+    ZPG_FindRoomConnectionPoints(
+        room, room, blitNorthEast, blitSouthEast, &a, &b);
+    ZPG_PlotAndDrawSegmentedPath(grid, stencil, a, b);
+
+    ZPG_FindRoomConnectionPoints(
+        room, room, blitSouthEast, blitSouthWest, &a, &b);
+    ZPG_PlotAndDrawSegmentedPath(grid, stencil, a, b);
+    
+    ZPG_FindRoomConnectionPoints(
+        room, room, blitSouthWest, blitNorthWest, &a, &b);
+    ZPG_PlotAndDrawSegmentedPath(grid, stencil, a, b);
+
     return grid;
 }
 

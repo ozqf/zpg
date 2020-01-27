@@ -24,7 +24,7 @@ static i32 ZPG_GetNumAllocs()
 
 static void* ZPG_Alloc(i32 numBytes)
 {
-    printf("Alloc %d at %d\n", numBytes, g_numAllocs);
+    //printf("Alloc %d at %d\n", numBytes, g_numAllocs);
     ZPGAlloc* record = &g_allocs[g_numAllocs++];
     record->size = numBytes;
     record->ptr = g_ptrAlloc(numBytes);

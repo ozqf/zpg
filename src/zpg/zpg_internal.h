@@ -4,6 +4,10 @@
 #include "../zpg.h"
 #include <stdio.h>
 
+#define ZPG_ABS(value) (value = (value >= 0 ? value : -value))
+#define ZPG_MIN(x, y) ((x) < (y) ? (x) : (y))
+#define ZPG_MAX(x, y) ((x) > (y) ? (x) : (y))
+
 #define ZPG_STRLEN(ptrToCharArray) \
 strlen(ptrToCharArray)
 
@@ -18,6 +22,9 @@ memcpy(##destinationPtr##, sourcePtr##, numBytesToCopy##)
 
 static zpg_allocate_fn g_ptrAlloc = NULL;
 static zpg_free_fn g_ptrFree = NULL;
+
+#define ZPG_PARAM_NULL(paramPtr, failureReturnVal) \
+if (##paramPtr == NULL) { printf("Param %s was null\n", #paramPtr##); return failureReturnVal; }
 
 // Grid type is 1 byte so hard limit on types
 #define ZPG_TYPES_LIST_SIZE 255
