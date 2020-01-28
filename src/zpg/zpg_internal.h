@@ -55,6 +55,8 @@ struct ZPGPresetCfg
 
 typedef ZPGGrid* (*zpg_preset_fn)(ZPGPresetCfg* cfg);
 
+typedef i32 (*zpg_param_fn)(i32 argc, char** argv, ZPGPresetCfg* cfg);
+
 #define ZPG_MAX_PRESETS 64
 static zpg_preset_fn g_presets[ZPG_MAX_PRESETS];
 static char* g_presetLabels[ZPG_MAX_PRESETS];

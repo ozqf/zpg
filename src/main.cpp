@@ -99,9 +99,18 @@ int main(int argc, char** argv)
 	}
 	else if (strcmp(argv[1], "script") == 0)
 	{
-		ZPG_Init(NULL, NULL);
 		printf("Sorry, script mode disabled\n");
-		//run_script(argv[2], argv[3]);
+		#if 0
+		ZPG_Init(NULL, NULL);
+		run_script(argv[2], argv[3]);
+		#endif
+	}
+	else if (strcmp(argv[1], "data") == 0)
+	{
+		ZPG_Init(NULL, NULL);
+		printf("--- DATA ---\n");
+		ZPG_PrintTileTypes();
+		ZPG_PrintPrefabs();
 	}
 	else
 	{

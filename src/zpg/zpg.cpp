@@ -34,6 +34,7 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 #include "zpg_command.h"
 #include "zpg_script.h"
 #include "zpg_presets.h"
+#include "zpg_params.h"
 
 extern "C" ZPG_EXPORT void ZPG_SetMemoryFunctions(
     zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree)
@@ -263,6 +264,8 @@ void ZPG_RunPresetCLI(
         ZPG_PrintPresetHelp(argv[0]);
         return;
     }
+    ZPG_Params_ReadForPreset(argc, argv);
+    #if 0
     printf("Run present params:\n");
     for (i32 i = 2; i < argc; ++i)
     {
@@ -290,6 +293,7 @@ void ZPG_RunPresetCLI(
         return;
     }
     ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    #endif
 }
 
 ZPG_EXPORT i32 ZPG_Shutdown()
