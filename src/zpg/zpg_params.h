@@ -36,41 +36,53 @@ static i32 ZPG_ParamImageOutputFile(i32 argc, char** argv, ZPGPresetCfg* cfg)
     return 1;
 }
 
-struct ZPGParam
+static void ZPG_InitParams()
 {
-    i32 type;
-    char asciChar;
-    union
+    ZPGParam* param;
+    param = &g_paramTypes[g_numParamTypes++];
+    param->asciChar = 'v';
+    param->type = ZPG_PARAM_TYPE_FLAG;
+    param->data.flag = ZPG_API_FLAG_PRINT_WORKING;
+    param->helpText = "-v Verbose. Print each step\n";
+
+    param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_FLAG;
+    param->asciChar = 'p';
+    param->data.flag = ZPG_API_FLAG_PRINT_RESULT;
+    param->helpText = "-p Print final result\n";
+
+    param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_FUNCTION;
+    param->asciChar = 'a';
+    param->data.func = ZPG_ParamAsciOutputFile;
+    param->helpText = "-a <filename> Save final result as asci to filename\n";
+
+    param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_FUNCTION;
+    param->asciChar = 'i';
+    param->data.func = ZPG_ParamImageOutputFile;
+    param->helpText = "-i <filename> Save final result as png to filename\n";
+}
+
+static void ZPG_Params_PrintHelp()
+{
+    printf("--- OPTIONS ---\n");
+    for (i32 i = 0; i < g_numParamTypes; ++i)
     {
-        i32 flag;
-        zpg_param_fn func;    
-    } data;
-};
+        printf("%s", g_paramTypes[i].helpText);
+    }
+    printf("\n");
+}
 
-static void ZPG_Params_ReadForPreset(i32 argc, char** argv)
+static ZPGPresetCfg ZPG_Params_ReadForPreset(i32 argc, char** argv)
 {
-    i32 numParamTypes = 0;
-    ZPGParam paramTypes[64];
-    paramTypes[numParamTypes].asciChar = 'v';
-    paramTypes[numParamTypes].type = ZPG_PARAM_TYPE_FLAG;
-    paramTypes[numParamTypes].data.flag = ZPG_API_FLAG_PRINT_WORKING;
-    numParamTypes++;
-    paramTypes[numParamTypes].type = ZPG_PARAM_TYPE_FLAG;
-    paramTypes[numParamTypes].asciChar = 'p';
-    paramTypes[numParamTypes].data.flag = ZPG_API_FLAG_PRINT_RESULT;
-    numParamTypes++;
-    paramTypes[numParamTypes].type = ZPG_PARAM_TYPE_FUNCTION;
-    paramTypes[numParamTypes].asciChar = 'a';
-    paramTypes[numParamTypes].data.func = ZPG_ParamAsciOutputFile;
-    numParamTypes++;
-    paramTypes[numParamTypes].type = ZPG_PARAM_TYPE_FUNCTION;
-    paramTypes[numParamTypes].asciChar = 'i';
-    paramTypes[numParamTypes].data.func = ZPG_ParamImageOutputFile;
-    numParamTypes++;
-
     ZPGPresetCfg cfg = {};
     // skip first two args.
-    i32 i = 2;
+    // Read third arg as preset number
+    
+    cfg.preset = atoi(argv[2]);
+    
+    i32 i = 3;
     while (i < argc)
     {
         i32 index = i;
@@ -86,9 +98,9 @@ static void ZPG_Params_ReadForPreset(i32 argc, char** argv)
         if (c == ' ') { continue; }
         // check param types
         i32 bRecognised = NO;
-        for (i32 j = 0; j < numParamTypes; ++j)
+        for (i32 j = 0; j < g_numParamTypes; ++j)
         {
-            ZPGParam* param = &paramTypes[j];
+            ZPGParam* param = &g_paramTypes[j];
             if (param->asciChar == c)
             {
                 bRecognised = YES;
@@ -101,7 +113,6 @@ static void ZPG_Params_ReadForPreset(i32 argc, char** argv)
                     i += param->data.func((argc - index), &argv[index], &cfg);
                     break;
                 }
-                //paramTypes[j].func(argc, argv, &cfg);
             }
         }
         if (bRecognised == NO)
@@ -109,6 +120,7 @@ static void ZPG_Params_ReadForPreset(i32 argc, char** argv)
             printf("Unrecognised setting %s\n", arg);
         }
     }
+    printf("Run preset %d\n", cfg.preset);
     printf("Read flags %d\n", cfg.flags);
     if (cfg.asciOutput != NULL)
     {
@@ -118,6 +130,7 @@ static void ZPG_Params_ReadForPreset(i32 argc, char** argv)
     {
         printf("Save PNG output to %s\n", cfg.imageOutput);
     }
+    return cfg;
 }
 
 #endif // ZPG_PARAMS_H

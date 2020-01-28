@@ -50,6 +50,7 @@ static ZPGPoint g_directions[ZPG_NUM_DIRECTIONS];
 struct ZPGPresetCfg
 {
     i32 seed;
+    i32 preset;
     i32 flags;
     char* asciOutput;
     char* imageOutput;
@@ -63,6 +64,25 @@ typedef i32 (*zpg_param_fn)(i32 argc, char** argv, ZPGPresetCfg* cfg);
 static zpg_preset_fn g_presets[ZPG_MAX_PRESETS];
 static char* g_presetLabels[ZPG_MAX_PRESETS];
 static i32 g_nextPreset = 0;
+
+//////////////////////////////////////////
+// Reading command line
+//////////////////////////////////////////
+
+struct ZPGParam
+{
+    i32 type;
+    char asciChar;
+    char* helpText;
+    union
+    {
+        i32 flag;
+        zpg_param_fn func;    
+    } data;
+};
+
+static i32 g_numParamTypes = 0;
+static ZPGParam g_paramTypes[64];
 
 //////////////////////////////////////////
 // Functions

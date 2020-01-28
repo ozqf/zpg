@@ -81,6 +81,7 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
     
     ZPG_InitCellTypes();
     ZPG_InitPrefabs();
+    ZPG_InitParams();
 
     //////////////////////////////////////////////////
     // Build preset list
@@ -98,7 +99,7 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
     ZPG_AddPresetFunction(ZPG_Test_WalkBetweenPrefabs, "Offset path between two prefabs");
     ZPG_AddPresetFunction(ZPG_Preset_PrefabsLinesCaves, "Offset path around four prefabs");
 
-    printf("Init complete - %d allocs\n", ZPG_GetNumAllocs());
+    //printf("Init complete - %d allocs\n", ZPG_GetNumAllocs());
     return 0;
 }
 
@@ -248,9 +249,10 @@ static void ZPG_PrintPresetHelp(char* exeName)
     printf("--- Preset Mode Help ---\n");
     printf("------------------------\n");
 	printf("Run a preset generator function with given settings.\n");
-	printf("preset <preset_mode> <output_file_name>\n");
-    printf("eg: %s preset 12 output.txt\n\n", exeName);
+	printf("preset <preset_mode> <options>\n");
+    printf("eg: %s preset 12 -p -i output.txt\n\n", exeName);
     ZPG_PrintPresetsList();
+    ZPG_Params_PrintHelp();
 }
 
 ZPG_EXPORT
@@ -264,7 +266,32 @@ void ZPG_RunPresetCLI(
         ZPG_PrintPresetHelp(argv[0]);
         return;
     }
-    ZPG_Params_ReadForPreset(argc, argv);
+    ZPGPresetCfg cfg = ZPG_Params_ReadForPreset(argc, argv);
+    if (cfg.preset < 0 || cfg.preset >= g_nextPreset)
+    {
+        printf("ABORT Unrecognised preset type %d\n", cfg.preset);
+        return;
+    }
+    // Run
+    ZPGGrid* grid = g_presets[cfg.preset](&cfg);
+    if (grid == NULL)
+    {
+        printf("ERROR - no grid was returned...\n");
+        return;
+    }
+    if (cfg.flags & ZPG_API_FLAG_PRINT_RESULT)
+    {
+        ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    }
+    if (cfg.asciOutput != NULL)
+    {
+        ZPG_WriteGridAsAsci(grid, cfg.asciOutput);
+    }
+    if (cfg.imageOutput != NULL)
+    {
+        ZPG_WriteGridAsPNG(grid, cfg.imageOutput);
+    }
+    
     #if 0
     printf("Run present params:\n");
     for (i32 i = 2; i < argc; ++i)
