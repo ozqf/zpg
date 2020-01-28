@@ -7,12 +7,22 @@
 static void print_help(char* exeName)
 {
 	printf("--- Help ---\n");
-	printf("\nRun a generator preset:\n");
-	printf("preset <preset_mode> <output_file_name>\n");
-	printf("\tPreset modes are currently 1-12\n");
-	printf("\nExecute a build script:\n");
-	printf("script <script_file_name> <output_file_name>\n");
-	printf("\teg\n%s script make_dungeon.txt dungeon.txt\n", exeName);
+	printf("Modes are preset or script\n");
+	printf("eg:\n:");
+	printf("\t%s preset <options>\n", exeName);
+	// printf("\nRun a generator preset:\n");
+	// printf("preset <preset_mode> <output_file_name>\n");
+	// printf("\tPreset modes are currently 1-12\n");
+	// printf("\nExecute a build script:\n");
+	// printf("script <script_file_name> <output_file_name>\n");
+	// printf("\teg\n%s script make_dungeon.txt dungeon.txt\n", exeName);
+}
+
+static void run_preset_cli(i32 argc, char** argv)
+{
+	//argc -= 2;
+	//argv = &argv[2];
+	ZPG_RunPresetCLI(argc, argv, NULL, NULL, NULL);
 }
 
 static void run_preset(char* modeStr, char* outputFileName)
@@ -75,21 +85,31 @@ int main(int argc, char** argv)
 {
 	printf("Zealous Procedural Generator build %s, %s\n",
 		__DATE__, __TIME__);
-	if (argc != 4)
+	if (argc == 1)
 	{
 		printf("No command specified\n");
 		print_help(argv[0]);
 		return 0;
 	}
-	ZPG_Init(NULL, NULL);
 	if (strcmp(argv[1], "preset") == 0)
 	{
-		run_preset(argv[2], argv[3]);
+		ZPG_Init(NULL, NULL);
+		//run_preset(argv[2], argv[3]);
+		run_preset_cli(argc, argv);
 	}
 	else if (strcmp(argv[1], "script") == 0)
 	{
-		run_script(argv[2], argv[3]);
+		ZPG_Init(NULL, NULL);
+		printf("Sorry, script mode disabled\n");
+		//run_script(argv[2], argv[3]);
 	}
+	else
+	{
+		printf("Unrecognised command \"%s\"\n", argv[1]);
+		print_help(argv[0]);
+		return 0;
+	}
+	
 	#if 0
 	printf("Read %d params\n", argc);
 	if (argc == 1)

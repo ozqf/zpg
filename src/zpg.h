@@ -183,6 +183,9 @@ ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree);
 ZPG_EXPORT i32 ZPG_Shutdown();
 ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags,
     u8** resultPtr, i32* resultWidth, i32* resultHeight);
+ZPG_EXPORT void ZPG_RunPresetCLI(
+    i32 argc, char** argv,
+    u8** resultPtr, i32* resultWidth, i32* resultHeight);
 ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags);
 ZPG_EXPORT void ZPG_PrintPrefabs();
 ZPG_EXPORT void ZPG_PrintTileTypes();

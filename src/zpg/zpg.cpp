@@ -103,19 +103,7 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
     g_directions[ZPG_DIR_UP] = { 0, -1 };
     g_directions[ZPG_DIR_LEFT] = { -1, 0 };
     g_directions[ZPG_DIR_DOWN] = { 0, 1 };
-
-    // // above
-    // g_neighbours[0] = { -1, -1 };
-    // g_neighbours[1] = { 0, -1 };
-    // g_neighbours[2] = { 1, -1 };
-    // // beside
-    // g_neighbours[3] = { -1, 0 };
-    // g_neighbours[4] = { 1, 0 };
-    // // below
-    // g_neighbours[5] = { -1, 1 };
-    // g_neighbours[6] = { 0, 1 };
-    // g_neighbours[7] = { 1, 1 };
-
+    
     ZPG_InitCellTypes();
     ZPG_InitPrefabs();
     printf("Init complete - %d allocs\n", ZPG_GetNumAllocs());
@@ -127,6 +115,7 @@ void ZPG_RunPreset(
     i32 mode, char* outputPath, i32 apiFlags,
     u8** resultPtr, i32* resultWidth, i32* resultHeight)
 {
+
     if (g_bInitialised == false) { return; }
     i32 srandSeed;
     // Seed randomly
@@ -188,6 +177,13 @@ void ZPG_RunPreset(
             break;
         default: printf("Did not recognise test mode %d\n", mode); break;
     }
+
+    if (outputPath == NULL
+        || *outputPath == '\0'
+        || ZPG_STRCMP(outputPath, "none") == 0)
+    {
+        bSaveGridAsci = NO;
+    }
     
     //////////////////////////////////////////
     // Generate entities and save
@@ -240,6 +236,36 @@ void ZPG_RunPreset(
     //ZPG_PrintAllocations();
     //ZPG_TestDrunkenWalk(876987);
     //ZPG_TestDrunkenWalk(1993);
+}
+
+static void ZPG_PrintPresetHelp(char* exeName)
+{
+    printf("--- Preset Mode Help ---\n");
+	printf("\nRun a generator preset:\n");
+	printf("preset <preset_mode> <output_file_name>\n");
+	printf("\tPreset modes are currently 1-12\n");
+    printf("eg:\n");
+    printf("\t%s preset 12 output.txt\n", exeName);
+}
+
+ZPG_EXPORT
+void ZPG_RunPresetCLI(
+    i32 argc, char** argv,
+    u8** resultPtr, i32* resultWidth, i32* resultHeight)
+{
+    if (argc <= 2)
+    {
+        printf("No preset settings received\n");
+        ZPG_PrintPresetHelp(argv[0]);
+        return;
+    }
+    printf("Run present params:\n");
+    for (i32 i = 2; i < argc; ++i)
+    {
+        printf("%d: %s\n", i, argv[i]);
+    }
+    i32 preset = atoi(argv[2]);
+
 }
 
 ZPG_EXPORT i32 ZPG_Shutdown()
