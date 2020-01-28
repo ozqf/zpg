@@ -51,6 +51,8 @@ struct ZPGPresetCfg
 {
     i32 seed;
     i32 flags;
+    char* asciOutput;
+    char* imageOutput;
 };
 
 typedef ZPGGrid* (*zpg_preset_fn)(ZPGPresetCfg* cfg);
