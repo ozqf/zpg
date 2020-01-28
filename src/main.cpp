@@ -137,6 +137,6 @@ int main(int argc, char** argv)
 	ZPG_PrintTileTypes();
 	ZPG_PrintPrefabs();
 	#endif
-	printf("...Done\n");
+	printf("\nDone\n");
 	return 0;
 }

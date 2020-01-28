@@ -4,9 +4,11 @@
 #include "zpg_internal.h"
 
 
-static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
+static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
 {
     printf("Generate: Drunken walk - start from centre\n");
+    i32 bStepThrough = presetCfg->flags & ZPG_API_FLAG_STEP_THROUGH;
+
     const i32 width = 64;
     const i32 height = 32;
     ZPGGrid* grid = ZPG_CreateGrid(width, height);
@@ -15,7 +17,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
     // debug check stencil
     //ZPG_Grid_PrintValues(stencil);
     ZPGWalkCfg cfg = {};
-    cfg.seed = seed;
+    cfg.seed = presetCfg->seed;
     cfg.startX = 31;
     cfg.startY = 15;
     cfg.bigRoomChance = 0.01f;
@@ -44,7 +46,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
         //ZPGPoint dir = ZPG_RandomFourWayDir(&cfg.seed);
         ZPGPoint dir = directions[i % numDirections];
         ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
-        if (bbStepThrough)
+        if (bStepThrough)
         {
             printf("River %d:\n", i);
             ZPG_Grid_PrintValues(grid, YES);
@@ -61,7 +63,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
         //ZPGPoint dir = ZPG_RandomFourWayDir(&cfg.seed);
         ZPGPoint dir = directions[i % numDirections];
         ZPG_GridRandomWalk(grid, stencil, NULL, &cfg, dir);
-        if (bbStepThrough)
+        if (bStepThrough)
         {
             printf("Path %d:\n", i);
             ZPG_Grid_PrintValues(grid, YES);
@@ -77,7 +79,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(i32 seed, i32 bbStepThrough)
 /**
  * Define some rects within a grid and random walk within
  */
-static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(i32 seed)
+static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(ZPGPresetCfg* presetCfg)
 {
     printf("Generate: Drunken walk - Within borders\n");
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
@@ -108,7 +110,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(i32 seed)
     squares[3].max.y = grid->height - (borderSize + 1);
 
     ZPGWalkCfg cfg = {};
-    cfg.seed = seed;
+    cfg.seed = presetCfg->seed;
     cfg.tilesToPlace = 120;//256;
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
     for (i32 i = 0; i < numSquares; ++i)
@@ -142,12 +144,12 @@ static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(i32 seed)
    return grid;
 }
 
-static ZPGGrid* ZPG_TestDrunkenWalk_Scattered(i32 seed)
+static ZPGGrid* ZPG_TestDrunkenWalk_Scattered(ZPGPresetCfg* presetCfg)
 {
     printf("Generate: Drunken walk - scattered starting points\n");
     ZPGGrid* grid = ZPG_CreateGrid(64, 32);
     ZPGWalkCfg cfg = {};
-    cfg.seed = seed;
+    cfg.seed = presetCfg->seed;
     cfg.tilesToPlace = 80;//256;
     cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
     
@@ -175,7 +177,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_Scattered(i32 seed)
     return grid;
 }
 
-static ZPGGrid* ZPG_TestCaveGen(i32 seed)
+static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
 {
     // Create canvas
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
@@ -186,7 +188,7 @@ static ZPGGrid* ZPG_TestCaveGen(i32 seed)
     //stencil->SetCellTypeAll(ZPG_CELL_TYPE_NONE);
     //ZPG_DrawOuterBorder(stencil, ZPG_CELL_TYPE_FLOOR);
 
-    ZPG_SeedCaves(grid, stencil, ZPG2_CELL_TYPE_PATH, &seed);
+    ZPG_SeedCaves(grid, stencil, ZPG2_CELL_TYPE_PATH, &presetCfg->seed);
     ZPG_Grid_PrintChars(grid, '\0', 0, 0);
     i32 numIterations = 2;
     for (i32 i = 0; i < numIterations; ++i)
@@ -197,7 +199,7 @@ static ZPGGrid* ZPG_TestCaveGen(i32 seed)
     return grid;
 }
 
-static ZPGGrid* ZPG_TestDrawOffsetLines()
+static ZPGGrid* ZPG_TestDrawOffsetLines(ZPGPresetCfg* presetCfg)
 {
     const i32 width = 72;
     const i32 height = 32;
@@ -263,7 +265,7 @@ static ZPGGrid* ZPG_TestDrawOffsetLines()
     return grid;
 }
 
-static ZPGGrid* ZPG_TestDrawLines()
+static ZPGGrid* ZPG_TestDrawLines(ZPGPresetCfg* presetCfg)
 {
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
     ZPG_Grid_SetCellTypeAll(grid, ZPG2_CELL_TYPE_WALL);
@@ -273,7 +275,7 @@ static ZPGGrid* ZPG_TestDrawLines()
     return grid;
 }
 
-static ZPGGrid* ZPG_TestLoadAsciFile()
+static ZPGGrid* ZPG_TestLoadAsciFile(ZPGPresetCfg* presetCfg)
 {
     char* fileName = "test_grid.txt";
     ZPGGrid* grid = NULL;
@@ -290,7 +292,7 @@ static ZPGGrid* ZPG_TestLoadAsciFile()
     return grid;
 }
 
-static ZPGGrid* ZPG_TestEmbed(i32 seed)
+static ZPGGrid* ZPG_TestEmbed(ZPGPresetCfg* presetCfg)
 {
     ZPGGrid* grid = NULL;
     const char* str = embed_8x8_grid_pillars;
@@ -300,7 +302,7 @@ static ZPGGrid* ZPG_TestEmbed(i32 seed)
     return grid;
 }
 
-static ZPGGrid* ZPG_TestBlit(i32 seed)
+static ZPGGrid* ZPG_TestBlit(ZPGPresetCfg* presetCfg)
 {
     printf("*** TEST GRID BLIT ***\n");
     ZPGGrid* grid = NULL;

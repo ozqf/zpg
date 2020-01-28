@@ -3,7 +3,7 @@
 
 #include "zpg_internal.h"
 
-static ZPGGrid* ZPG_TestPerlin(i32 seed)
+static ZPGGrid* ZPG_TestPerlin(ZPGPresetCfg* presetCfg)
 {
     //i32 w = 96, h = 48;
     i32 w = 1024, h = 1024;
@@ -16,7 +16,7 @@ static ZPGGrid* ZPG_TestPerlin(i32 seed)
     ZPG_DrawOuterBorder(stencil, NULL, ZPG2_CELL_TYPE_WALL);
     zpg_perlin_cfg cfg = {};
     ZPG_Perlin_SetCfgPreset(&cfg, 7);
-    ZPG_DrawPerlinGrid(grid, stencil, &seed, &cfg);
+    ZPG_DrawPerlinGrid(grid, stencil, &presetCfg->seed, &cfg);
     i32 caveIterations = 0;
     for (i32 i = 0; i < caveIterations; ++i)
     {

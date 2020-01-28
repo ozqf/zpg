@@ -44,10 +44,26 @@ static i32 g_numPrefabs = 0;
 #define ZPG_DIR_DOWN 3
 static ZPGPoint g_directions[ZPG_NUM_DIRECTIONS];
 
-// struct ZPGStore
-// {
+//////////////////////////////////////////
+// Preset types and list of functions
+//////////////////////////////////////////
+struct ZPGPresetCfg
+{
+    i32 seed;
+    i32 flags;
+};
 
-// };
+typedef ZPGGrid* (*zpg_preset_fn)(ZPGPresetCfg* cfg);
+
+#define ZPG_MAX_PRESETS 64
+static zpg_preset_fn g_presets[ZPG_MAX_PRESETS];
+static char* g_presetLabels[ZPG_MAX_PRESETS];
+static i32 g_nextPreset = 0;
+
+//////////////////////////////////////////
+// Functions
+//////////////////////////////////////////
+static void ZPG_DrawOuterBorder(ZPGGrid* grid, ZPGGrid* stencil, u8 typeToPaint);
 
 static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);

@@ -5,6 +5,7 @@
 #define ZPG_GRID_H
 
 #include "zpg_internal.h"
+
 static i32 ZPG_Grid_PositionToIndex(ZPGGrid* grid, i32 x, i32 y)
 {
     if (x < 0 || x >= grid->width) { return -1; }
@@ -416,6 +417,47 @@ static void ZPG_Grid_PerlinToGreyscale(ZPGGrid* source, ZPGGrid* destination)
         source->cells[i].colour.b = 0;//cellValue * step;
         source->cells[i].colour.a = 255;
     }
+}
+
+/////////////////////////////////////////////////////////////
+// Grid Allocation/Deallocation
+/////////////////////////////////////////////////////////////
+static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
+{
+    i32 totalCells = width * height;
+    i32 memForGrid = (sizeof(ZPGCell) * totalCells);
+    i32 memTotal = sizeof(ZPGGrid) + memForGrid;
+    //printf("Make grid %d by %d (%d cells, %d bytes)\n",
+    //    width, height, (width * height), memTotal);
+    u8* ptr = (u8*)ZPG_Alloc(memTotal);
+    // Create grid struct at END of cells array
+    ZPGGrid* grid = (ZPGGrid*)(ptr + memForGrid);
+    *grid = {};
+    // init grid memory
+    //ptr += sizeof(ZPGGrid);
+    //memset(ptr, ' ', memForGrid);
+    grid->cells = (ZPGCell*)ptr;
+    for (i32 i = 0; i < totalCells; ++i)
+    {
+        grid->cells[i] = {};
+        grid->cells[i].tile.type = ZPG2_CELL_TYPE_WALL;
+    }
+    grid->width = width;
+    grid->height = height;
+    return grid;
+}
+
+static void ZPG_FreeGrid(ZPGGrid* grid)
+{
+    ZPG_Free(grid->cells);
+}
+
+static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)
+{
+    ZPGGrid* stencil = ZPG_CreateGrid(width, height);
+    ZPG_Grid_SetCellTypeAll(stencil, ZPG_STENCIL_TYPE_EMPTY);
+    ZPG_DrawOuterBorder(stencil, NULL, ZPG_STENCIL_TYPE_FULL);
+    return stencil;
 }
 
 #endif // ZPG_GRID_H

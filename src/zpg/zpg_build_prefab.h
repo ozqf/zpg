@@ -3,7 +3,7 @@
 
 #include "zpg_internal.h"
 
-static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
+static ZPGGrid* ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
 {
     //i32 w = 48, h = 48;
     i32 w = 96, h = 48;
@@ -29,15 +29,15 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
     for (i32 i = 0; i < numRivers; ++i)
     {
         printf("Draw river %d\n", i + 1);
-        ZPGPoint riverStart = ZPG_RandomGridCellOutsideStencil(stencil, &seed);
+        ZPGPoint riverStart = ZPG_RandomGridCellOutsideStencil(stencil, &presetCfg->seed);
         ZPGWalkCfg river = {};
         river.bigRoomChance = 0.02f;
         river.startX = riverStart.x;
         river.startY = riverStart.y;
         river.tilesToPlace = 80;
         river.typeToPaint = ZPG2_CELL_TYPE_VOID;
-        ZPGPoint dir = ZPG_RandomFourWayDir(&seed);
-        ZPG_RandomWalkAndFill(grid, stencil, &river, dir, &seed);
+        ZPGPoint dir = ZPG_RandomFourWayDir(&presetCfg->seed);
+        ZPG_RandomWalkAndFill(grid, stencil, &river, dir, &presetCfg->seed);
     }
     
 
@@ -73,7 +73,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
         cfg.startY = topLeft.y + (start.y + dir.y);
         cfg.tilesToPlace = 80;
         cfg.typeToPaint = ZPG2_CELL_TYPE_PATH;
-        ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);
+        ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &presetCfg->seed);
         ZPG_Grid_SetCellTypeAt(grid, end.x, end.y, ZPG2_CELL_TYPE_KEY, NULL);
     }
     #endif
@@ -82,7 +82,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(i32 seed)
     return grid;
 }
 
-static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
+static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
 {
     i32 w = 96, h = 32;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
@@ -96,7 +96,7 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     i32 roomYMax = h - leftRoom->grid->height;
     ZPGPoint blitPosA = {};
     blitPosA.x = 0;
-    blitPosA.y = (i32)ZPG_RandArrIndex(roomYMax, seed++);
+    blitPosA.y = (i32)ZPG_RandArrIndex(roomYMax, presetCfg->seed++);
     ZPG_BlitGrids(grid, leftRoom->grid, blitPosA, stencil);
     // TODO Choose exit - assuming prefab has one (and only one)
     i32 leftExitIndex = ZPG_Prefab_GetExitIndexByDirection(leftRoom, { 1, 0 });
@@ -108,7 +108,7 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     roomYMax = h - rightRoom->grid->height;
     ZPGPoint blitPosB = {};
     blitPosB.x = grid->width - rightRoom->grid->width;
-    blitPosB.y = (i32)ZPG_RandArrIndex(roomYMax, seed++);
+    blitPosB.y = (i32)ZPG_RandArrIndex(roomYMax, presetCfg->seed++);
     ZPG_BlitGrids(grid, rightRoom->grid, blitPosB, stencil);
     // TODO Choose exit - assuming prefab has one (and only one)
     i32 rightExitIndex = ZPG_Prefab_GetExitIndexByDirection(rightRoom, { -1, 0 });
@@ -124,11 +124,11 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     cfg.typeToPaint = ZPG2_CELL_TYPE_VOID;
     for (i32 i = 1; i < 16; ++i)
     {
-        ZPGPoint dir = ZPG_RandomFourWayDir(&seed);
-        ZPGPoint pos = ZPG_RandomGridCellOutsideStencil(stencil, &seed);
+        ZPGPoint dir = ZPG_RandomFourWayDir(&presetCfg->seed);
+        ZPGPoint pos = ZPG_RandomGridCellOutsideStencil(stencil, &presetCfg->seed);
         cfg.startX = pos.x;
         cfg.startY = pos.y;
-        ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);
+        ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &presetCfg->seed);
     }
     #endif
 
@@ -144,7 +144,7 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     //ZPG_PlotSegmentedPath_Old(grid, &seed, nodes, numNodes, NO, YES);
     f32 lineNodeOffsetMax = 10;//1.5f;
     f32 bigRoomChance = 0;//0.2f;
-    ZPG_PlotSegmentedPath(grid, stencil, &seed, nodes, numNodes, lineNodeOffsetMax);
+    ZPG_PlotSegmentedPath(grid, stencil, &presetCfg->seed, nodes, numNodes, lineNodeOffsetMax);
     ZPG_DrawSegmentedLine(grid, stencil, nodes, numNodes, ZPG2_CELL_TYPE_PATH, bigRoomChance);
     // random walk from nodes along the line
     #if 1
@@ -154,10 +154,10 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(i32 seed)
     cfg.bPlaceObjectives = YES;
     for (i32 i = 1; i < numNodesMinusOne; ++i)
     {
-        ZPGPoint dir = ZPG_RandomFourWayDir(&seed);
+        ZPGPoint dir = ZPG_RandomFourWayDir(&presetCfg->seed);
         cfg.startX = nodes[i].x;
         cfg.startY = nodes[i].y;
-        ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &seed);
+        ZPGPoint end = ZPG_RandomWalkAndFill(grid, stencil, &cfg, dir, &presetCfg->seed);
         if (cfg.bPlaceObjectives == YES)
         {
             ZPG_Grid_SetCellTypeAt(grid, end.x, end.y, ZPG2_CELL_TYPE_KEY, NULL);
@@ -237,7 +237,7 @@ static i32 ZPG_FindRoomConnectionPoints(
     return 0;
 }
 
-static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(i32 seed)
+static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
 {
     const i32 w = 96;
     const i32 h = 64;
@@ -245,7 +245,7 @@ static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(i32 seed)
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
     ZPG_FillRectWithStencil(grid, stencil, { 1, 1 }, { w - 1, h - 1}, ZPG2_CELL_TYPE_VOID);
     ZPG_Grid_PrintChars(grid, '\0', 0, 0);
-    ZPG_SeedCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, &seed);
+    ZPG_SeedCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, &presetCfg->seed);
     ZPG_Grid_PrintChars(grid, '\0', 0, 0);
     for (i32 i = 0; i < 5; ++i)
     {
