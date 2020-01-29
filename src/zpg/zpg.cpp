@@ -272,13 +272,22 @@ void ZPG_RunPresetCLI(
         ZPG_PrintPresetHelp(argv[0]);
         return;
     }
+    i32 srandSeed;
+    // Seed randomly - param may override
+    srandSeed = (i32)time(NULL);
+    // read params
     ZPGPresetCfg cfg = ZPG_Params_ReadForPreset(argc, argv);
     if (cfg.preset < 0 || cfg.preset >= g_nextPreset)
     {
         printf("ABORT Unrecognised preset type %d\n", cfg.preset);
         return;
     }
+    if (g_bInitialised == false) { return; }
+    
+    /////////////////////////////////////////////
     // Run
+    printf("Seed: %d\n", srandSeed);
+    srand(srandSeed);
     ZPGGrid* grid = g_presets[cfg.preset](&cfg);
     if (grid == NULL)
     {

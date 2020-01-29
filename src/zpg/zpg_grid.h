@@ -27,6 +27,14 @@ static ZPGCellTypeDef* ZPG_Grid_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y)
     return ZPG_GetType(cell->tile.type);
 }
 
+static i32 ZPG_Grid_CheckTypeAt(
+    ZPGGrid* grid, i32 x, i32 y, u8 queryType, i32 bYesIfOutOfBounds)
+{
+    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+    if (cell == NULL) { return bYesIfOutOfBounds ? YES : NO; }
+    return (cell->tile.type == queryType);
+}
+
 static void ZPG_Grid_Clear(ZPGGrid* grid)
 {
     i32 len = grid->width * grid->height;

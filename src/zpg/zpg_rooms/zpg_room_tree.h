@@ -40,12 +40,26 @@ static void ZPG_ZeroOutLoneValues(ZPGGrid* grid)
 
 static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 {
-    ZPGGrid* grid = ZPG_CreateGrid(9, 9);
+    ZPGGrid* grid = ZPG_CreateGrid(32, 4);
     printf("Assign random values\n");
-    ZPG_SetRandomGridValues(grid, 1, 9, &cfg->seed);
+    ZPG_SetRandomGridValues(grid, 2, 9, &cfg->seed);
     ZPG_Grid_PrintValues(grid, YES);
     printf("Group random values\n");
+    /*
+    > Clear any cell that is isolated (no 4 connected neighbours)
+    > While any empty cell can be found
+        > Flood fill that cell with 1
+    */
     ZPG_ZeroOutLoneValues(grid);
+    ZPG_Grid_PrintValues(grid, YES);
+    printf("Flood fill space\n");
+    i32 x, y;
+    ZPGCell* cell = ZPG_Grid_FindFirstCellWithType(grid, 0, &x, &y);
+    while (cell != NULL)
+    {
+        ZPG_Grid_FloodFill(grid, x, y, 1);
+        cell = ZPG_Grid_FindFirstCellWithType(grid, 0, &x, &y);
+    }
     ZPG_Grid_PrintValues(grid, YES);
     return grid;
 }

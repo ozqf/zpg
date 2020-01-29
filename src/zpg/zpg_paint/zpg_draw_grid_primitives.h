@@ -221,4 +221,69 @@ static void ZPG_BlitGrids(ZPGGrid* target, ZPGGrid* source, ZPGPoint topLeft, ZP
     }
 }
 
+static ZPGCell* ZPG_Grid_FindFirstCellWithType(
+    ZPGGrid* grid, u8 type, i32* resultX, i32* resultY)
+{
+    ZPG_BEGIN_GRID_ITERATE(grid)
+        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+        if (cell != NULL && cell->tile.type == type)
+        {
+            *resultX = x;
+            *resultY = y;
+            return cell;
+        }
+    ZPG_END_GRID_ITERATE
+    return NULL;
+}
+
+static void ZPG_PushPointToStack(
+    ZPGPoint* points, i32* numPoints, i32 maxPoints, i32 x, i32 y)
+{
+    if (*numPoints >= maxPoints) { return; } // TODO: Error code or something?
+    points[*numPoints].x = x;
+    points[*numPoints].y = y;
+    *numPoints += 1;
+}
+
+static void ZPG_PushFillNode(
+    ZPGGrid* grid, ZPGPoint* points, i32* numPoints, i32 maxPoints,
+    i32 x, i32 y, u8 queryValue)
+{
+    if (ZPG_Grid_CheckTypeAt(grid, x, y, queryValue, NO) == YES)
+    {
+        ZPG_PushPointToStack(points, numPoints, maxPoints, x, y);
+    }
+}
+
+static void ZPG_Grid_FloodFill(
+    ZPGGrid* grid, i32 x, i32 y, u8 fillValue)
+{
+    if (ZPG_Grid_IsPositionSafe(grid, x, y) == NO) { return; }
+    u8 emptyValue = ZPG_Grid_GetCellAt(grid, x, y)->tile.type;
+    i32 maxPoints = grid->width * grid->height;
+    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(maxPoints * sizeof(ZPGPoint));
+    i32 numPoints = 0;
+    ZPG_PushPointToStack(points, &numPoints, maxPoints, x, y);
+    i32 exitCounter = 0;
+    while (numPoints > 0)
+    {
+        // Grab and point top of stack
+        ZPGPoint* p = &points[numPoints - 1];
+        numPoints--;
+        ZPG_Grid_SetCellTypeAt(grid, p->x, p->y, fillValue, NULL);
+        ZPG_PushFillNode(grid, points, &numPoints, maxPoints, p->x - 1, p->y, emptyValue);
+        ZPG_PushFillNode(grid, points, &numPoints, maxPoints, p->x + 1, p->y, emptyValue);
+        ZPG_PushFillNode(grid, points, &numPoints, maxPoints, p->x, p->y - 1, emptyValue);
+        ZPG_PushFillNode(grid, points, &numPoints, maxPoints, p->x, p->y + 1, emptyValue);
+        exitCounter++;
+        if (exitCounter >= maxPoints)
+        {
+            printf("ERROR - Fill from %d/%d ran away on %d iterations with %d points\n",
+                x, y, exitCounter, numPoints);
+            break;
+        }
+    }
+    ZPG_Free(points);
+}
+
 #endif // ZPG_DRAW_GRID_PRIMITIVES_H
