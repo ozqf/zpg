@@ -42,7 +42,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 {
     ZPGGrid* grid = ZPG_CreateGrid(32, 4);
     printf("Assign random values\n");
-    ZPG_SetRandomGridValues(grid, 2, 9, &cfg->seed);
+    ZPG_SetRandomGridValues(grid, 2, 5, &cfg->seed);
     ZPG_Grid_PrintValues(grid, YES);
     printf("Group random values\n");
     /*

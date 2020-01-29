@@ -99,7 +99,7 @@ static void ZPG_AnalyseForEntities(ZPGGrid* grid, ZPGGrid* result, i32* seed)
         }
     }
     printf("Entity analysis result:\n");
-    ZPG_Grid_PrintValues(result, YES);
+    //ZPG_Grid_PrintValues(result, YES);
 }
 
 /**

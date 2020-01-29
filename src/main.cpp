@@ -7,49 +7,14 @@
 static void print_help(char* exeName)
 {
 	printf("--- Help ---\n");
-	printf("Modes are preset or script\n");
+	printf("Modes are preset, script or data\n");
 	printf("eg:\n:");
 	printf("\t%s preset <options>\n", exeName);
-	// printf("\nRun a generator preset:\n");
-	// printf("preset <preset_mode> <output_file_name>\n");
-	// printf("\tPreset modes are currently 1-12\n");
-	// printf("\nExecute a build script:\n");
-	// printf("script <script_file_name> <output_file_name>\n");
-	// printf("\teg\n%s script make_dungeon.txt dungeon.txt\n", exeName);
 }
 
 static void run_preset_cli(i32 argc, char** argv)
 {
-	//argc -= 2;
-	//argv = &argv[2];
 	ZPG_RunPresetCLI(argc, argv, NULL, NULL, NULL);
-}
-
-static void run_preset(char* modeStr, char* outputFileName)
-{
-	i32 mode = atoi(modeStr);
-	i32 flags = ZPG_API_FLAG_PRINT_WORKING | ZPG_API_FLAG_PRINT_RESULT;
-	u8* cells;
-	i32 width, height;
-	ZPG_RunPreset(mode, outputFileName, flags, &cells, &width, &height);
-	printf("Main read grid size %d/%d\n", width, height);
-
-	//ZPG_RunPreset(1); // standard drunken walk
-	//ZPG_RunPreset(2); // scattered walks
-	//ZPG_RunPreset(3); // cave gen
-	//ZPG_RunPreset(4); // walks from line segment
-	//ZPG_RunPreset(5); // test draw lines
-	//ZPG_RunPreset(6); // walk with space
-	//ZPG_RunPreset(7); // perlin caves
-	//ZPG_RunPreset(8);
-	//ZPG_RunPreset(9); // embed
-	//ZPG_RunPreset(10); // blit
-	//ZPG_RunPreset(11); // walk fnrom prefab
-	//ZPG_RunPreset(12); // walk between prefabs via line segment
-	#if 0
-	//printf("Press ENTER to exit\n");
-	//getchar();
-	#endif
 }
 
 static void run_script(char* inputFileName, char* outputFileName)
@@ -94,7 +59,6 @@ int main(int argc, char** argv)
 	if (strcmp(argv[1], "preset") == 0)
 	{
 		ZPG_Init(NULL, NULL);
-		//run_preset(argv[2], argv[3]);
 		run_preset_cli(argc, argv);
 	}
 	else if (strcmp(argv[1], "script") == 0)
@@ -118,34 +82,6 @@ int main(int argc, char** argv)
 		print_help(argv[0]);
 		return 0;
 	}
-	
-	#if 0
-	printf("Read %d params\n", argc);
-	if (argc == 1)
-	{
-		printf("No options specified - running tests\n");
-		//ZPG_RunPreset(1); // standard drunken walk
-		//ZPG_RunPreset(2); // scattered walks
-		//ZPG_RunPreset(3); // cave gen
-		//ZPG_RunPreset(4); // walks from line segment
-		//ZPG_RunPreset(5); // test draw lines
-		//ZPG_RunPreset(6); // walk with space
-		ZPG_RunPreset(7); // perlin caves
-		//ZPG_RunPreset(8);
-		//ZPG_RunPreset(9); // embed
-		//ZPG_RunPreset(10); // blit
-		//ZPG_RunPreset(11); // walk fnrom prefab
-		ZPG_RunPreset(12); // walk between prefabs via line segment
-		#if 0
-		//printf("Press ENTER to exit\n");
-		//getchar();
-		#endif
-	}
-	#endif
-	#if 0
-	ZPG_PrintTileTypes();
-	ZPG_PrintPrefabs();
-	#endif
 	printf("\nDone\n");
 	return 0;
 }

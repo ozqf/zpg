@@ -42,6 +42,7 @@ static void ZPG_Perlin_SetCfgPreset(zpg_perlin_cfg* cfg,
     {
         case 1: ZPG_Perlin_SetCfg(cfg, 15, 25, 2, 20); break;
         case 6: ZPG_Perlin_SetCfg(cfg, 10, 25, 2, 2); break;
+        // diagonal streaks
         case 7: ZPG_Perlin_SetCfg(cfg, 50, 25, 2, 2); break;
         case 8: ZPG_Perlin_SetCfg(cfg, 50, 5, 10, 2); break;
         case 9: ZPG_Perlin_SetCfg(cfg, 50, 5, 2, 2); break;

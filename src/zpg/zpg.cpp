@@ -118,6 +118,85 @@ static void ZPG_PrintPresetsList()
     }
 }
 
+static void ZPG_PrintPresetHelp(char* exeName)
+{
+    printf("------------------------\n");
+    printf("--- Preset Mode Help ---\n");
+    printf("------------------------\n");
+	printf("Run a preset generator function with given settings.\n");
+	printf("preset <preset_mode> <options>\n");
+    printf("eg: %s preset 12 -p -i output.txt\n\n", exeName);
+    ZPG_PrintPresetsList();
+    ZPG_Params_PrintHelp();
+}
+
+ZPG_EXPORT
+void ZPG_RunPresetCLI(
+    i32 argc, char** argv,
+    u8** resultPtr, i32* resultWidth, i32* resultHeight)
+{
+    if (argc <= 2)
+    {
+        printf("No preset settings received\n");
+        ZPG_PrintPresetHelp(argv[0]);
+        return;
+    }
+    i32 srandSeed;
+    // Seed randomly - param may override
+    srandSeed = (i32)time(NULL);
+    // read params
+    ZPGPresetCfg cfg = ZPG_Params_ReadForPreset(argc, argv);
+    if (cfg.preset < 0 || cfg.preset >= g_nextPreset)
+    {
+        printf("ABORT Unrecognised preset type %d\n", cfg.preset);
+        return;
+    }
+    if (g_bInitialised == false) { return; }
+    
+    /////////////////////////////////////////////
+    // Run
+    printf("Seed: %d\n", srandSeed);
+    srand(srandSeed);
+    ZPGGrid* grid = g_presets[cfg.preset](&cfg);
+    if (grid == NULL)
+    {
+        printf("ERROR - no grid was returned...\n");
+        return;
+    }
+
+    // disable crazy console prints
+    if (grid->width > 100 || grid->height > 100)
+    {
+        printf("Grid size %d/%d is too large for console printing\n",
+            grid->width, grid->height);
+        cfg.flags &= ~ZPG_API_FLAG_PRINT_RESULT;
+        cfg.flags &= ~ZPG_API_FLAG_PRINT_WORKING;
+    }
+    if ((cfg.flags & ZPG_API_FLAG_NO_ENTITIES) == 0)
+    {
+        if (cfg.flags & ZPG_API_FLAG_PRINT_WORKING)
+        { printf("-- Grid Loaded --\ncreating entities\n"); }
+        ZPG_Grid_CountNeighourRings(grid);
+        ZPGGrid* entData = ZPG_CreateGrid(grid->width, grid->height);
+        ZPG_AnalyseForEntities(grid, entData, &cfg.seed);
+        ZPG_PlaceScatteredEntities(grid, &cfg.seed);
+    }
+    if (cfg.flags & ZPG_API_FLAG_PRINT_RESULT)
+    {
+        ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    }
+    if (cfg.asciOutput != NULL)
+    {
+        ZPG_WriteGridAsAsci(grid, cfg.asciOutput);
+    }
+    if (cfg.imageOutput != NULL)
+    {
+        ZPG_WriteGridAsPNG(grid, cfg.imageOutput);
+    }
+}
+
+#if 0
+
 ZPG_EXPORT
 void ZPG_RunPreset(
     i32 mode, char* outputPath, i32 apiFlags,
@@ -242,80 +321,9 @@ void ZPG_RunPreset(
     {
         ZPG_FreeGrid(grid);
     }
-    
-
-    //ZPG_PrintAllocations();
-    //ZPG_TestDrunkenWalk(876987);
-    //ZPG_TestDrunkenWalk(1993);
 }
 
-static void ZPG_PrintPresetHelp(char* exeName)
-{
-    printf("------------------------\n");
-    printf("--- Preset Mode Help ---\n");
-    printf("------------------------\n");
-	printf("Run a preset generator function with given settings.\n");
-	printf("preset <preset_mode> <options>\n");
-    printf("eg: %s preset 12 -p -i output.txt\n\n", exeName);
-    ZPG_PrintPresetsList();
-    ZPG_Params_PrintHelp();
-}
-
-ZPG_EXPORT
-void ZPG_RunPresetCLI(
-    i32 argc, char** argv,
-    u8** resultPtr, i32* resultWidth, i32* resultHeight)
-{
-    if (argc <= 2)
-    {
-        printf("No preset settings received\n");
-        ZPG_PrintPresetHelp(argv[0]);
-        return;
-    }
-    i32 srandSeed;
-    // Seed randomly - param may override
-    srandSeed = (i32)time(NULL);
-    // read params
-    ZPGPresetCfg cfg = ZPG_Params_ReadForPreset(argc, argv);
-    if (cfg.preset < 0 || cfg.preset >= g_nextPreset)
-    {
-        printf("ABORT Unrecognised preset type %d\n", cfg.preset);
-        return;
-    }
-    if (g_bInitialised == false) { return; }
-    
-    /////////////////////////////////////////////
-    // Run
-    printf("Seed: %d\n", srandSeed);
-    srand(srandSeed);
-    ZPGGrid* grid = g_presets[cfg.preset](&cfg);
-    if (grid == NULL)
-    {
-        printf("ERROR - no grid was returned...\n");
-        return;
-    }
-    if ((cfg.flags & ZPG_API_FLAG_NO_ENTITIES) == 0)
-    {
-        if (cfg.flags & ZPG_API_FLAG_PRINT_WORKING)
-        { printf("-- Grid Loaded --\ncreating entities\n"); }
-        ZPG_Grid_CountNeighourRings(grid);
-        ZPGGrid* entData = ZPG_CreateGrid(grid->width, grid->height);
-        ZPG_AnalyseForEntities(grid, entData, &cfg.seed);
-        ZPG_PlaceScatteredEntities(grid, &cfg.seed);
-    }
-    if (cfg.flags & ZPG_API_FLAG_PRINT_RESULT)
-    {
-        ZPG_Grid_PrintChars(grid, '\0', 0, 0);
-    }
-    if (cfg.asciOutput != NULL)
-    {
-        ZPG_WriteGridAsAsci(grid, cfg.asciOutput);
-    }
-    if (cfg.imageOutput != NULL)
-    {
-        ZPG_WriteGridAsPNG(grid, cfg.imageOutput);
-    }
-}
+#endif
 
 ZPG_EXPORT i32 ZPG_Shutdown()
 {

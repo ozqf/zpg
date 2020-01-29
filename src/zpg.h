@@ -14,6 +14,7 @@
 #define ZPG_API_FLAG_PRINT_WORKING (1 << 1)
 #define ZPG_API_FLAG_STEP_THROUGH (1 << 2)
 #define ZPG_API_FLAG_NO_ENTITIES (1 << 3)
+#define ZPG_API_FLAG_PRINT_GREYSCALE (1 << 4)
 
 //#define ZPG_CHAR_CODE_SOLID_BLOCK 35
 #define ZPG_CHAR_CODE_SOLID_BLOCK 219
@@ -183,8 +184,8 @@ ZPG_EXPORT i32 ZPG_ApiVersion();
 ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree);
 // Shutdown clears any still allocated memory on error returns none 0
 ZPG_EXPORT i32 ZPG_Shutdown();
-ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags,
-    u8** resultPtr, i32* resultWidth, i32* resultHeight);
+//ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags,
+//    u8** resultPtr, i32* resultWidth, i32* resultHeight);
 ZPG_EXPORT void ZPG_RunPresetCLI(
     i32 argc, char** argv,
     u8** resultPtr, i32* resultWidth, i32* resultHeight);

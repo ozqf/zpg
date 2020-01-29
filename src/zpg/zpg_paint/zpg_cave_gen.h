@@ -4,7 +4,8 @@
 #include "zpg_internal.h"
 
 // 0.45 very little paint chance. 0.55 much higher.
-#define ZPG_CAVE_GEN_DEFAULT_CELL_SEED_CHANCE 0.45f
+//#define ZPG_CAVE_GEN_DEFAULT_CELL_SEED_CHANCE 0.45f
+#define ZPG_CAVE_GEN_DEFAULT_CELL_SEED_CHANCE 0.55f
 #define ZPG_CAVE_GEN_CRITICAL_NEIGHBOUR_COUNT 4
 
 /**
@@ -36,26 +37,22 @@ extern "C" void ZPG_SeedCaves(ZPGGrid* grid, ZPGGrid* stencil, u8 paintType, i32
  */
 extern "C" void ZPG_IterateCaves(ZPGGrid* grid, ZPGGrid* stencil, u8 solidType, u8 emptyType)
 {
-    for (i32 y = 0; y < grid->height; ++y)
-    {
-        for (i32 x = 0; x < grid->width; ++x)
+    ZPG_BEGIN_GRID_ITERATE(grid)
+        if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES) { continue; }
+        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+        i32 neighbours = ZPG_Grid_CountNeighboursAt(grid, x, y);
+        if (neighbours < ZPG_CAVE_GEN_CRITICAL_NEIGHBOUR_COUNT)
         {
-            if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES) { continue; }
-            ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-            i32 neighbours = ZPG_Grid_CountNeighboursAt(grid, x, y);
-            if (neighbours < ZPG_CAVE_GEN_CRITICAL_NEIGHBOUR_COUNT)
+            if (cell->tile.type == solidType)
             {
-                if (cell->tile.type == solidType)
-                {
-                    cell->tile.type = emptyType;
-                }
-                else if (cell->tile.type == emptyType)
-                {
-                    cell->tile.type = solidType;
-                }
+                cell->tile.type = emptyType;
+            }
+            else if (cell->tile.type == emptyType)
+            {
+                cell->tile.type = solidType;
             }
         }
-    }
+    ZPG_END_GRID_ITERATE
 }
 
 #endif // ZPG_CAVE_GEN_H
