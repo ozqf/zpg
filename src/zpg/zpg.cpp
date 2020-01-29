@@ -104,6 +104,7 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
     ZPG_AddPresetFunction(ZPG_Test_WalkBetweenPrefabs, "Offset path between two prefabs");
     ZPG_AddPresetFunction(ZPG_Preset_PrefabsLinesCaves, "Offset path around four prefabs");
     ZPG_AddPresetFunction(ZPG_Preset_RoomTreeTest, "Test room tree generate");
+    ZPG_AddPresetFunction(ZPG_TestCaveLayers, "Test Cave Layering");
 
     //printf("Init complete - %d allocs\n", ZPG_GetNumAllocs());
     return 0;
@@ -193,6 +194,17 @@ void ZPG_RunPresetCLI(
     {
         ZPG_WriteGridAsPNG(grid, cfg.imageOutput);
     }
+
+    if (resultPtr != NULL 
+        && resultWidth != NULL
+        && resultHeight != NULL)
+    {
+        *resultPtr = (u8*)grid->cells;
+        *resultWidth = grid->width;
+        *resultHeight = grid->height;
+    }
+    // TODO: Assumes caller will free grid memory
+    // (and that they passed in malloc/free functions)
 }
 
 #if 0

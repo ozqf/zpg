@@ -192,6 +192,18 @@ static void ZPG_CapFillBounds(ZPGGrid* grid, ZPGPoint* min, ZPGPoint* max)
     if (max->y >= grid->height) { max->y = grid->height - 1; }
 }
 
+static void ZPG_AddGridsOfSameSize(ZPGGrid* target, ZPGGrid* source)
+{
+    if (target->width != source->width) { return; }
+    if (target->height != source->height) { return; }
+
+    i32 numCells = target->width * target->height;
+    for (i32 i = 0; i < numCells; ++i)
+    {
+        target->cells[i].tile.type += source->cells[i].tile.type;
+    }
+}
+
 static void ZPG_BlitGrids(ZPGGrid* target, ZPGGrid* source, ZPGPoint topLeft, ZPGGrid* writeStencil)
 {
     if (target == NULL) { return; }

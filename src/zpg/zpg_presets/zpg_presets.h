@@ -199,6 +199,26 @@ static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
     return grid;
 }
 
+static ZPGGrid* ZPG_TestCaveLayers(ZPGPresetCfg* presetCfg)
+{
+    ZPGGrid* grid = ZPG_TestCaveGen(presetCfg);
+    ZPGGrid* gridB = ZPG_TestCaveGen(presetCfg);
+    ZPG_AddGridsOfSameSize(grid, gridB);
+    ZPG_AddGridsOfSameSize(grid, gridB);
+    ZPG_FreeGrid(gridB);
+
+    //ZPG_Grid_PrintValues(grid, YES);
+    ZPG_Grid_PerlinToGreyscale(grid, NULL);
+    //ZPG_Grid_PrintTexture(grid, YES);
+    if (grid->width <= 96 && grid->height <= 96
+        && (presetCfg->flags & ZPG_API_FLAG_PRINT_GREYSCALE))
+    {
+        ZPG_Grid_PrintTexture(grid, NO);
+    }
+
+    return grid;
+}
+
 static ZPGGrid* ZPG_TestDrawOffsetLines(ZPGPresetCfg* presetCfg)
 {
     const i32 width = 72;
