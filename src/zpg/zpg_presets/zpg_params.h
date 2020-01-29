@@ -52,6 +52,12 @@ static void ZPG_InitParams()
     param->helpText = "-p Print final result\n";
 
     param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_FLAG;
+    param->asciChar = 'e';
+    param->data.flag = ZPG_API_FLAG_NO_ENTITIES;
+    param->helpText = "-e Skip adding entities\n";
+
+    param = &g_paramTypes[g_numParamTypes++];
     param->type = ZPG_PARAM_TYPE_FUNCTION;
     param->asciChar = 'a';
     param->data.func = ZPG_ParamAsciOutputFile;

@@ -3,7 +3,7 @@
 
 #include "zpg_internal.h"
 
-static ZPGGrid* ZPG_TestPerlin(ZPGPresetCfg* presetCfg)
+static ZPGGrid* ZPG_Preset_Perlin(ZPGPresetCfg* presetCfg)
 {
     //i32 w = 96, h = 48;
     i32 w = 1024, h = 1024;

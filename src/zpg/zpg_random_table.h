@@ -19,6 +19,12 @@ static i32 ZPG_RandArrIndex(i32 len, i32 seed)
     return rand() % len;
 }
 
+static u8 ZPG_RandU8InRange(i32 index, u8 min, u8 max)
+{
+    u8 range = max - min;
+    return (u8)(rand() % range) + min;
+}
+
 static f32 ZPG_Randf32InRange(i32 index, f32 min, f32 max)
 {
 	return ZPG_Randf32(index) * (max - min) + min;

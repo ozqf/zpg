@@ -27,7 +27,7 @@ set compilerDefines=/DPARANOID=1
 @rem Ws2_32.lib == winsock2
 set compInput_0=../src/main.cpp
 set compInput_1=../src/zpg/zpg.cpp
-set compInput_2=../src/zpg/zpg_perlin.cpp
+set compInput_2=../src/zpg/zpg_paint/zpg_perlin.cpp
 
 @rem === LINK SETTINGS === (disable if running win32 console application test)
 @rem set linkStr=/link

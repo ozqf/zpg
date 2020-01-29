@@ -1,13 +1,14 @@
 #ifndef ZE_PROC_GEN_CPP
 #define ZE_PROC_GEN_CPP
 
-#include "zpg_internal.h"
-
 /*
 Research material
+https://www.gamasutra.com/blogs/HermanTulleken/20161005/282629/Algorithms_for_making_more_interesting_mazes.php
 https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon/
 
 */
+
+#include "zpg_internal.h"
 
 #include "string.h"
 #include "time.h"
@@ -17,24 +18,28 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 #include "zpg_grid.h"
 #include "zpg_utils.h"
 #include "zpg_file.h"
-#include "zpg_draw_grid_primitives.h"
 #include "zpg_embed.h"
 
-// individual generation functions
-#include "zpg_perlin_draw.h"
-#include "zpg_drunken_walk.h"
-#include "zpg_grid_walk_and_fill.h"
-#include "zpg_cave_gen.h"
+// grid painting and individual generation functions
+#include "zpg_paint/zpg_draw_grid_primitives.h"
+#include "zpg_paint/zpg_perlin_draw.h"
+#include "zpg_paint/zpg_drunken_walk.h"
+#include "zpg_paint/zpg_grid_walk_and_fill.h"
+#include "zpg_paint/zpg_cave_gen.h"
 #include "zpg_entities.h"
 
 // Combined generation functions
-#include "zpg_build_prefab.h"
-#include "zpg_build_perlin.h"
+#include "zpg_presets/zpg_build_prefab.h"
+#include "zpg_presets/zpg_build_perlin.h"
+#include "zpg_rooms/zpg_room_tree.h"
 
-#include "zpg_command.h"
-#include "zpg_script.h"
-#include "zpg_presets.h"
-#include "zpg_params.h"
+// preset building
+#include "zpg_presets/zpg_presets.h"
+#include "zpg_presets/zpg_params.h"
+
+// scripted building
+#include "zpg_script/zpg_command.h"
+#include "zpg_script/zpg_script.h"
 
 extern "C" ZPG_EXPORT void ZPG_SetMemoryFunctions(
     zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree)
@@ -91,13 +96,14 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
     ZPG_AddPresetFunction(ZPG_TestDrawOffsetLines, "Test Draw Offset Lines");
     ZPG_AddPresetFunction(ZPG_TestDrawLines, "Test Draw Lines");
     ZPG_AddPresetFunction(ZPG_TestDrunkenWalk_WithinSpace, "Test Drunken walk within space");
-    ZPG_AddPresetFunction(ZPG_TestPerlin, "Test Perlin noise");
+    ZPG_AddPresetFunction(ZPG_Preset_Perlin, "Test Perlin noise");
     ZPG_AddPresetFunction(ZPG_TestLoadAsciFile, "Test asci file load");
     ZPG_AddPresetFunction(ZPG_TestEmbed, "Test Embed");
     ZPG_AddPresetFunction(ZPG_TestBlit, "Test blit");
     ZPG_AddPresetFunction(ZPG_Test_PrefabBuildA, "Prefab Build A");
     ZPG_AddPresetFunction(ZPG_Test_WalkBetweenPrefabs, "Offset path between two prefabs");
     ZPG_AddPresetFunction(ZPG_Preset_PrefabsLinesCaves, "Offset path around four prefabs");
+    ZPG_AddPresetFunction(ZPG_Preset_RoomTreeTest, "Test room tree generate");
 
     //printf("Init complete - %d allocs\n", ZPG_GetNumAllocs());
     return 0;
@@ -155,7 +161,7 @@ void ZPG_RunPreset(
         case 5: grid = ZPG_TestDrawLines(&cfg); break;
         case 6: grid = ZPG_TestDrunkenWalk_WithinSpace(&cfg); break;
         case 7:
-            grid = ZPG_TestPerlin(&cfg);
+            grid = ZPG_Preset_Perlin(&cfg);
             bPrintValues = NO;
             bPrintChars = NO;
             bPlaceEntities = NO;
@@ -279,6 +285,15 @@ void ZPG_RunPresetCLI(
         printf("ERROR - no grid was returned...\n");
         return;
     }
+    if ((cfg.flags & ZPG_API_FLAG_NO_ENTITIES) == 0)
+    {
+        if (cfg.flags & ZPG_API_FLAG_PRINT_WORKING)
+        { printf("-- Grid Loaded --\ncreating entities\n"); }
+        ZPG_Grid_CountNeighourRings(grid);
+        ZPGGrid* entData = ZPG_CreateGrid(grid->width, grid->height);
+        ZPG_AnalyseForEntities(grid, entData, &cfg.seed);
+        ZPG_PlaceScatteredEntities(grid, &cfg.seed);
+    }
     if (cfg.flags & ZPG_API_FLAG_PRINT_RESULT)
     {
         ZPG_Grid_PrintChars(grid, '\0', 0, 0);
@@ -291,36 +306,6 @@ void ZPG_RunPresetCLI(
     {
         ZPG_WriteGridAsPNG(grid, cfg.imageOutput);
     }
-    
-    #if 0
-    printf("Run present params:\n");
-    for (i32 i = 2; i < argc; ++i)
-    {
-        printf("%d: %s\n", i, argv[i]);
-    }
-
-    if (ZPG_STRCMP(argv[2], "list") == 0)
-    {
-        ZPG_PrintPresetsList();
-        return;
-    }
-
-    i32 preset = atoi(argv[2]);
-    if (preset < 0 || preset >= g_nextPreset)
-    {
-        printf("ABORT Unrecognised preset type %d\n", preset);
-        return;
-    }
-    printf("Running preset %d: \"%s\"\n", preset, g_presetLabels[preset]);
-    ZPGPresetCfg cfg = {};
-    ZPGGrid* grid = g_presets[preset](&cfg);
-    if (grid == NULL)
-    {
-        printf("ERROR - no grid was returned...\n");
-        return;
-    }
-    ZPG_Grid_PrintChars(grid, '\0', 0, 0);
-    #endif
 }
 
 ZPG_EXPORT i32 ZPG_Shutdown()
