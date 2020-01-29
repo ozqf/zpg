@@ -10,9 +10,9 @@
 #include "zpg/zpg_common.h"
 #include <stdlib.h>
 
-#define ZPG_API_FLAG_PRINT_RESULT 1
-#define ZPG_API_FLAG_PRINT_WORKING 2
-#define ZPG_API_FLAG_STEP_THROUGH 3
+#define ZPG_API_FLAG_PRINT_RESULT (1 << 0)
+#define ZPG_API_FLAG_PRINT_WORKING (1 << 1)
+#define ZPG_API_FLAG_STEP_THROUGH (1 << 2)
 
 //#define ZPG_CHAR_CODE_SOLID_BLOCK 35
 #define ZPG_CHAR_CODE_SOLID_BLOCK 219

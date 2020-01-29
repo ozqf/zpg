@@ -58,7 +58,8 @@ static void ZPG_RandomStepWithinRect(
  * Returns final position
  */
 extern "C" ZPGPoint ZPG_GridRandomWalk(
-    ZPGGrid* grid, ZPGGrid* stencil, ZPGRect* borderRect, ZPGWalkCfg* cfg, ZPGPoint dir)
+    ZPGGrid* grid, ZPGGrid* stencil,
+    ZPGRect* borderRect, ZPGWalkCfg* cfg, ZPGPoint dir)
 {
     ZPGPoint cursor = { cfg->startX, cfg->startY };
     ZPGPoint lastPos = cursor;
@@ -72,7 +73,8 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     }
     if (cfg->bPlaceObjectives)
     {
-        ZPG_Grid_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_START, NULL);
+        ZPG_Grid_SetCellTypeAt(
+            grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_START, NULL);
     }
     ZPGRect border;
     // setup border
@@ -115,7 +117,8 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
                     printf("Paint cell %d at %d/%d\n",
                         cfg->typeToPaint, cursor.x, cursor.y);
                 }
-                ZPG_Grid_SetCellTypeAt(grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
+                ZPG_Grid_SetCellTypeAt(
+                    grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
             }
             lastPos = cursor;
             tilesPlaced++;
@@ -144,7 +147,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     }
     //printf("Drunken walk placed %d tiles in %d iterations\n",
     //    tilesPlaced, iterations);
-    ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    //ZPG_Grid_PrintChars(grid, '\0', 0, 0);
     return cursor;
 }
 
@@ -157,7 +160,9 @@ static void ZPG_PrintPointsArray(ZPGPoint* points, i32 numPoints)
 }
 
 extern "C" void ZPG_PlotSegmentedPath_Old(
-    ZPGGrid* grid, i32* seed, ZPGPoint* points, i32 numPoints, i32 bVertical, i32 bEndpointsSet)
+    ZPGGrid* grid, i32* seed,
+    ZPGPoint* points, i32 numPoints,
+    i32 bVertical, i32 bEndpointsSet)
 {
     i32 lastIndex = numPoints - 1;
     i32 numLines = (numPoints - 1);

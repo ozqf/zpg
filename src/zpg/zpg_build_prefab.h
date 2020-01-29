@@ -244,15 +244,19 @@ static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
     ZPG_FillRectWithStencil(grid, stencil, { 1, 1 }, { w - 1, h - 1}, ZPG2_CELL_TYPE_VOID);
-    ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    if (presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING)
+    { ZPG_Grid_PrintChars(grid, '\0', 0, 0); }
     ZPG_SeedCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, &presetCfg->seed);
-    ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    if (presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING)
+    { ZPG_Grid_PrintChars(grid, '\0', 0, 0); }
+
     for (i32 i = 0; i < 5; ++i)
     {
         ZPG_IterateCaves(grid, stencil, ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_VOID);
     }
-    
-    ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    if (presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING)
+    { ZPG_Grid_PrintChars(grid, '\0', 0, 0); }
+
     ZPGGridPrefab* room = ZPG_GetPrefabByIndex(0);
     i32 step = 5;
     i32 pointX = w - (room->grid->width) - step;
