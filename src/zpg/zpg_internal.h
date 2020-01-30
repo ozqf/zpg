@@ -103,7 +103,8 @@ struct ZPGParam
     union
     {
         i32 flag;
-        zpg_param_fn func;    
+        i32 integerOffsetBytes;
+        zpg_param_fn func;
     } data;
 };
 

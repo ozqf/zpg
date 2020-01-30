@@ -6,12 +6,23 @@
 #define ZPG_PARAM_TYPE_FLAG 0
 #define ZPG_PARAM_TYPE_STRING 1
 #define ZPG_PARAM_TYPE_FUNCTION 2
+#define ZPG_PARAM_TYPE_INTEGER 3
 
-static i32 ZPG_ParamPrintResult(i32 argc, char** argv, ZPGPresetCfg* cfg)
+// static i32 ZPG_ParamPrintResult(i32 argc, char** argv, ZPGPresetCfg* cfg)
+// {
+//     printf("Set print result\n");
+//     cfg->flags |= ZPG_API_FLAG_PRINT_RESULT;
+//     return 0;
+// }
+
+static i32 ZPG_ParamReadInt(i32 argc, char** argv, ZPGPresetCfg* cfg, i32 offsetBytes)
 {
-    printf("Set print result\n");
-    cfg->flags |= ZPG_API_FLAG_PRINT_RESULT;
-    return 0;
+    if (argc <= 0) { printf("Cannot read int - no more params!\n"); return 0; }
+    i32 val = atoi(argv[1]);
+    i32* target = (i32*)((u8*)cfg + offsetBytes);
+    *target = val;
+    printf("Set int at %d to %d\n\n", offsetBytes, *target);
+    return 1;
 }
 
 static i32 ZPG_ParamAsciOutputFile(i32 argc, char** argv, ZPGPresetCfg* cfg)
@@ -64,6 +75,21 @@ static void ZPG_InitParams()
     param->helpText = "-g print greyscale if applicable\n";
 
     param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_FLAG;
+    param->asciChar = 's';
+    param->data.flag = ZPG_API_FLAG_NO_ENTITIES;
+    param->helpText = "-s Integer Seed. If not specified a random one is used\n";
+
+    ZPGPresetCfg cfg;
+    param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_INTEGER;
+    param->asciChar = 's';
+    u8* start = (u8*)&cfg;
+    u8* end = (u8*)&cfg.seed;
+    param->data.integerOffsetBytes = (i32)(end - start);
+    param->helpText = "-s Integer Seed. If not specified a random one is used\n";
+
+    param = &g_paramTypes[g_numParamTypes++];
     param->type = ZPG_PARAM_TYPE_FUNCTION;
     param->asciChar = 'a';
     param->data.func = ZPG_ParamAsciOutputFile;
@@ -86,13 +112,12 @@ static void ZPG_Params_PrintHelp()
     printf("\n");
 }
 
-static ZPGPresetCfg ZPG_Params_ReadForPreset(i32 argc, char** argv)
+static void ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** argv)
 {
-    ZPGPresetCfg cfg = {};
     // skip first two args.
     // Read third arg as preset number
     
-    cfg.preset = atoi(argv[2]);
+    cfg->preset = atoi(argv[2]);
     
     i32 i = 3;
     while (i < argc)
@@ -119,10 +144,20 @@ static ZPGPresetCfg ZPG_Params_ReadForPreset(i32 argc, char** argv)
                 switch (param->type)
                 {
                     case ZPG_PARAM_TYPE_FLAG:
-                    cfg.flags |= param->data.flag;
+                    cfg->flags |= param->data.flag;
+                    break;
+                    case ZPG_PARAM_TYPE_INTEGER:
+                    i += ZPG_ParamReadInt(
+                        (argc - index),
+                        &argv[index],
+                        cfg,
+                        param->data.integerOffsetBytes);
                     break;
                     case ZPG_PARAM_TYPE_FUNCTION:
-                    i += param->data.func((argc - index), &argv[index], &cfg);
+                    i += param->data.func(
+                        (argc - index),
+                        &argv[index],
+                        cfg);
                     break;
                 }
             }
@@ -132,17 +167,16 @@ static ZPGPresetCfg ZPG_Params_ReadForPreset(i32 argc, char** argv)
             printf("Unrecognised setting %s\n", arg);
         }
     }
-    printf("Run preset %d\n", cfg.preset);
-    printf("Read flags %d\n", cfg.flags);
-    if (cfg.asciOutput != NULL)
+    printf("Run preset %d\n", cfg->preset);
+    printf("Read flags %d\n", cfg->flags);
+    if (cfg->asciOutput != NULL)
     {
-        printf("Save ASCI to %s\n", cfg.asciOutput);
+        printf("Save ASCI to %s\n", cfg->asciOutput);
     }
-    if (cfg.imageOutput != NULL)
+    if (cfg->imageOutput != NULL)
     {
-        printf("Save PNG output to %s\n", cfg.imageOutput);
+        printf("Save PNG output to %s\n", cfg->imageOutput);
     }
-    return cfg;
 }
 
 #endif // ZPG_PARAMS_H

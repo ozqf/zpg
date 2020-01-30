@@ -143,11 +143,11 @@ void ZPG_RunPresetCLI(
         ZPG_PrintPresetHelp(argv[0]);
         return;
     }
-    i32 srandSeed;
+    ZPGPresetCfg cfg = {};
     // Seed randomly - param may override
-    srandSeed = (i32)time(NULL);
+    cfg.seed = (i32)time(NULL);
     // read params
-    ZPGPresetCfg cfg = ZPG_Params_ReadForPreset(argc, argv);
+    ZPG_Params_ReadForPreset(&cfg, argc, argv);
     if (cfg.preset < 0 || cfg.preset >= g_nextPreset)
     {
         printf("ABORT Unrecognised preset type %d\n", cfg.preset);
@@ -157,8 +157,8 @@ void ZPG_RunPresetCLI(
     
     /////////////////////////////////////////////
     // Run
-    printf("Seed: %d\n", srandSeed);
-    srand(srandSeed);
+    printf("Seed: %d\n", cfg.seed);
+    srand(cfg.seed);
     ZPGGrid* grid = g_presets[cfg.preset](&cfg);
     if (grid == NULL)
     {

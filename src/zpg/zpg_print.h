@@ -15,6 +15,7 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
     printf("------ Grid %d/%d ------\n", grid->width, grid->height);
     for (i32 y = 0; y < grid->height; ++y)
     {
+        printf("|");
         for (i32 x = 0; x < grid->width; ++x)
         {
             ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
@@ -27,7 +28,7 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
                 printf("%d", cell->tile.type);
             }
         }
-        printf("\n");
+        printf("|\n");
     }
     printf("------------------\n");
 }
