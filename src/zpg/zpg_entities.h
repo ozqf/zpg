@@ -91,13 +91,9 @@ static void ZPG_AnalyseForEntities(ZPGGrid* grid, ZPGGrid* result, i32* seed)
 {
     printf("Analysing grid for entities\n");
     ZPG_Grid_Clear(result);
-    for (i32 y = 0; y < grid->height; ++y)
-    {
-        for (i32 x = 0; x < grid->width; ++x)
-        {
-            ZPG_AnalyseCellForEntities(grid, x, y, result, seed);
-        }
-    }
+    ZPG_BEGIN_GRID_ITERATE(grid)
+        ZPG_AnalyseCellForEntities(grid, x, y, result, seed);
+    ZPG_END_GRID_ITERATE
     printf("Entity analysis result:\n");
     //ZPG_Grid_PrintValues(result, YES);
 }
@@ -151,13 +147,13 @@ static i32 ZPG_PlaceScatteredObjectives(ZPGGrid* grid, ZPGEntityInfo* ents, i32 
     qsort(ents, numEnts, sizeof(ZPGEntityInfo), ZPG_CompareEntsByDistance);
     
     // end of list is start
-    ents[numEnts - 1].entType = ZPG2_CELL_TYPE_START;// ZPG_ENTITY_TYPE_START;
-    ents[numEnts - 2].entType = ZPG2_CELL_TYPE_END;// ZPG_ENTITY_TYPE_END;
+    ents[numEnts - 1].entType = ZPG_CELL_TYPE_START;// ZPG_ENTITY_TYPE_START;
+    ents[numEnts - 2].entType = ZPG_CELL_TYPE_END;// ZPG_ENTITY_TYPE_END;
     // mark any remaining items to objectives
     i32 numRemainingEnts = numEnts - 2;
     for (i32 i = 0; i < numRemainingEnts; ++i)
     {
-        ents[i].entType = ZPG2_CELL_TYPE_KEY;
+        ents[i].entType = ZPG_CELL_TYPE_KEY;
     }
 
     #if 0 // debug
@@ -228,7 +224,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
                 objectives[numObjectives].pos.y = y;
                 numObjectives++;
             }
-            else if (def->value == ZPG2_CELL_TYPE_PATH)
+            else if (def->value == ZPG_CELL_TYPE_PATH)
             {
                 emptyTiles[numEmptyTiles].x = x;
                 emptyTiles[numEmptyTiles].y = y;
@@ -260,7 +256,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
 
         // place enemy
         ZPGPoint* p = &emptyTiles[randomIndex];
-        ZPG_Grid_SetCellTypeAt(grid, p->x, p->y, ZPG2_CELL_TYPE_ENEMY, NULL);
+        ZPG_Grid_SetCellTypeAt(grid, p->x, p->y, ZPG_CELL_TYPE_ENEMY, NULL);
         tilesCursor--;
 
         // Reduce usable tiles

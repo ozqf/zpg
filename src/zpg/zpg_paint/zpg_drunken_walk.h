@@ -74,7 +74,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     if (cfg->bPlaceObjectives)
     {
         ZPG_Grid_SetCellTypeAt(
-            grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_START, NULL);
+            grid, cursor.x, cursor.y, ZPG_CELL_TYPE_START, NULL);
     }
     ZPGRect border;
     // setup border
@@ -143,7 +143,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     //ZPG_SetCellTagAt(grid, lastPos.x, lastPos.y, ZPG_CELL_TAG_RANDOM_WALK_END);
     if (cfg->bPlaceObjectives)
     {
-        ZPG_Grid_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG2_CELL_TYPE_END, NULL);
+        ZPG_Grid_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG_CELL_TYPE_END, NULL);
     }
     //printf("Drunken walk placed %d tiles in %d iterations\n",
     //    tilesPlaced, iterations);

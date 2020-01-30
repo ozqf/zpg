@@ -3,6 +3,8 @@
 
 #include "../zpg.h"
 #include <stdio.h>
+#include <string.h>
+#include <time.h>
 
 #define ZPG_ABS(value) (value = (value >= 0 ? value : -value))
 #define ZPG_MIN(x, y) ((x) < (y) ? (x) : (y))
@@ -22,6 +24,10 @@ memcpy(##destinationPtr##, sourcePtr##, numBytesToCopy##)
 
 #define ZPG_PARAM_NULL(paramPtr, failureReturnVal) \
 if (##paramPtr == NULL) { printf("Param %s was null\n", #paramPtr##); return failureReturnVal; }
+
+#define ZPG_PARAM_GRIDS_EQUAL_SIZE(gridAPtr, gridBPtr, failureReturnVal) \
+if (gridAPtr->width != gridBPtr->width || gridAPtr->height != gridBPtr->height) \
+{ printf("Grid size mismatch %d - %s\n", __LINE__, __FILE__); return failureReturnVal; }
 
 //////////////////////////////////////////
 // Iterating grid cells
@@ -125,11 +131,12 @@ static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original);
 static void ZPG_Grid_CalcStats(ZPGGrid* grid);
 static i32 ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y);
 static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y);
-static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid);
+static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result);
 static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes);
 static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y);
 static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY);
-static void ZPG_Grid_PerlinToGreyscale(ZPGGrid* source, ZPGGrid* destination);
+static void ZPG_Grid_PerlinToGreyscale(
+    ZPGGrid* source, ZPGGrid* destination, u8 sourceChannel, u8 destChannel, i32 bSetAlpha);
 static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);
 static void ZPG_FreeGrid(ZPGGrid* grid);
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);

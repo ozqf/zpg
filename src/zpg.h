@@ -27,39 +27,29 @@
 #define ZPG_CELL_CATEGORY_OBJECTIVE 1
 #define ZPG_CELL_CATEGORY_ENEMY 2
 
-#define ZPG2_CELL_TYPE_PATH 0
-#define ZPG2_CELL_TYPE_WALL 1
-#define ZPG2_CELL_TYPE_VOID 2
+#define ZPG_CELL_TYPE_PATH 0
+#define ZPG_CELL_TYPE_WALL 1
+#define ZPG_CELL_TYPE_VOID 2
 
-#define ZPG2_CELL_TYPE_START 3
-#define ZPG2_CELL_TYPE_END 4
-#define ZPG2_CELL_TYPE_KEY 5
-#define ZPG2_CELL_TYPE_ENEMY 6
+#define ZPG_CELL_TYPE_START 3
+#define ZPG_CELL_TYPE_END 4
+#define ZPG_CELL_TYPE_KEY 5
+#define ZPG_CELL_TYPE_ENEMY 6
 
 #define ZPG_STENCIL_TYPE_EMPTY 0
 #define ZPG_STENCIL_TYPE_FULL 1
 
-/*
-#define ZPG_ENTITY_TYPE_NONE 0
-#define ZPG_ENTITY_TYPE_START 1
-#define ZPG_ENTITY_TYPE_END 2
-#define ZPG_ENTITY_TYPE_OBJECTIVE 3
-#define ZPG_ENTITY_TYPE_ENEMY 4
-#define ZPG_ENTITY_TYPE_ITEM 5
-
-#define ZPG_CELL_TYPE_NONE 0
-#define ZPG_CELL_TYPE_FLOOR 1
-#define ZPG_CELL_TYPE_WALL 2
-#define ZPG_CELL_TYPE_WATER 3
-
-#define ZPG_CELL_TAG_NONE 0
-#define ZPG_CELL_TAG_RANDOM_WALK_START 1
-#define ZPG_CELL_TAG_RANDOM_WALK_END 2
-*/
 #define ZPG_CELL_CHANNEL_R 0
 #define ZPG_CELL_CHANNEL_G 1
 #define ZPG_CELL_CHANNEL_B 2
 #define ZPG_CELL_CHANNEL_A 3
+
+#define ZPG_CAVE_GEN_SEED_CHANCE_LOW 0.45f
+#define ZPG_CAVE_GEN_SEED_CHANCE_DEFAULT 0.55f
+#define ZPG_CAVE_GEN_SEED_CHANCE_HIGH 0.6f
+
+#define ZPG_CAVE_GEN_CRITICAL_NEIGHBOURS_DEFAULT 4
+
 
 //////////////////////////////////////////
 // Data types
@@ -118,22 +108,34 @@ struct ZPGWalkCfg
     u8 bStepThrough;
 };
 
+// TODO: This could get very messy as more functionality is piled in.
 #pragma pack(push, 1)
 union ZPGCell
 {
     u8 arr[4];
+    // Main type, stores main output values.
     struct
     {
         u8 type;
+        // heightmap. 
+        u8 height;
         // rotation degrees divided by two
         // to fit within one byte
         u8 halfDegrees;
-        // count of concentric rings of neighbours
-        u8 rings;
         // Extra working value
         // eg recording that a cell has been visited
-        u8 tag;
+        u8 tag; // TODO: Move into separate working grid like ent data
     } tile;
+    // Store additional data about another grid for placing entities 
+    struct
+    {
+        u8 type;
+        // immediate neighbour tile types
+        u8 neighbours;
+        // count of concentric rings of neighbours
+        u8 rings;
+    } entData;
+    // Treat the grid as a 32bit texture
     struct
     {
         u8 r, g, b, a;

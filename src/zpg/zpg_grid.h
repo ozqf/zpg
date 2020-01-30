@@ -265,150 +265,41 @@ static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y)
     return result;
 }
 
-static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid)
+/**
+ * result must be the same size as grid!
+ */
+static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result)
 {
+    ZPG_PARAM_NULL(grid, );
+    ZPG_PARAM_NULL(result, );
+    ZPG_PARAM_GRIDS_EQUAL_SIZE(grid, result, )
     printf("Calc rings\n");
     for (i32 y = 0; y < grid->height; ++y)
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
-            cell->tile.rings = ZPG_Grid_CountNeighourRingsAt(grid, x, y);
+            //ZPGCell *source = ZPG_Grid_GetCellAt(grid, x, y);
+            ZPGCell *target = ZPG_Grid_GetCellAt(grid, x, y);
+            target->entData.rings = ZPG_Grid_CountNeighourRingsAt(grid, x, y);
         }
     }
-}
-
-static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
-{
-    if (grid == NULL) { return; }
-    printf("------ Grid %d/%d ------\n", grid->width, grid->height);
-    for (i32 y = 0; y < grid->height; ++y)
-    {
-        for (i32 x = 0; x < grid->width; ++x)
-        {
-            ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
-            if (bBlankZeroes && cell->tile.type == 0)
-            {
-                printf(" ");
-            }
-            else
-            {
-                printf("%d", cell->tile.type);
-            }
-        }
-        printf("\n");
-    }
-    printf("------------------\n");
-}
-
-static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y)
-{
-    if (x < 0 || x >= grid->width) { return false; }
-    if (y < 0 || y >= grid->height) { return false; }
-    return true;
-}
-
-/**
- * Send '\0' marker to place no special marker
- */
-static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY)
-{
-    printf("------ Grid %d/%d (%d total tiles, %d path tiles, %d objectives)------\n",
-        grid->width,
-        grid->height,
-        grid->width * grid->height,
-        grid->stats.numFloorTiles,
-        grid->stats.numObjectiveTags);
-    i32 xNum = 0;
-    i32 yNum = 0;
-    printf(" ");
-    for (i32 x = 0; x < grid->width; ++x)
-    {
-        printf("%d", xNum++);
-        if (xNum >= 10) { xNum = 0; }
-    }
-    printf("\n");
-    for (i32 y = 0; y < grid->height; ++y)
-    {
-        printf("%d", yNum++);
-        if (yNum >= 10) { yNum = 0; }
-        for (i32 x = 0; x < grid->width; ++x)
-        {
-            ZPGCellTypeDef* def = ZPG_Grid_GetCellTypeAt(grid, x, y);
-            u8 c = def->asciChar;
-            // Special case
-            if (c == '#')
-            {
-                c = 219;
-            }
-            if (c == '.')
-            {
-                c = 176;
-            }
-            if (marker != '\0' && x == markerX && y == markerY)
-            {
-                c = marker;
-            }
-            printf("%c", c);
-        }
-        printf("\n");
-    }
-    printf("------------------\n");
-}
-
-/**
- * Goes by red channel only. assumes 0-255 range
- */
-static void ZPG_Grid_PrintTexture(ZPGGrid* grid, i32 bColourIndices)
-{
-    const u8 white = 219;
-    const u8 lightGrey = 178;
-    const u8 middleGrey = 177;
-    const u8 darkGrey = 176;
-    const u8 black = ' ';
-    //u8 colours[] = { white, lightGrey, middleGrey, darkGrey, black };
-    u8 colours[] = { black, darkGrey, middleGrey, lightGrey, white };
-    //u8 colours[] = { white, lightGrey, middleGrey, darkGrey };
-    //u8 colours[] = { lightGrey, middleGrey, darkGrey, white };
-    u8 numColours = sizeof(colours);
-
-    u8 divider = (u8)(255 / (numColours - 1));
-    //divider -= 1;
-    printf("Sizeof(colours): %d divider %d\n", sizeof(colours), divider);
-    printf("------ Grayscale texture %d/%d ------\n", grid->width, grid->height);
-    for (i32 y = 0; y < grid->height; ++y)
-    {
-        for (i32 x = 0; x < grid->width; ++x)
-        {
-            u8 r = grid->cells[x + (y * grid->width)].colour.r;
-            u8 outputIndex = (u8)((f32)((f32)r / (f32)divider) + 0.5f);
-            u8 ch = colours[outputIndex];
-            //if (outputIndex >= numColours) { outputIndex = numColours - 1; }
-            if (bColourIndices == YES)
-            {
-                printf("%3d: (%3d),", r, outputIndex);
-            }
-            else
-            {
-                printf("%c", ch);
-            }
-        }
-        printf("\n");
-    }
-    printf("----------------------\n");
 }
 
 /**
  * If no destination is supplied, write the new values back into the source;
+ * source channel can be 0-3. dest can only be 0-2 (alpha is always 255)
  */
-static void ZPG_Grid_PerlinToGreyscale(ZPGGrid* source, ZPGGrid* destination)
+static void ZPG_Grid_PerlinToGreyscale(
+    ZPGGrid* source, ZPGGrid* destination, u8 sourceChannel, u8 destChannel, i32 bSetAlpha)
 {
-    if (source == NULL) { return; }
+    ZPG_PARAM_NULL(source, )
+    if (sourceChannel > 3) { return; }
+    if (destChannel > 2) { return; }
     u8 highest = 0;
     i32 numPixels = source->width * source->height;
     for (i32 i = 0; i < numPixels; ++i)
     {
-        u8 cellValue = source->cells[i].tile.type;
+        u8 cellValue = source->cells[i].arr[sourceChannel];
         if (cellValue > highest)
         {
             highest = cellValue;
@@ -419,11 +310,12 @@ static void ZPG_Grid_PerlinToGreyscale(ZPGGrid* source, ZPGGrid* destination)
     printf("Grayscale conversion highest value %d - step %d\n", highest, step);
     for (i32 i = 0; i < numPixels; ++i)
     {
-        u8 cellValue = source->cells[i].tile.type;
-        source->cells[i].colour.r = cellValue * step;
-        source->cells[i].colour.g = 0;//cellValue * step;
-        source->cells[i].colour.b = 0;//cellValue * step;
-        source->cells[i].colour.a = 255;
+        u8 cellValue = source->cells[i].arr[sourceChannel];
+        destination->cells[i].arr[destChannel] = cellValue * step;
+        if (bSetAlpha)
+        {
+            source->cells[i].colour.a = 255;
+        }
     }
 }
 
@@ -448,7 +340,7 @@ static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
     for (i32 i = 0; i < totalCells; ++i)
     {
         grid->cells[i] = {};
-        grid->cells[i].tile.type = ZPG2_CELL_TYPE_WALL;
+        grid->cells[i].tile.type = ZPG_CELL_TYPE_WALL;
     }
     grid->width = width;
     grid->height = height;

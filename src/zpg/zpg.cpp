@@ -8,10 +8,10 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 
 */
 
+// Internally shared functionality
 #include "zpg_internal.h"
 
-#include "string.h"
-#include "time.h"
+// implementations
 #include "zpg_random_table.h"
 #include "zpg_cell_types.h"
 #include "zpg_alloc.h"
@@ -19,6 +19,7 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 #include "zpg_utils.h"
 #include "zpg_file.h"
 #include "zpg_embed.h"
+#include "zpg_print.h"
 
 // grid painting and individual generation functions
 #include "zpg_paint/zpg_draw_grid_primitives.h"
@@ -166,19 +167,22 @@ void ZPG_RunPresetCLI(
     }
 
     // disable crazy console prints
-    if (grid->width > 100 || grid->height > 100)
-    {
-        printf("Grid size %d/%d is too large for console printing\n",
-            grid->width, grid->height);
-        cfg.flags &= ~ZPG_API_FLAG_PRINT_RESULT;
-        cfg.flags &= ~ZPG_API_FLAG_PRINT_WORKING;
-    }
+	// TODO: Remove this - handled in print functions themselves as they should
+	// have been!
+    // if (grid->width > 100 || grid->height > 100)
+    // {
+        // printf("Grid size %d/%d is too large for console printing\n",
+            // grid->width, grid->height);
+        // cfg.flags &= ~ZPG_API_FLAG_PRINT_RESULT;
+        // cfg.flags &= ~ZPG_API_FLAG_PRINT_WORKING;
+    // }
     if ((cfg.flags & ZPG_API_FLAG_NO_ENTITIES) == 0)
     {
         if (cfg.flags & ZPG_API_FLAG_PRINT_WORKING)
         { printf("-- Grid Loaded --\ncreating entities\n"); }
-        ZPG_Grid_CountNeighourRings(grid);
         ZPGGrid* entData = ZPG_CreateGrid(grid->width, grid->height);
+        ZPG_Grid_CountNeighourRings(grid, entData);
+        
         ZPG_AnalyseForEntities(grid, entData, &cfg.seed);
         ZPG_PlaceScatteredEntities(grid, &cfg.seed);
     }

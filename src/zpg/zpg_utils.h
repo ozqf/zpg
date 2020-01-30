@@ -250,7 +250,7 @@ static i32 ZPG_RaycastForHitOrGridEdge(
         ZPGCell* cell = ZPG_Grid_GetCellAt(grid, plotX, plotY);
         if (cell != NULL)
         {
-            //ZPG_Grid_SetCellTypeAt(grid, plotX, plotY, ZPG2_CELL_TYPE_VOID, NULL);
+            //ZPG_Grid_SetCellTypeAt(grid, plotX, plotY, ZPG_CELL_TYPE_VOID, NULL);
             if (cell->tile.type != 0)
             {
                 bHit = YES;

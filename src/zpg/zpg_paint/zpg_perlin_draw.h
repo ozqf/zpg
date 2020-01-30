@@ -156,7 +156,7 @@ static void ZPG_DrawPerlinGrid(
         ZPG_ApplyPerlinThreshold(grid, stencil, types, 3);
         #endif
         #if 1
-        u8 types[] = { ZPG2_CELL_TYPE_WALL, ZPG2_CELL_TYPE_PATH };
+        u8 types[] = { ZPG_CELL_TYPE_WALL, ZPG_CELL_TYPE_PATH };
         ZPG_ApplyPerlinThreshold(grid, stencil, types, 2);
         #endif
     }
