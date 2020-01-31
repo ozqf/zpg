@@ -13,6 +13,13 @@ static i32 ZPG_Grid_PositionToIndex(ZPGGrid* grid, i32 x, i32 y)
     return x + (y * grid->width);
 }
 
+static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y)
+{
+    if (x < 0 || x >= grid->width) { return false; }
+    if (y < 0 || y >= grid->height) { return false; }
+    return true;
+}
+
 static ZPGCell* ZPG_Grid_GetCellAt(ZPGGrid* grid, i32 x, i32 y)
 {
     i32 i = ZPG_Grid_PositionToIndex(grid, x, y);
@@ -33,6 +40,14 @@ static i32 ZPG_Grid_CheckTypeAt(
     ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
     if (cell == NULL) { return bYesIfOutOfBounds ? YES : NO; }
     return (cell->tile.type == queryType);
+}
+
+static i32 ZPG_Grid_CheckTagSetAt(
+    ZPGGrid* grid, i32 x, i32 y, u8 queryType, i32 bYesIfOutOfBounds)
+{
+    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+    if (cell == NULL) { return bYesIfOutOfBounds ? YES : NO; }
+    return (cell->tile.tag == queryType);
 }
 
 static void ZPG_Grid_Clear(ZPGGrid* grid)
@@ -350,6 +365,18 @@ static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
 static void ZPG_FreeGrid(ZPGGrid* grid)
 {
     ZPG_Free(grid->cells);
+}
+
+/**
+ * Create an array of points equal to the size of the grid
+ * (for searches etc)
+ */
+static i32 ZPG_Grid_CreatePointsArray(ZPGGrid* grid, ZPGPoint** points)
+{
+    i32 numCells = grid->width * grid->height;
+    i32 numBytes = sizeof(ZPGPoint) * numCells;
+    *points = (ZPGPoint*)ZPG_Alloc(numBytes);
+    return numCells;
 }
 
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)

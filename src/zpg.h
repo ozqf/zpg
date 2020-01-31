@@ -108,6 +108,11 @@ struct ZPGWalkCfg
     u8 bStepThrough;
 };
 
+#define ZPG_CELL_CHANNEL_0 0
+#define ZPG_CELL_CHANNEL_1 1
+#define ZPG_CELL_CHANNEL_2 2
+#define ZPG_CELL_CHANNEL_3 3
+
 // TODO: This could get very messy as more functionality is piled in.
 #pragma pack(push, 1)
 union ZPGCell
@@ -116,13 +121,14 @@ union ZPGCell
     // Main type, stores main output values.
     struct
     {
+        // channel 0
         u8 type;
-        // heightmap. 
+        // channel 1 - heightmap. 
         u8 height;
-        // rotation degrees divided by two
+        // channel 2 - rotation degrees divided by two
         // to fit within one byte
         u8 halfDegrees;
-        // Extra working value
+        // channel 3 - Extra working stencil value
         // eg recording that a cell has been visited
         u8 tag; // TODO: Move into separate working grid like ent data
     } tile;

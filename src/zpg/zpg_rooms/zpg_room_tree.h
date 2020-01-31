@@ -40,7 +40,7 @@ static void ZPG_ZeroOutLoneValues(ZPGGrid* grid)
 
 static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 {
-    ZPGGrid* grid = ZPG_CreateGrid(16, 8);
+    ZPGGrid* grid = ZPG_CreateGrid(4, 4);
     printf("Assign random values\n");
     ZPG_SetRandomGridValues(grid, 2, 9, &cfg->seed);
     ZPG_Grid_PrintValues(grid, YES);
@@ -53,14 +53,50 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     ZPG_ZeroOutLoneValues(grid);
     ZPG_Grid_PrintValues(grid, YES);
     printf("Flood fill space\n");
-    i32 x, y;
-    ZPGCell* cell = ZPG_Grid_FindFirstCellWithType(grid, 0, &x, &y);
+    i32 posX, posY;
+    ZPGCell* cell = ZPG_Grid_FindFirstCellWithType(grid, 0, &posX, &posY);
     while (cell != NULL)
     {
-        ZPG_Grid_FloodFill(grid, x, y, 1);
-        cell = ZPG_Grid_FindFirstCellWithType(grid, 0, &x, &y);
+        ZPG_Grid_FloodFill(grid, posX, posY, 1);
+        cell = ZPG_Grid_FindFirstCellWithType(grid, 0, &posX, &posY);
     }
+    // working array of cell positions
+    ZPGPoint* points;
+    i32 maxPoints = ZPG_Grid_CreatePointsArray(grid, &points);
+    // Stencil to mark visited cells
+    //ZPGGrid* stencil = ZPG_CreateGrid(grid->width, grid->height);
+    printf("Created %d points\n", maxPoints);
+    // show results
     ZPG_Grid_PrintValues(grid, YES);
+
+    /////////////////////////////////////////////
+    // Search for rooms... somehow.
+    // use tag to record that a cell has been added to a room already
+    ZPG_Grid_ClearAllTags(grid);
+    i32 numCells = grid->width * grid->height;
+    i32 numRooms = 0;
+    ZPG_BEGIN_GRID_ITERATE(grid)
+        cell = ZPG_Grid_GetCellAt(grid, x, y);
+        if (cell->tile.tag > 0) { continue; }
+        printf(" Start room value %d at %d/%d\n", cell->tile.type, x, y);
+        printf("--- Tags ---\n");
+        ZPG_Grid_PrintChannelValues(grid, ZPG_CELL_CHANNEL_3, YES);
+        // new room start gathering tiles
+        numRooms++;
+        i32 numPoints = ZPG_Grid_FloodSearch(grid, x, y, points, maxPoints);
+        printf("Room %d, %d cells: ", numRooms, numPoints);
+        for (i32 j = 0; j < numPoints; ++j)
+        {
+            printf("%d/%d, ", points[j].x, points[j].y);
+            ZPGCell* pointCell = ZPG_Grid_GetCellAt(grid, points[j].x, points[j].y);
+            pointCell->tile.tag = 1;
+        }
+        printf("\n");
+        ZPG_PrintPointsAsGrid(points, numPoints, grid->width, grid->height);
+    ZPG_END_GRID_ITERATE
+    ZPG_Grid_PrintChannelValues(grid, ZPG_CELL_CHANNEL_3, YES);
+    // build room connections tree
+
     return grid;
 }
 

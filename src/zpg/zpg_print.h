@@ -33,11 +33,63 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
     printf("------------------\n");
 }
 
-static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y)
+static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 channel, i32 bBlankZeroes)
 {
-    if (x < 0 || x >= grid->width) { return false; }
-    if (y < 0 || y >= grid->height) { return false; }
-    return true;
+    ZPG_PARAM_NULL(grid, )
+	if (grid->width > 100 || grid->height > 100)
+	{
+		printf("SKIP: Grid size %d/%d is too big to print\n", grid->width, grid->height);
+		return;
+	}
+    if (channel < 0 || channel > 3) { channel = 0; }
+    printf("------ Grid %d/%d ------\n", grid->width, grid->height);
+    for (i32 y = 0; y < grid->height; ++y)
+    {
+        printf("|");
+        for (i32 x = 0; x < grid->width; ++x)
+        {
+            ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
+            if (bBlankZeroes && cell->arr[channel] == 0)
+            {
+                printf(" ");
+            }
+            else
+            {
+                printf("%d", cell->arr[channel]);
+            }
+        }
+        printf("|\n");
+    }
+    printf("------------------\n");
+}
+
+static void ZPG_PrintPointsAsGrid(
+    ZPGPoint* points, i32 numPoints, i32 width, i32 height)
+{
+    i32 pointsPrinted = 0;
+    for (i32 y = 0; y < height; ++y)
+    {
+        printf("|");
+        for (i32 x = 0; x < width; ++x)
+        {
+            i32 bPrintPoint = NO;
+            for (i32 i = 0; i < numPoints; ++i)
+            {
+                if (points[i].x == x && points[i].y == y)
+                {
+                    bPrintPoint = YES;
+                    break;
+                }
+            }
+            if (bPrintPoint == YES)
+            {
+                printf("X");
+                continue;
+            }
+            printf(" ");
+        }
+        printf("|\n");
+    }
 }
 
 /**

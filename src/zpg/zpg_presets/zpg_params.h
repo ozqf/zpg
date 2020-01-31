@@ -159,6 +159,9 @@ static void ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** argv)
                         &argv[index],
                         cfg);
                     break;
+                    default:
+                    printf("Unknown option %d\n", c);
+                    break;
                 }
             }
         }

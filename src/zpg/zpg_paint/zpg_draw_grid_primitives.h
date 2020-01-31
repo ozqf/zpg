@@ -257,7 +257,7 @@ static void ZPG_PushPointToStack(
     *numPoints += 1;
 }
 
-static void ZPG_PushFillNode(
+static void ZPG_MatchAndPushFillNode(
     ZPGGrid* grid, ZPGPoint* points, i32* numPoints, i32 maxPoints,
     i32 x, i32 y, u8 queryValue)
 {
@@ -265,6 +265,24 @@ static void ZPG_PushFillNode(
     {
         ZPG_PushPointToStack(points, numPoints, maxPoints, x, y);
     }
+}
+
+static void ZPG_MatchAndPushFillNode_WithTagCheck(
+    ZPGGrid* grid, ZPGPoint* points, i32* numPoints, i32 maxPoints,
+    i32 x, i32 y, u8 queryValue, u8 tag)
+{
+    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+    if (cell == NULL) { return; }
+    // already visited?
+    if (cell->tile.tag == tag) { return; }
+    
+    if (ZPG_Grid_CheckTypeAt(grid, x, y, queryValue, NO) == YES)
+    {
+        printf("%d/%d - yes ", x, y);
+        ZPG_PushPointToStack(points, numPoints, maxPoints, x, y);
+        return;
+    }
+    printf("%d/%d - no ", x, y);
 }
 
 static void ZPG_Grid_FloodFill(
@@ -283,10 +301,10 @@ static void ZPG_Grid_FloodFill(
         ZPGPoint* p = &points[numPoints - 1];
         numPoints--;
         ZPG_Grid_SetCellTypeAt(grid, p->x, p->y, fillValue, NULL);
-        ZPG_PushFillNode(grid, points, &numPoints, maxPoints, p->x - 1, p->y, emptyValue);
-        ZPG_PushFillNode(grid, points, &numPoints, maxPoints, p->x + 1, p->y, emptyValue);
-        ZPG_PushFillNode(grid, points, &numPoints, maxPoints, p->x, p->y - 1, emptyValue);
-        ZPG_PushFillNode(grid, points, &numPoints, maxPoints, p->x, p->y + 1, emptyValue);
+        ZPG_MatchAndPushFillNode(grid, points, &numPoints, maxPoints, p->x - 1, p->y, emptyValue);
+        ZPG_MatchAndPushFillNode(grid, points, &numPoints, maxPoints, p->x + 1, p->y, emptyValue);
+        ZPG_MatchAndPushFillNode(grid, points, &numPoints, maxPoints, p->x, p->y - 1, emptyValue);
+        ZPG_MatchAndPushFillNode(grid, points, &numPoints, maxPoints, p->x, p->y + 1, emptyValue);
         exitCounter++;
         if (exitCounter >= maxPoints)
         {
@@ -296,6 +314,56 @@ static void ZPG_Grid_FloodFill(
         }
     }
     ZPG_Free(points);
+}
+
+static i32 ZPG_Grid_FloodSearch(
+    ZPGGrid* grid, i32 x, i32 y, ZPGPoint* results, i32 maxResults)
+{
+    if (ZPG_Grid_IsPositionSafe(grid, x, y) == NO) { return 0; }
+    u8 emptyValue = ZPG_Grid_GetCellAt(grid, x, y)->tile.type;
+    printf("Flood search for empty value %d\n", emptyValue);
+    i32 maxPoints = grid->width * grid->height;
+    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(maxPoints * sizeof(ZPGPoint));
+    i32 numPoints = 0;
+    ZPG_PushPointToStack(points, &numPoints, maxPoints, x, y);
+    i32 exitCounter = 0;
+    i32 numResults = 0;
+    printf("Testing ");
+    while (numPoints > 0)
+    {
+        // Grab and point top of stack
+        ZPGPoint* p = &points[numPoints - 1];
+        numPoints--;
+        // add this node to results
+        results[numResults].x = p->x;
+        results[numResults].y = p->y;
+        numResults++;
+        printf("SET %d/%d - \n", p->x, p->y);
+        // set tag so we don't count this cell again!
+        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, p->x, p->y);
+        cell->tile.tag = 1;
+        if (numResults >= maxResults) { break; }
+        // add further nodes
+        //ZPG_Grid_SetCellTypeAt(grid, p->x, p->y, fillValue, NULL);
+        ZPG_MatchAndPushFillNode_WithTagCheck(
+            grid, points, &numPoints, maxPoints, p->x - 1, p->y, emptyValue, 1);
+        ZPG_MatchAndPushFillNode_WithTagCheck(
+            grid, points, &numPoints, maxPoints, p->x + 1, p->y, emptyValue, 1);
+        ZPG_MatchAndPushFillNode_WithTagCheck(
+            grid, points, &numPoints, maxPoints, p->x, p->y - 1, emptyValue, 1);
+        ZPG_MatchAndPushFillNode_WithTagCheck(
+            grid, points, &numPoints, maxPoints, p->x, p->y + 1, emptyValue, 1);
+        exitCounter++;
+        if (exitCounter >= maxPoints)
+        {
+            printf("ERROR - Fill from %d/%d ran away on %d iterations with %d points\n",
+                x, y, exitCounter, numPoints);
+            break;
+        }
+    }
+    printf("\n");
+    ZPG_Free(points);
+    return numResults;
 }
 
 #endif // ZPG_DRAW_GRID_PRIMITIVES_H
