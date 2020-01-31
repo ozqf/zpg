@@ -79,12 +79,11 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
         cell = ZPG_Grid_GetCellAt(grid, x, y);
         if (cell->tile.tag > 0) { continue; }
         printf(" Start room value %d at %d/%d\n", cell->tile.type, x, y);
-        printf("--- Tags ---\n");
-        ZPG_Grid_PrintChannelValues(grid, ZPG_CELL_CHANNEL_3, YES);
         // new room start gathering tiles
         numRooms++;
         i32 numPoints = ZPG_Grid_FloodSearch(grid, x, y, points, maxPoints);
-        printf("Room %d, %d cells: ", numRooms, numPoints);
+        printf("Room %d. value %d, %d cells: ",
+            numRooms, cell->tile.type, numPoints);
         for (i32 j = 0; j < numPoints; ++j)
         {
             printf("%d/%d, ", points[j].x, points[j].y);

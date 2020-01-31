@@ -274,19 +274,14 @@ static void ZPG_MatchAndPushFillNode_WithTagCheck(
     ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
     if (cell == NULL) { return; }
     // already visited?
-    if (cell->tile.tag == tag)
-    {
-        printf("SKIP %d/%d, ", x, y);
-        return;
-    }
+    if (cell->tile.tag == tag) { return; }
     
     if (ZPG_Grid_CheckTypeAt(grid, x, y, queryValue, NO) == YES)
     {
-        printf("RECORD %d/%d ", x, y);
+        cell->tile.tag = 1;
         ZPG_PushPointToStack(points, numPoints, maxPoints, x, y);
         return;
     }
-    printf("NO %d/%d", x, y);
 }
 
 static void ZPG_Grid_FloodFill(
@@ -321,43 +316,41 @@ static void ZPG_Grid_FloodFill(
 }
 
 static i32 ZPG_Grid_FloodSearch(
-    ZPGGrid* grid, i32 x, i32 y, ZPGPoint* results, i32 maxResults)
+    ZPGGrid* grid, i32 posX, i32 posY, ZPGPoint* results, i32 maxResults)
 {
-    if (ZPG_Grid_IsPositionSafe(grid, x, y) == NO) { return 0; }
-    u8 emptyValue = ZPG_Grid_GetCellAt(grid, x, y)->tile.type;
-    printf("Flood search for empty value %d\n", emptyValue);
+    if (ZPG_Grid_IsPositionSafe(grid, posX, posY) == NO) { return 0; }
+    u8 emptyValue = ZPG_Grid_GetCellAt(grid, posX, posY)->tile.type;
     i32 maxPoints = grid->width * grid->height;
     ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(maxPoints * sizeof(ZPGPoint));
     i32 numPoints = 0;
-    ZPG_PushPointToStack(points, &numPoints, maxPoints, x, y);
+    ZPG_PushPointToStack(points, &numPoints, maxPoints, posX, posY);
     i32 exitCounter = 0;
     i32 numResults = 0;
-    printf("Testing ");
     const i32 tagValue = 1;
     while (numPoints > 0)
     {
         // Grab and point top of stack
         ZPGPoint* p = &points[numPoints - 1];
         numPoints--;
+        i32 x = p->x;
+        i32 y = p->y;
         // add this node to results
-        results[numResults].x = p->x;
-        results[numResults].y = p->y;
+        results[numResults].x = x;
+        results[numResults].y = y;
         numResults++;
-        printf("\nSET %d/%d - \n", p->x, p->y);
         // set tag so we don't count this cell again!
-        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, p->x, p->y);
+        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
         cell->tile.tag = 1;
         if (numResults >= maxResults) { printf(" max results\n"); break; }
         // add further nodes
-        //ZPG_Grid_SetCellTypeAt(grid, p->x, p->y, fillValue, NULL);
         ZPG_MatchAndPushFillNode_WithTagCheck(
-            grid, points, &numPoints, maxPoints, p->x - 1, p->y, emptyValue, tagValue);
+            grid, points, &numPoints, maxPoints, x - 1, y, emptyValue, tagValue);
         ZPG_MatchAndPushFillNode_WithTagCheck(
-            grid, points, &numPoints, maxPoints, p->x + 1, p->y, emptyValue, tagValue);
+            grid, points, &numPoints, maxPoints, x + 1, y, emptyValue, tagValue);
         ZPG_MatchAndPushFillNode_WithTagCheck(
-            grid, points, &numPoints, maxPoints, p->x, p->y - 1, emptyValue, tagValue);
+            grid, points, &numPoints, maxPoints, x, y - 1, emptyValue, tagValue);
         ZPG_MatchAndPushFillNode_WithTagCheck(
-            grid, points, &numPoints, maxPoints, p->x, p->y + 1, emptyValue, tagValue);
+            grid, points, &numPoints, maxPoints, x, y + 1, emptyValue, tagValue);
         exitCounter++;
         if (exitCounter >= maxPoints)
         {
@@ -366,7 +359,6 @@ static i32 ZPG_Grid_FloodSearch(
             break;
         }
     }
-    printf("\n");
     ZPG_Free(points);
     return numResults;
 }
