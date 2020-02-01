@@ -329,11 +329,11 @@ static i32 ZPG_Grid_FloodSearch(
     const i32 tagValue = 1;
     while (numPoints > 0)
     {
-        // Grab and point top of stack
+        // Pop stack and copy result (it may be rewritten immediately)
         ZPGPoint* p = &points[numPoints - 1];
-        numPoints--;
         i32 x = p->x;
         i32 y = p->y;
+        numPoints--;
         // add this node to results
         results[numResults].x = x;
         results[numResults].y = y;

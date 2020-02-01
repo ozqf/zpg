@@ -111,6 +111,21 @@ struct ZPGParam
 static i32 g_numParamTypes = 0;
 static ZPGParam g_paramTypes[64];
 
+
+//////////////////////////////////////////
+// Room datatypes
+//////////////////////////////////////////
+
+struct ZPGRoom
+{
+    i32 id;
+    i32 tileType;
+    // If is stored as a set of points
+    ZPGPoint* points;
+    i32 numPoints;
+
+};
+
 //////////////////////////////////////////
 // Functions
 //////////////////////////////////////////

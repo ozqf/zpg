@@ -379,6 +379,15 @@ static i32 ZPG_Grid_CreatePointsArray(ZPGGrid* grid, ZPGPoint** points)
     return numCells;
 }
 
+static ZPGPoint* ZPG_AllocAndCopyPoints(ZPGPoint* source, i32 numPoints)
+{
+    i32 bytes = sizeof(ZPGPoint) * numPoints;
+    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(bytes);
+    if (points == NULL) { return NULL; }
+    ZPG_MEMCPY(points, source, bytes);
+    return points;
+}
+
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)
 {
     ZPGGrid* stencil = ZPG_CreateGrid(width, height);
