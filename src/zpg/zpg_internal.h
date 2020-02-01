@@ -100,6 +100,7 @@ struct ZPGParam
     i32 type;
     char asciChar;
     char* helpText;
+    // discriminated union on type field
     union
     {
         i32 flag;
@@ -115,6 +116,12 @@ static ZPGParam g_paramTypes[64];
 //////////////////////////////////////////
 // Room datatypes
 //////////////////////////////////////////
+
+struct ZPGIndexPair
+{
+    i32 a;
+    i32 b;
+};
 
 struct ZPGRoom
 {

@@ -161,11 +161,21 @@ struct ZPGGrid
     i32 height;
     // id: plan is to use it to identify grids in
     // user created generate scripts
-    //i32 id;
+    i32 id;
     // used for generating entities
     ZPGGridEntityStats stats;
     // row by row cell store
     ZPGCell *cells;
+};
+
+#define ZPG_MAX_GRID_STACKS 16
+struct ZPGGridStack
+{
+    i32 numGrids;
+    i32 maxGrids;
+    i32 width;
+    i32 height;
+    ZPGGrid* grids[ZPG_MAX_GRID_STACKS];
 };
 
 #define ZPG_MAX_PREFAB_EXITS 4

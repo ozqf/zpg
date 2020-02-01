@@ -367,6 +367,39 @@ static void ZPG_FreeGrid(ZPGGrid* grid)
     ZPG_Free(grid->cells);
 }
 
+
+/////////////////////////////////////////////////////////////
+// Grid stack
+/////////////////////////////////////////////////////////////
+
+// returns new grid index
+static i32 ZPG_AddGridToStack(ZPGGridStack* stack)
+{
+    if (stack->numGrids >= stack->maxGrids)
+    {
+        return -1;
+    }
+    i32 i = stack->numGrids;
+    ZPGGrid* grid = ZPG_CreateGrid(
+        stack->width, stack->height);
+    if (grid == NULL) { return -1; }
+    grid->id = i;
+    stack->grids[i] = grid;
+    stack->numGrids++;
+    return i;
+}
+
+static ZPGGridStack* ZPG_CreateGridStack(i32 width, i32 height)
+{
+    ZPGGridStack* stack = (ZPGGridStack*)ZPG_Alloc(sizeof(ZPGGridStack));
+    stack->maxGrids = ZPG_MAX_GRID_STACKS;
+    stack->grids[0] = ZPG_CreateGrid(width, height);
+    stack->numGrids = 1;
+    stack->width = width;
+    stack->height = height;
+    return stack;
+}
+
 /**
  * Create an array of points equal to the size of the grid
  * (for searches etc)

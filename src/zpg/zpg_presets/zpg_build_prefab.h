@@ -250,7 +250,7 @@ static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
         grid,
         stencil,
         ZPG_CELL_TYPE_WALL,
-        ZPG_CAVE_GEN_SEED_CHANCE_DEFAULT,
+        ZPG_CAVE_GEN_SEED_CHANCE_LOW,
         &presetCfg->seed);
     if (presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     { ZPG_Grid_PrintChars(grid, '\0', 0, 0); }

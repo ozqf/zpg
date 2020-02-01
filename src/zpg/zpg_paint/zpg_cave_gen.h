@@ -12,7 +12,7 @@
  * Randomly paint tiles for growing caves
  * Any Stencil cell whose value is not 0 will be skipped
  */
-extern "C" void ZPG_SeedCaves(
+static void ZPG_SeedCaves(
     ZPGGrid* grid,
     ZPGGrid* stencil,
     u8 paintType,
@@ -41,7 +41,7 @@ extern "C" void ZPG_SeedCaves(
  * Add/Remove tiles based on their neighbour count
  * Any Stencil cell whose value is not 0 will be skipped
  */
-extern "C" void ZPG_IterateCaves(
+static void ZPG_IterateCaves(
     ZPGGrid* grid,
     ZPGGrid* stencil,
     u8 solidType,

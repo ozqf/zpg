@@ -61,6 +61,24 @@ ZPG_EXPORT i32 ZPG_Free(void* ptr)
     return 1;
 }
 
+/**
+ * Clean up all attached memory on rooms
+ * then the rooms list itself
+ */
+static void ZPG_FreeRooms(ZPGRoom* rooms, i32 numRooms)
+{
+    for (i32 i = 0; i < numRooms; ++i)
+    {
+        if (rooms[i].points != NULL)
+        {
+            ZPG_Free(rooms[i].points);
+            rooms[i].points = NULL;
+            rooms[i].numPoints = 0;
+        }
+    }
+    ZPG_Free(rooms);
+}
+
 static void ZPG_PrintAllocations()
 {
     printf("=== ZPG ALLOCATIONS ===\n");
