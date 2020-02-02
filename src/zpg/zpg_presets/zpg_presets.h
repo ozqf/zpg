@@ -73,6 +73,8 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
     }
     //printf("Final seed value: %d\n", cfg.seed);
     ZPG_FreeGrid(stencil);
+    ZPGGrid* style = ZPG_CreateStylingGrid(grid);
+    ZPG_FreeGrid(style);
     return grid;
 }
 

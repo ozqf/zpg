@@ -141,6 +141,12 @@ union ZPGCell
         // count of concentric rings of neighbours
         u8 rings;
     } entData;
+    // styling data
+    struct
+    {
+        u8 neighbourFlags;
+        u8 sheetIndex;
+    } style;
     // Treat the grid as a 32bit texture
     struct
     {

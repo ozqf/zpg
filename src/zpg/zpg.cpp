@@ -35,6 +35,9 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 #include "zpg_presets/zpg_build_perlin.h"
 #include "zpg_rooms/zpg_room_tree.h"
 
+// styling
+#include "zpg_style/zpg_style.h"
+
 // preset building
 #include "zpg_presets/zpg_presets.h"
 #include "zpg_presets/zpg_params.h"
@@ -43,7 +46,7 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 #include "zpg_script/zpg_command.h"
 #include "zpg_script/zpg_script.h"
 
-extern "C" ZPG_EXPORT void ZPG_SetMemoryFunctions(
+ZPG_EXPORT void ZPG_SetMemoryFunctions(
     zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree)
 {
     
