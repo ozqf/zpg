@@ -72,8 +72,10 @@ static void ZPG_FreeRooms(ZPGRoom* rooms, i32 numRooms)
         if (rooms[i].points != NULL)
         {
             ZPG_Free(rooms[i].points);
-            rooms[i].points = NULL;
-            rooms[i].numPoints = 0;
+        }
+        if (rooms[i].connections != NULL)
+        {
+            ZPG_Free(rooms[i].connections);
         }
     }
     ZPG_Free(rooms);

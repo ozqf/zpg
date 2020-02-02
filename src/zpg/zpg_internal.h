@@ -29,6 +29,9 @@ if (##paramPtr == NULL) { printf("Param %s was null\n", #paramPtr##); return fai
 if (gridAPtr->width != gridBPtr->width || gridAPtr->height != gridBPtr->height) \
 { printf("Grid size mismatch %d - %s\n", __LINE__, __FILE__); return failureReturnVal; }
 
+#define ZPG_ALLOC_ARRAY(dataType, arraySize) \
+(##dataType##*)ZPG_Alloc(sizeof(##dataType##) * arraySize##)
+
 //////////////////////////////////////////
 // Iterating grid cells
 #ifndef ZPG_BEGIN_GRID_ITERATE
@@ -130,7 +133,8 @@ struct ZPGRoom
     // If is stored as a set of points
     ZPGPoint* points;
     i32 numPoints;
-
+    i32* connections;
+    i32 numConnections;
 };
 
 //////////////////////////////////////////
@@ -163,6 +167,7 @@ static void ZPG_Grid_PerlinToGreyscale(
 static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);
 static void ZPG_FreeGrid(ZPGGrid* grid);
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);
+static i32 ZPG_ArePointsEqual(ZPGPoint a, ZPGPoint b);
 
 // random numbers...
 // TODO: Tidy this crap up...

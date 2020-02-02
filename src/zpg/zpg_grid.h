@@ -6,6 +6,12 @@
 
 #include "zpg_internal.h"
 
+static i32 ZPG_ArePointsEqual(ZPGPoint a, ZPGPoint b)
+{
+    if (a.x == b.x && a.y == b.y) { return YES; }
+    return NO;
+}
+
 static i32 ZPG_Grid_PositionToIndex(ZPGGrid* grid, i32 x, i32 y)
 {
     if (x < 0 || x >= grid->width) { return -1; }

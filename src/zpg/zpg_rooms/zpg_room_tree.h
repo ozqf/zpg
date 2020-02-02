@@ -38,22 +38,86 @@ static void ZPG_ZeroOutLoneValues(ZPGGrid* grid)
     ZPG_END_GRID_ITERATE
 }
 
+static i32 ZPG_CheckPointsConnected(ZPGPoint a, ZPGPoint b)
+{
+    if (ZPG_ArePointsEqual({ a.x - 1, a.y }, b)) { return YES; }
+    if (ZPG_ArePointsEqual({ a.x + 1, a.y }, b)) { return YES; }
+    if (ZPG_ArePointsEqual({ a.x, a.y - 1 }, b)) { return YES; }
+    if (ZPG_ArePointsEqual({ a.x, a.y + 1 }, b)) { return YES; }
+    return NO;
+}
+
+static i32 ZPG_Rooms_CheckConnected(ZPGRoom* a, ZPGRoom* b)
+{
+    for (i32 i = 0; i < a->numPoints; ++i)
+    {
+        ZPGPoint* pa = &a->points[i];
+        for (i32 j = 0; j < b->numPoints; ++j)
+        {
+            ZPGPoint* pb = &b->points[j];
+            if (ZPG_CheckPointsConnected(*pa, *pb) == YES)
+            {
+                return YES;
+            }
+        }
+    }
+    return NO;
+}
+
+/**
+ * returns -1 if pair is not found
+ */
+#if 0
+static i32 ZPG_FindIndexPair(
+    ZPGIndexPair* pairs, i32 numPairs, ZPGIndexPair query)
+{
+    for (i32 i = 0; i < numPairs; ++i)
+    {
+        if (pairs[i].a == query.a
+            && pairs[i].b == query.b)
+        { return i; }
+    }
+    return -1;
+}
+#endif
+
 /**
  * For the given room in an array of rooms, create a list of
  * all of its connections to other rooms.
  */
-static void ZPG_Rooms_FindConnectionsForRoom(ZPGRoom* rooms, i32 numRooms, i32 queryRoomIndex)
+static i32 ZPG_Rooms_FindConnectionsForRoom(
+    ZPGRoom* rooms, i32 numRooms, i32 queryRoomIndex, i32** connections)
 {
-    ZPGPoint* roomPoints = rooms[queryRoomIndex].points;
-    i32 numRoomPoints = rooms[queryRoomIndex].numPoints;
+    ZPGRoom* room = &rooms[queryRoomIndex];
+    const i32 maxPairs = 16;
+    i32 numPairs = 0;
+    //ZPGIndexPair* pairs = (ZPGIndexPair*)ZPG_Alloc(sizeof(ZPGIndexPair) * maxPairs);
+    *connections = ZPG_ALLOC_ARRAY(i32, maxPairs);
+    printf("Find connections for room %d (%d) points\n",
+        queryRoomIndex, room->numPoints);
     for (i32 i = 0; i < numRooms; ++i)
     {
         if (i == queryRoomIndex) { continue; }
-        ZPGPoint* queryPoints = rooms[i].points;
-        i32 numQueryPoints = rooms[i].numPoints;
+        // grab query room area
+        //ZPGPoint* queryPoints = rooms[i].points;
+        //i32 numQueryPoints = rooms[i].numPoints;
         // Find ajoining rooms
-
+        if (ZPG_Rooms_CheckConnected(room, &rooms[i]) == YES)
+        {
+            // add pair if necessary
+			//i32* tar = connections[numPairs];
+			//*tar = i;
+            (*connections)[numPairs] = i;
+			//(connections[numPairs]) = i;
+            numPairs++;
+            if (numPairs >= maxPairs)
+            {
+                printf("No more connection capacity\n");
+                return numPairs;
+            }
+        }
     }
+    return numPairs;
 }
 
 static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
@@ -83,7 +147,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     i32 w = 8, h = 8;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     //printf("Assign random values\n");
-    ZPG_SetRandomGridValues(grid, 1, 6, &cfg->seed);
+    ZPG_SetRandomGridValues(grid, 1, 9, &cfg->seed);
     ZPG_Grid_PrintValues(grid, YES);
     //printf("Group random values\n");
     
@@ -147,18 +211,37 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 
 
     ZPG_END_GRID_ITERATE
-    ZPG_Grid_PrintChannelValues(grid, ZPG_CELL_CHANNEL_3, YES);
 
-    // List rooms
+    ZPG_Grid_PrintChannelValues(grid, ZPG_CELL_CHANNEL_3, YES);
+    
+    // build room connections tree
+    printf("Build room connections\n");
     for (i32 i = 0; i < nextRoom; ++i)
     {
         ZPGRoom* room = &rooms[i];
-        printf("Room %d. cells: %d. type: %d\n",
-            room->id, room->numPoints, room->tileType);
+        i32* connections;
+        room->numConnections = ZPG_Rooms_FindConnectionsForRoom(
+            rooms, nextRoom, i, &connections);
+		room->connections = connections;
+		printf("%d has %d connections\n", i, room->numConnections);
     }
 
-    // build room connections tree
-
+	// List rooms
+#if 1
+	for (i32 i = 0; i < nextRoom; ++i)
+	{
+		ZPGRoom* room = &rooms[i];
+		printf("Room %d. cells: %d. type: %d\n",
+			room->id, room->numPoints, room->tileType);
+		printf("\tconnections (%d): ", room->numConnections);
+		for (i32 j = 0; j < room->numConnections; ++j)
+		{
+			i32 index = room->connections[j];
+			printf(" %d (%d), ", index, rooms[index].tileType);
+		}
+		printf("\n");
+	}
+#endif
 
     // Cleanup
     ZPG_Free(points);
