@@ -10,6 +10,7 @@
 #define ZPG_MIN(x, y) ((x) < (y) ? (x) : (y))
 #define ZPG_MAX(x, y) ((x) > (y) ? (x) : (y))
 
+// Standard lib calls
 #define ZPG_STRLEN(ptrToCharArray) \
 strlen(ptrToCharArray)
 
@@ -22,6 +23,11 @@ memset(##ptrToMemory##, valueToSet##, numBytesToSet##)
 #define ZPG_MEMCPY(destinationPtr, sourcePtr, numBytesToCopy) \
 memcpy(##destinationPtr##, sourcePtr##, numBytesToCopy##)
 
+#define ZPG_QSORT(list, lengthOfList, listItemDataType, qSortcompareFunction) \
+qsort(list, lengthOfList, sizeof(listItemDataType), qSortcompareFunction)
+
+
+// Param checking
 #define ZPG_PARAM_NULL(paramPtr, failureReturnVal) \
 if (##paramPtr == NULL) { printf("Param %s was null\n", #paramPtr##); return failureReturnVal; }
 

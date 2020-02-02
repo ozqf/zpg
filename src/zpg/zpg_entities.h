@@ -144,7 +144,7 @@ static i32 ZPG_PlaceScatteredObjectives(ZPGGrid* grid, ZPGEntityInfo* ents, i32 
         ents[i].i = i;
     }
     // sort list lowest to highest average distance
-    qsort(ents, numEnts, sizeof(ZPGEntityInfo), ZPG_CompareEntsByDistance);
+    ZPG_QSORT(ents, numEnts, ZPGEntityInfo, ZPG_CompareEntsByDistance);
     
     // end of list is start
     ents[numEnts - 1].entType = ZPG_CELL_TYPE_START;// ZPG_ENTITY_TYPE_START;
