@@ -182,8 +182,6 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     i32 maxPoints = ZPG_Grid_CreatePointsArray(grid, &points);
     // Stencil to mark visited cells
     //ZPGGrid* stencil = ZPG_CreateGrid(grid->width, grid->height);
-    // show results
-    ZPG_Grid_PrintValues(grid, YES);
 
     // use tag to record that a cell has been added to a room already
     ZPG_Grid_ClearAllTags(grid);
@@ -204,6 +202,8 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
         }
         ZPGRoom* room = &rooms[nextRoom];
         room->id = nextRoom;
+        // default weight for now
+        room->weight = 1;
         room->tileType = cell->tile.type;
         room->points = ZPG_AllocAndCopyPoints(points, numPoints);
         room->numPoints = numPoints;
@@ -242,6 +242,51 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 		printf("\n");
 	}
 #endif
+    ///////////////////////////////////////
+    // create a route
+
+    // Select start room
+    i32 startIndex = -1;
+    while (startIndex == -1)
+    {
+        startIndex = ZPG_RandArrIndex(nextRoom, cfg->seed++);
+        // Reject filled tiles as start or end
+        if (rooms[startIndex].tileType == 0)
+        { startIndex = -1; }
+    }
+    ZPGRoom* start = &rooms[startIndex];
+
+    // Select end room
+    i32 endIndex = -1;
+    while (endIndex == -1)
+    {
+        endIndex = ZPG_RandArrIndex(nextRoom, cfg->seed++);
+        // cannot be same room as start!
+        if (endIndex == startIndex) { endIndex = -1; continue; }
+        // Reject filled tiles as start or end
+        if (rooms[endIndex].tileType == 0)
+        { endIndex = -1; continue;  }
+        ZPGRoom* room = &rooms[endIndex];
+        for (i32 i = 0; i < room->numConnections; ++i)
+        {
+            if (room->connections[i] == startIndex)
+            { endIndex = -1; break; }
+        }
+    }
+    ZPGRoom* end = &rooms[endIndex];
+
+    printf("Start room is %d, end is %d\n", startIndex, endIndex);
+    ZPG_PrintPointsAsGrid(
+        start->points, start->numPoints, grid->width, grid->height);
+    printf("----------------------\n");
+    ZPG_PrintPointsAsGrid(
+        end->points, end->numPoints, grid->width, grid->height);
+    // show results
+    ZPG_Grid_PrintValues(grid, YES);
+
+    ////////////////////////////////////////
+    // Build path
+    ZPG_Path_SearchRooms(rooms, nextRoom, startIndex, endIndex);
 
     // Cleanup
     ZPG_Free(points);

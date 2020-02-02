@@ -66,7 +66,7 @@ static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 channel, i32 bBlankZe
 static void ZPG_PrintPointsAsGrid(
     ZPGPoint* points, i32 numPoints, i32 width, i32 height)
 {
-    i32 pointsPrinted = 0;
+    //i32 pointsPrinted = 0;
     for (i32 y = 0; y < height; ++y)
     {
         printf("|");

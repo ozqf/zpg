@@ -27,6 +27,7 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 #include "zpg_paint/zpg_drunken_walk.h"
 #include "zpg_paint/zpg_grid_walk_and_fill.h"
 #include "zpg_paint/zpg_cave_gen.h"
+#include "zpg_path/zpg_path.h"
 #include "zpg_entities.h"
 
 // Combined generation functions
