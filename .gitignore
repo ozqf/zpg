@@ -5,6 +5,7 @@
 # Temp directories for compile
 /bin/*
 !/bin/test_script.txt
+!/bin/prefab_dead_simple.txt
 /buildwintemp/
 /buildwin_dlltemp/
 
