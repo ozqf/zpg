@@ -50,6 +50,10 @@
 
 #define ZPG_CAVE_GEN_CRITICAL_NEIGHBOURS_DEFAULT 4
 
+#define ZPG_ERROR_UNKNOWN 1
+#define ZPG_ERROR_UNRECOGNISED_OPTION 2
+
+typedef int ZPGError;
 
 //////////////////////////////////////////
 // Data types

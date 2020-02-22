@@ -151,7 +151,12 @@ void ZPG_RunPresetCLI(
     // Seed randomly - param may override
     cfg.seed = (i32)time(NULL);
     // read params
-    ZPG_Params_ReadForPreset(&cfg, argc, argv);
+    ZPGError err = ZPG_Params_ReadForPreset(&cfg, argc, argv);
+	if (err != 0)
+	{
+		printf("ABORT with error code %d\n", err);
+        return;
+	}
     if (cfg.preset < 0 || cfg.preset >= g_nextPreset)
     {
         printf("ABORT Unrecognised preset type %d\n", cfg.preset);

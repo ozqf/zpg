@@ -74,11 +74,11 @@ static void ZPG_InitParams()
     param->data.flag = ZPG_API_FLAG_PRINT_GREYSCALE;
     param->helpText = "-g print greyscale if applicable\n";
 
-    param = &g_paramTypes[g_numParamTypes++];
-    param->type = ZPG_PARAM_TYPE_FLAG;
-    param->asciChar = 's';
-    param->data.flag = ZPG_API_FLAG_NO_ENTITIES;
-    param->helpText = "-s Integer Seed. If not specified a random one is used\n";
+    // param = &g_paramTypes[g_numParamTypes++];
+    // param->type = ZPG_PARAM_TYPE_FLAG;
+    // param->asciChar = 's';
+    // param->data.flag = ZPG_API_FLAG_NO_ENTITIES;
+    // param->helpText = "-s Integer Seed. If not specified a random one is used\n";
 
     ZPGPresetCfg cfg;
     param = &g_paramTypes[g_numParamTypes++];
@@ -112,7 +112,11 @@ static void ZPG_Params_PrintHelp()
     printf("\n");
 }
 
-static void ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** argv)
+/*
+Returns 0 if okay
+error code if not
+*/
+static ZPGError ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** argv)
 {
     // skip first two args.
     // Read third arg as preset number
@@ -128,8 +132,8 @@ static void ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** argv)
         char* arg = argv[index];
         if (arg[0] != '-') 
         {
-            printf("Unrecognised setting %s\n", arg);
-            continue;
+            printf("ABORT Setting labels must start with '-': %s\n", arg);
+            return ZPG_ERROR_UNRECOGNISED_OPTION;
         }
         char c = arg[1];
         if (c == ' ') { continue; }
@@ -168,6 +172,7 @@ static void ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** argv)
         if (bRecognised == NO)
         {
             printf("Unrecognised setting %s\n", arg);
+			return ZPG_ERROR_UNRECOGNISED_OPTION;
         }
     }
     printf("Run preset %d\n", cfg->preset);
@@ -180,6 +185,7 @@ static void ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** argv)
     {
         printf("Save PNG output to %s\n", cfg->imageOutput);
     }
+	return 0;
 }
 
 #endif // ZPG_PARAMS_H
