@@ -13,7 +13,11 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
     const i32 height = 32;
     ZPGGrid* grid = ZPG_CreateGrid(width, height);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(width, height);
-    ZPG_FillRectWithStencil(stencil, NULL, { 16, 8 }, { 48, 24 }, ZPG_STENCIL_TYPE_FULL );
+    // ZPGPoint centreMin = { 16, 8 };
+    // ZPGPoint centreMax = { 48, 24 };
+    ZPGPoint centreMin = { 20, 12 };
+    ZPGPoint centreMax = { 40, 20 };
+    ZPG_FillRectWithStencil(stencil, NULL, centreMin, centreMax, ZPG_STENCIL_TYPE_FULL );
     // debug check stencil
     //ZPG_Grid_PrintValues(stencil);
     ZPGWalkCfg cfg = {};
