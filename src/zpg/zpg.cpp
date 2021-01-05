@@ -167,6 +167,7 @@ void ZPG_RunPresetCLI(
     /////////////////////////////////////////////
     // Run
     printf("Seed: %d\n", cfg.seed);
+	i32 originalSeed = cfg.seed;
     srand(cfg.seed);
     ZPGGrid* grid = g_presets[cfg.preset](&cfg);
     if (grid == NULL)
@@ -216,6 +217,7 @@ void ZPG_RunPresetCLI(
         *resultWidth = grid->width;
         *resultHeight = grid->height;
     }
+	printf("Initial seed was %d\n", originalSeed);
     // TODO: Assumes caller will free grid memory
     // (and that they passed in malloc/free functions)
 }

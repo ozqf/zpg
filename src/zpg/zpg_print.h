@@ -21,11 +21,12 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
             ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
             if (bBlankZeroes && cell->tile.type == 0)
             {
-                printf(" ");
+                //printf(" ");
+                printf("    ");
             }
             else
             {
-                printf("%d", cell->tile.type);
+                printf(" %03d", cell->tile.type);
             }
         }
         printf("|\n");

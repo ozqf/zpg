@@ -138,6 +138,7 @@ static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original)
     ZPGGrid* clone = ZPG_CreateGrid(original->width, original->height);
     i32 totalCells = original->width * original->height;
     memcpy(clone->cells, original->cells, sizeof(ZPGCell) * totalCells);
+    return clone;
 }
 
 static void ZPG_Grid_CalcStats(ZPGGrid* grid)
