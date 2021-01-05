@@ -162,56 +162,65 @@ static void ZPG_Grid_CalcStats(ZPGGrid* grid)
     }
 }
 
-static i32 ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y)
+static ZPGNeighbours ZPG_Grid_CountNeighboursAt(
+	ZPGGrid* grid, i32 x, i32 y)
 {
     ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
+	ZPGNeighbours neighbours = {};
     if (cell == NULL)
     {
-        return 0;
+        return neighbours;
     }
     u8 matchType = cell->tile.type;
-    i32 neighbours = 0;
     cell = ZPG_Grid_GetCellAt(grid, x - 1, y - 1);
     if (cell != NULL && cell->tile.type == matchType)
     {
-        neighbours++;
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_ABOVE_LEFT;
     }
     cell = ZPG_Grid_GetCellAt(grid, x, y - 1);
     if (cell != NULL && cell->tile.type == matchType)
     {
-        neighbours++;
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_ABOVE;
     }
     cell = ZPG_Grid_GetCellAt(grid, x + 1, y - 1);
     if (cell != NULL && cell->tile.type == matchType)
     {
-        neighbours++;
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_ABOVE_RIGHT;
     }
 
     cell = ZPG_Grid_GetCellAt(grid, x - 1, y);
     if (cell != NULL && cell->tile.type == matchType)
     {
-        neighbours++;
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_LEFT;
     }
     cell = ZPG_Grid_GetCellAt(grid, x + 1, y);
     if (cell != NULL && cell->tile.type == matchType)
     {
-        neighbours++;
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_RIGHT;
     }
 
     cell = ZPG_Grid_GetCellAt(grid, x - 1, y + 1);
     if (cell != NULL && cell->tile.type == matchType)
     {
-        neighbours++;
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_BELOW_LEFT;
     }
     cell = ZPG_Grid_GetCellAt(grid, x, y + 1);
     if (cell != NULL && cell->tile.type == matchType)
     {
-        neighbours++;
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_BELOW;
     }
     cell = ZPG_Grid_GetCellAt(grid, x + 1, y + 1);
     if (cell != NULL && cell->tile.type == matchType)
     {
-        neighbours++;
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_BELOW_RIGHT;
     }
     return neighbours;
 }

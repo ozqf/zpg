@@ -16,6 +16,15 @@
 #define ZPG_API_FLAG_NO_ENTITIES (1 << 3)
 #define ZPG_API_FLAG_PRINT_GREYSCALE (1 << 4)
 
+#define ZPG_FLAG_ABOVE_LEFT (1 << 0)
+#define ZPG_FLAG_ABOVE (1 << 1)
+#define ZPG_FLAG_ABOVE_RIGHT (1 << 2)
+#define ZPG_FLAG_LEFT (1 << 3)
+#define ZPG_FLAG_RIGHT (1 << 4)
+#define ZPG_FLAG_BELOW_LEFT (1 << 5)
+#define ZPG_FLAG_BELOW (1 << 6)
+#define ZPG_FLAG_BELOW_RIGHT (1 << 7)
+
 //#define ZPG_CHAR_CODE_SOLID_BLOCK 35
 #define ZPG_CHAR_CODE_SOLID_BLOCK 219
 
@@ -58,6 +67,12 @@ typedef int ZPGError;
 //////////////////////////////////////////
 // Data types
 //////////////////////////////////////////
+
+struct ZPGNeighbours
+{
+	i32 count;
+	u32 flags;
+};
 
 struct ZPGCellTypeDef
 {

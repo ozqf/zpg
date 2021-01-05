@@ -52,7 +52,7 @@ static void ZPG_IterateCaves(
         if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES)
         { continue; }
         ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-        i32 neighbours = ZPG_Grid_CountNeighboursAt(grid, x, y);
+        i32 neighbours = ZPG_Grid_CountNeighboursAt(grid, x, y).count;
         if (neighbours < criticalNeighbours)
         {
             if (cell->tile.type == solidType)

@@ -33,6 +33,7 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 // Combined generation functions
 #include "zpg_presets/zpg_build_prefab.h"
 #include "zpg_presets/zpg_build_perlin.h"
+#include "zpg_rooms/zpg_paint_rooms.h"
 #include "zpg_rooms/zpg_room_tree.h"
 
 // styling

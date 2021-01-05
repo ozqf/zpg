@@ -153,7 +153,7 @@ static void ZPG_HealRoomScatter(ZPGGrid* grid, u8 threshold)
     }
 }
 
-static void ZPG_HealRoomScatter2(ZPGGrid* grid)
+static void ZPG_HealRoomScatter2(ZPGGrid* grid, i32 bFourWay, i32 bCorners)
 {
     for (int y = 0; y < grid->height; ++y)
     {
@@ -172,10 +172,19 @@ static void ZPG_HealRoomScatter2(ZPGGrid* grid)
             if (ZPG_Grid_IsPositionSafe(grid, x + 1, y))
             { right = ZPG_Grid_GetCellAt(grid, x + 1, y)->tile.type; }
 
-            if (left == above) { ZPG_Grid_SetCellTypeAt(grid, x, y, above, NULL); }
-            if (right == above) { ZPG_Grid_SetCellTypeAt(grid, x, y, above, NULL); }
-            if (left == below) { ZPG_Grid_SetCellTypeAt(grid, x, y, below, NULL); }
-            if (right == below) { ZPG_Grid_SetCellTypeAt(grid, x, y, below, NULL); }
+			if (bFourWay)
+			{
+				if (above != 0 && above == below) { ZPG_Grid_SetCellTypeAt(grid, x, y, below, NULL); continue; }
+				if (left != 0 && left == right) { ZPG_Grid_SetCellTypeAt(grid, x, y, right, NULL); continue; }
+			}
+
+			if (bCorners)
+			{
+				if (left != 0 && left == above) { ZPG_Grid_SetCellTypeAt(grid, x, y, above, NULL); continue; }
+            	if (right != 0 && right == above) { ZPG_Grid_SetCellTypeAt(grid, x, y, above, NULL); continue; }
+            	if (left != 0 && left == below) { ZPG_Grid_SetCellTypeAt(grid, x, y, below, NULL); continue; }
+            	if (right != 0 && right == below) { ZPG_Grid_SetCellTypeAt(grid, x, y, below, NULL); continue; }
+			}
         }
     }
 }
@@ -204,9 +213,9 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     6| 334    |
     7|   4    |
     */
-    i32 w = 8, h = 8;
+    i32 w = 10, h = 10;
     u8 minType = 1;
-    u8 maxType = 9;
+    u8 maxType = 10;
     u8 healThreshold = 2;
 
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
@@ -221,7 +230,10 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     ZPGGrid* clone = ZPG_Grid_CreateClone(grid);
     
     //ZPG_HealRoomScatter(grid, healThreshold);
-    ZPG_HealRoomScatter2(grid);
+	ZPG_HealRoomScatter2(grid, NO, YES);
+    // ZPG_HealRoomScatter2(grid, YES, NO);
+    // ZPG_HealRoomScatter2(grid, YES, YES);
+
     if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
         printf("Heal iteration (threshold %d)\n", healThreshold);
@@ -259,7 +271,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     }
     #endif
 
-    cfg->flags &= ~ZPG_API_FLAG_PRINT_WORKING;
+    //cfg->flags &= ~ZPG_API_FLAG_PRINT_WORKING;
 
     ///////////////////////////////////////////////////////////
     // Stage 2
@@ -295,7 +307,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
             pointCell->tile.tag = 1;
         }
         ZPGRoom* room = &rooms[nextRoom];
-        room->id = nextRoom;
+        room->id = nextRoom + 1;
         // default weight for now
         room->weight = 1;
         room->tileType = cell->tile.type;
@@ -351,6 +363,19 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 	    	printf("\n");
 	    }
     }
+
+	ZPG_Room_PaintIds(grid, rooms, nextRoom);
+	if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
+    {
+		printf("Paint Ids\n");
+		ZPG_Grid_PrintValues(grid, YES);
+	}
+
+	ZPGGrid* canvas = ZPG_GenerateRoomBorder(grid, rooms, nextRoom);
+	ZPG_Grid_PrintValues(canvas, YES);
+
+	ZPG_FreeGrid(canvas);
+
     ///////////////////////////////////////
     // create a route
 

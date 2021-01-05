@@ -163,7 +163,7 @@ static void ZPG_Grid_ClearAllTags(ZPGGrid* grid);
 static void ZPG_Grid_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel);
 static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original);
 static void ZPG_Grid_CalcStats(ZPGGrid* grid);
-static i32 ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y);
+static ZPGNeighbours ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y);
 static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y);
 static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result);
 static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes);
