@@ -79,15 +79,32 @@ static void ZPG_InitParams()
     // param->asciChar = 's';
     // param->data.flag = ZPG_API_FLAG_NO_ENTITIES;
     // param->helpText = "-s Integer Seed. If not specified a random one is used\n";
-
-    ZPGPresetCfg cfg;
+    u8* start = NULL;
+    u8* end = NULL;
+    ZPGPresetCfg cfg = {};
     param = &g_paramTypes[g_numParamTypes++];
     param->type = ZPG_PARAM_TYPE_INTEGER;
     param->asciChar = 's';
-    u8* start = (u8*)&cfg;
-    u8* end = (u8*)&cfg.seed;
+    start = (u8*)&cfg;
+    end = (u8*)&cfg.seed;
     param->data.integerOffsetBytes = (i32)(end - start);
     param->helpText = "-s Integer Seed. If not specified a random one is used\n";
+
+    param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_INTEGER;
+    param->asciChar = 'w';
+    start = (u8*)&cfg;
+    end = (u8*)&cfg.width;
+    param->data.integerOffsetBytes = (i32)(end - start);
+    param->helpText = "-w Result width in pixels/characters. If not specified a default is used\n";
+
+    param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_INTEGER;
+    param->asciChar = 'h';
+    start = (u8*)&cfg;
+    end = (u8*)&cfg.height;
+    param->data.integerOffsetBytes = (i32)(end - start);
+    param->helpText = "-h Result height in pixels/characters. If not specified a default is used\n";
 
     param = &g_paramTypes[g_numParamTypes++];
     param->type = ZPG_PARAM_TYPE_FUNCTION;

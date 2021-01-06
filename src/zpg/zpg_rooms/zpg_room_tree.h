@@ -47,8 +47,9 @@ static i32 ZPG_CheckPointsConnected(ZPGPoint a, ZPGPoint b)
     return NO;
 }
 
-static i32 ZPG_Rooms_CheckConnected(ZPGRoom* a, ZPGRoom* b)
+static i32 ZPG_Rooms_FindConnections(ZPGRoom* a, ZPGRoom* b)
 {
+    i32 count = 0;
     for (i32 i = 0; i < a->numPoints; ++i)
     {
         ZPGPoint* pa = &a->points[i];
@@ -57,11 +58,15 @@ static i32 ZPG_Rooms_CheckConnected(ZPGRoom* a, ZPGRoom* b)
             ZPGPoint* pb = &b->points[j];
             if (ZPG_CheckPointsConnected(*pa, *pb) == YES)
             {
-                return YES;
+                printf("Connection between %d and %d\n", a->id, b->id);
+                printf("\tFrom %d, %d to %d, %d\n", pa->x, pa->y, pb->x, pb->y);
+                
+                count += 1;
+                //return YES;
             }
         }
     }
-    return NO;
+    return count;
 }
 
 /**
@@ -103,7 +108,8 @@ static i32 ZPG_Rooms_FindConnectionsForRoom(
         //i32 numQueryPoints = rooms[i].numPoints;
         if (rooms[i].tileType == 0) { continue; }
         // Find ajoining rooms
-        if (ZPG_Rooms_CheckConnected(room, &rooms[i]) == YES)
+        i32 numRoomConnections = ZPG_Rooms_FindConnections(room, &rooms[i]);
+        if (numRoomConnections > 0)
         {
             // add pair if necessary
 			//i32* tar = connections[numPairs];
@@ -119,6 +125,62 @@ static i32 ZPG_Rooms_FindConnectionsForRoom(
         }
     }
     return numPairs;
+}
+
+static i32 ZPG_Rooms_IsPointOtherRoom(
+    ZPGGrid* grid, i32 originRoomType, ZPGPoint origin, ZPGPoint query)
+{
+    ZPGCell* cell = NULL;
+    cell = ZPG_Grid_GetCellAt(grid, query.x, query.y);
+    if (cell == NULL) { return NO; }
+    u8 tileType = cell->tile.type;
+    if (tileType == originRoomType)
+    { return NO; }
+    if (tileType == 0)
+    { return NO; }
+
+    return YES;
+}
+
+/**
+ * build a new grid where each channel represents a connection to
+ * a room left, right, up or down
+ */
+static ZPGGrid* ZPG_Rooms_BuildConnectionsGrid(ZPGGrid* src, ZPGRoom* rooms, i32 numRooms)
+{
+    ZPGGrid* result = ZPG_CreateGrid(src->width, src->height);
+    printf("Create bitmask grid\n");
+    ZPG_Grid_SetCellTypeAll(result, 0);
+    
+    // iterate rooms
+    for (i32 i = 0; i < numRooms; ++i)
+    {
+        ZPGRoom* room = &rooms[i];
+        u8 flags = 0;
+        if (room->tileType == 0) { continue; }
+        // iterate points in this room
+        for (i32 j = 0; j < room->numPoints; ++j)
+        {
+            ZPGPoint p = room->points[j];
+            // check above
+            if (ZPG_Rooms_IsPointOtherRoom(src, room->tileType, p, { p.x, p.y - 1}))
+            { flags |= (1 << 0); }
+            // below
+            if (ZPG_Rooms_IsPointOtherRoom(src, room->tileType, p, { p.x, p.y + 1}))
+            { flags |= (1 << 1); }
+            // left
+            if (ZPG_Rooms_IsPointOtherRoom(src, room->tileType, p, { p.x - 1, p.y}))
+            { flags |= (1 << 2); }
+            // right
+            if (ZPG_Rooms_IsPointOtherRoom(src, room->tileType, p, { p.x + 1, p.y}))
+            { flags |= (1 << 3); }
+            //if (flags > 0) { printf("Flags! %d\n", flags); }
+            i32 tileIndex = ZPG_Grid_PositionToIndex(src, p.x, p.y);
+            result->cells[tileIndex].tile.type = flags;
+        }
+    }
+    
+    return result;
 }
 
 // Returns 1 if tile was altered
@@ -214,9 +276,11 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     7|   4    |
     */
     i32 w = 10, h = 10;
+    if (cfg->width > 0) { w = cfg->width; }
+    if (cfg->height > 0) { h = cfg->height; }
     u8 minType = 1;
-    u8 maxType = 10;
-    u8 healThreshold = 2;
+    u8 maxType = 16;
+    u8 healThreshold = 1;
 
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     //printf("Assign random values\n");
@@ -358,7 +422,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 	    	for (i32 j = 0; j < room->numConnections; ++j)
 	    	{
 	    		i32 index = room->connections[j];
-	    		printf(" to room %d (type %d), ", index, rooms[index].tileType);
+	    		printf(" to room %d (type %d), ", rooms[index].id, rooms[index].tileType);
 	    	}
 	    	printf("\n");
 	    }
@@ -371,8 +435,12 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 		ZPG_Grid_PrintValues(grid, YES);
 	}
 
-	ZPGGrid* canvas = ZPG_GenerateRoomBorder(grid, rooms, nextRoom);
+	ZPGGrid* canvas = ZPG_GenerateRoomBorder(grid, rooms, nextRoom, YES);
 	ZPG_Grid_PrintValues(canvas, YES);
+    
+    printf("Connections bitmask\n");
+    ZPGGrid* connectionGrid = ZPG_Rooms_BuildConnectionsGrid(grid, rooms, nextRoom);
+    ZPG_Grid_PrintValues(connectionGrid, NO);
 
 	ZPG_FreeGrid(canvas);
 
@@ -427,7 +495,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     // Cleanup
     ZPG_Free(points);
     ZPG_FreeRooms(rooms, numRooms);
-
+    printf("Room tree test finished\n");
     return grid;
 }
 

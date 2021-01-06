@@ -123,6 +123,15 @@ static void ZPG_Grid_ClearAllTags(ZPGGrid* grid)
     }
 }
 
+static i32 ZPG_Grid_SetChannelAt(
+    ZPGGrid* grid, i32 x, i32 y, i32 channelNum, u8 val)
+{
+    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+    if (cell == NULL) { return NO; }
+    cell->arr[channelNum] = val;
+    return YES;
+}
+
 static void ZPG_Grid_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel)
 {
     if (channel < 0 || channel >= 4) { return; }

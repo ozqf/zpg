@@ -87,6 +87,8 @@ struct ZPGPresetCfg
     i32 seed;
     i32 preset;
     i32 flags;
+    i32 width;
+    i32 height;
     char* asciOutput;
     char* imageOutput;
 };
@@ -132,6 +134,16 @@ struct ZPGIndexPair
     i32 b;
 };
 
+struct ZPGDoorway
+{
+    // Ids of rooms
+    i32 insideId;
+    i32 outsideId;
+    // positions of tiles
+    ZPGPoint inside;
+    ZPGPoint outside;
+};
+
 struct ZPGRoom
 {
     i32 id;
@@ -142,6 +154,8 @@ struct ZPGRoom
     i32 numPoints;
     i32* connections;
     i32 numConnections;
+    ZPGDoorway* doorways;
+    i32 numDoorways;
 };
 
 //////////////////////////////////////////

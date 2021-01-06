@@ -193,7 +193,7 @@ struct ZPGGrid
     ZPGCell *cells;
 };
 
-#define ZPG_MAX_GRID_STACKS 16
+#define ZPG_MAX_GRID_STACKS 32
 struct ZPGGridStack
 {
     i32 numGrids;
