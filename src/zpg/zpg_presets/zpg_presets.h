@@ -187,7 +187,8 @@ static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
 {
     // Create canvas
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
-    ZPG_Grid_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
+    //ZPG_Grid_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
+    ZPG_Grid_SetAll(grid, ZPG_CELL_TYPE_WALL);
     // Stencil grid - blocks writing of tiles
     ZPGGrid* stencil = ZPG_CreateBorderStencil(72, 32);
     //ZPGGrid* stencil = ZPG_CreateGrid(72, 32);
@@ -246,7 +247,8 @@ static ZPGGrid* ZPG_TestDrawOffsetLines(ZPGPresetCfg* presetCfg)
     const i32 width = 72;
     const i32 height = 32;
     ZPGGrid* grid = ZPG_CreateGrid(width, height);
-    ZPG_Grid_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
+    //ZPG_Grid_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
+    ZPG_Grid_SetAll(grid, ZPG_CELL_TYPE_WALL);
 
     i32 seed = 0;
     const i32 numPoints = 6;
@@ -296,11 +298,11 @@ static ZPGGrid* ZPG_TestDrawOffsetLines(ZPGPresetCfg* presetCfg)
         cfg.startY = points[i].y;
         ZPGPoint end = ZPG_GridRandomWalk(grid, NULL, NULL, &cfg, dir);
         // place objective at the end
-        ZPG_Grid_SetCellTypeAt(grid, end.x, end.y, ZPG_CELL_TYPE_KEY, NULL);
+        ZPG_Grid_SetValueWithStencil(grid, end.x, end.y, ZPG_CELL_TYPE_KEY, NULL);
     }
     // play start/end points
-    ZPG_Grid_SetCellTypeAt(grid, points[0].x, points[0].y, ZPG_CELL_TYPE_START, NULL);
-    ZPG_Grid_SetCellTypeAt(grid, points[numPoints - 1].x, points[numPoints - 1].y, ZPG_CELL_TYPE_END, NULL);
+    ZPG_Grid_SetValueWithStencil(grid, points[0].x, points[0].y, ZPG_CELL_TYPE_START, NULL);
+    ZPG_Grid_SetValueWithStencil(grid, points[numPoints - 1].x, points[numPoints - 1].y, ZPG_CELL_TYPE_END, NULL);
 
     // cleanup
     ZPG_Free(points);
@@ -310,7 +312,8 @@ static ZPGGrid* ZPG_TestDrawOffsetLines(ZPGPresetCfg* presetCfg)
 static ZPGGrid* ZPG_TestDrawLines(ZPGPresetCfg* presetCfg)
 {
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
-    ZPG_Grid_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
+    //ZPG_Grid_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
+    ZPG_Grid_SetAll(grid, ZPG_CELL_TYPE_WALL);
 
     ZPG_DrawOuterBorder(grid, NULL, ZPG_CELL_TYPE_PATH);
     ZPG_DrawLine(grid, NULL, 0, 0, 71, 31, ZPG_CELL_TYPE_PATH, 0);

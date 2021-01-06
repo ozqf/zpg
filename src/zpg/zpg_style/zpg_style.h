@@ -18,10 +18,14 @@
 static void ZPG_Style_IfMatchAppendFlag(
     ZPGGrid* grid, i32 x, i32 y, u8 queryType, u8* flags, u8 flag)
 {
-    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    if (cell == NULL) { *flags |= flag; return; }
-    if (cell->tile.type == queryType)
-    { *flags |= flag; return; }
+    if (!ZPG_GRID_POS_SAFE(grid, x, y) || ZPG_GRID_GET(grid, x, y) == queryType)
+    {
+        *flags |= flag; return;
+    }
+    // ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+    // if (cell == NULL) { *flags |= flag; return; }
+    // if (cell->tile.type == queryType)
+    // { *flags |= flag; return; }
 }
 
 /**
@@ -31,15 +35,15 @@ static void ZPG_Style_IfMatchAppendFlag(
 static ZPGGrid* ZPG_CreateStylingGrid(ZPGGrid* source)
 {
     ZPG_PARAM_NULL(source, NULL)
-
+    
     ZPGGrid* grid = ZPG_CreateGrid(
         source->width, source->height);
-    
+    #if 0
     ZPG_BEGIN_GRID_ITERATE(grid)
-
-    ZPGCell* cell = ZPG_Grid_GetCellAt(source, x, y);
     // Calculate tilemap indices
-    u8 t = cell->tile.type;
+    // ZPGCell* cell = ZPG_Grid_GetCellAt(source, x, y);
+    // u8 t = cell->tile.type;
+    u8 t = ZPG_GRID_GET(source, x, y);
     u8 flags = 0;
     ZPG_Style_IfMatchAppendFlag(source, x-1, y-1, t, &flags, ZPG_STYLE_CELL_TOP_LEFT);
     ZPG_Style_IfMatchAppendFlag(source, x, y-1, t, &flags, ZPG_STYLE_CELL_TOP_MIDDLE);
@@ -58,6 +62,7 @@ static ZPGGrid* ZPG_CreateStylingGrid(ZPGGrid* source)
     ZPG_END_GRID_ITERATE
 
     ZPG_Grid_PrintValues(grid, YES);
+    #endif
     return grid;
 }
 

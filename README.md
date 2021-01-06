@@ -11,11 +11,11 @@ added when new fields are necessary.
 An example grid stack might be something like this:
 0 Seed value - initial random number (could be overwritten)
 1 Adjusted seed value (eg after some iteration process)
-3 object rooms stencil (stencil prevents other processes from overwriting)
-4 Room Id
-5 Room neighbour flags (1 bit for eight neighbours)
-6 Room to room flags (1 bit for eight neighbours)
-7 height map value
-8 cave backdrop
-9 styling flags
+2 object rooms stencil (stencil prevents other processes from overwriting)
+3 Room Id
+4 Room neighbour flags (1 bit for eight neighbours)
+5 Room to room flags (1 bit for eight neighbours)
+6 height map value
+7 cave backdrop
+8 styling flags
 ... etc

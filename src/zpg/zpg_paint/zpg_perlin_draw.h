@@ -65,8 +65,9 @@ static void ZPG_ApplyPerlinThreshold(
         {
             if (ZPG_Grid_CheckStencilOccupied(stencil, pixelX, pixelY))
             { continue; }
-            ZPGCell* cell = ZPG_Grid_GetCellAt(grid, pixelX, pixelY);
-            f32 value = ZPG_ByteToFloat(cell->tile.type);
+            //ZPGCell* cell = ZPG_Grid_GetCellAt(grid, pixelX, pixelY);
+            u8 val = ZPG_GRID_GET(grid, pixelX, pixelY);
+            f32 value = ZPG_ByteToFloat(val);
             #if 0
             if (value > 0.66f) { cell->tile.type = types[0]; }
             else if (value > 0.33f) { cell->tile.type = types[1]; }
@@ -74,7 +75,8 @@ static void ZPG_ApplyPerlinThreshold(
             #endif
             #if 1
             u8 newType = types[(i32)(numTypes * value)];
-            cell->tile.type = newType;
+            // cell->tile.type = newType;
+            ZPG_GRID_SET(grid, pixelX, pixelY, newType);
             #endif
         }
     }
@@ -144,7 +146,7 @@ static void ZPG_DrawPerlinGrid(
             result = noise;
             #endif
             // type is scaled to 0-255
-            ZPG_Grid_GetCellAt(grid, pixelX, pixelY)->tile.type = (u8)(255.f * result);
+            ZPG_GRID_SET(grid, pixelX, pixelY, (u8)(255.f * result));
         }
     }
     if (cfg->bApplyThreshold == YES)

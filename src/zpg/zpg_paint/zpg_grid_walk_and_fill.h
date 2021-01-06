@@ -60,7 +60,7 @@ static i32 ZPG_FindAvailableDirectionsAt(
  * Returns final position
  */
 static ZPGPoint ZPG_RandomWalkAndFill(
-    ZPGGrid* grid, ZPGGrid* stencil, ZPGWalkCfg* cfg, ZPGPoint dir, i32* seed)
+    ZPGGrid* grid, ZPGGrid* tagGrid, ZPGGrid* stencil, ZPGWalkCfg* cfg, ZPGPoint dir, i32* seed)
 {
     ZPGPoint cursor = { cfg->startX, cfg->startY };
     if (dir.x == 0 && dir.y == 0) { return cursor; }
@@ -69,7 +69,8 @@ static ZPGPoint ZPG_RandomWalkAndFill(
     // added to the visits list.
     if (stencil != NULL)
     {
-        ZPG_Grid_ClearAllTags(stencil);
+        ZPG_Grid_SetAll(tagGrid, 0);
+        //ZPG_Grid_ClearAllTags(stencil);
     }
 
     ZPGCellTypeDef* def = ZPG_GetType(cfg->typeToPaint);
@@ -89,18 +90,27 @@ static ZPGPoint ZPG_RandomWalkAndFill(
     while(bPainting == YES)
     {
         // paint current
-        if (ZPG_Grid_SetCellTypeGeometry(
-            grid, cursor.x, cursor.y, def->value, def->geometryType) == YES)
+        if (ZPG_Grid_SetCellTypeByGeometryMatch(grid, grid, cursor.x, cursor.y, def->value, def->geometryType))
         {
             tilesPlaced++;
         }
+        /*if (ZPG_Grid_SetCellTypeGeometry(
+            grid, cursor.x, cursor.y, def->value, def->geometryType) == YES)
+        {
+            tilesPlaced++;
+        }*/
 
         // record visit if stencil tag is clear.
-        if (ZPG_Grid_GetTagAt(stencil, cursor.x, cursor.y) == 0)
+        if (ZPG_GRID_GET(tagGrid, cursor.x, cursor.y) == 0)
         {
             info.points[info.numPoints] = cursor;
             info.numPoints++;
         }
+        // if (ZPG_Grid_GetTagAt(stencil, cursor.x, cursor.y) == 0)
+        // {
+        //     info.points[info.numPoints] = cursor;
+        //     info.numPoints++;
+        // }
         
         // select next
         // try and walk... if walk fails, start searching backward
@@ -148,7 +158,8 @@ static ZPGPoint ZPG_RandomWalkAndFill(
                 {
                     // Pop tile from points record.
                     // tag tile so it cannot be re-added to the point list
-                    ZPG_Grid_GetCellAt(stencil, searchPos.x, searchPos.y)->tile.tag = 1;
+                    //ZPG_Grid_GetCellAt(stencil, searchPos.x, searchPos.y)->tile.tag = 1;
+                    ZPG_GRID_SET(tagGrid,searchPos.x, searchPos.y, 1);
                     info.numPoints--;
                 }
                 else

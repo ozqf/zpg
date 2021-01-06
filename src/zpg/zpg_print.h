@@ -4,7 +4,7 @@
 #include "zpg_internal.h"
 
 
-static void ZPG_BGrid_PrintValues(ZPGByteGrid* grid, i32 bBlankZeroes)
+static void ZPG_BGrid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
 {
     ZPG_PARAM_NULL(grid, )
 	if (grid->width > 100 || grid->height > 100)
@@ -52,22 +52,23 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
         printf("|");
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
-            if (bBlankZeroes && cell->tile.type == 0)
+            //ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
+            u8 val = ZPG_GRID_GET(grid, x, y);
+            if (bBlankZeroes && val == 0)
             {
                 //printf(" ");
                 printf("    ");
             }
             else
             {
-                printf(" %03d", cell->tile.type);
+                printf(" %03d", val);
             }
         }
         printf("|\n");
     }
     printf("------------------\n");
 }
-
+#if 0
 static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 channel, i32 bBlankZeroes)
 {
     ZPG_PARAM_NULL(grid, )
@@ -83,7 +84,8 @@ static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 channel, i32 bBlankZe
         printf("|");
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
+            //ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
+            u8 val = ZPG_GRID_GET(grid, x, y);
             if (bBlankZeroes && cell->arr[channel] == 0)
             {
                 printf(" ");
@@ -97,7 +99,7 @@ static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 channel, i32 bBlankZe
     }
     printf("------------------\n");
 }
-
+#endif
 static void ZPG_PrintPointsAsGrid(
     ZPGPoint* points, i32 numPoints, i32 width, i32 height)
 {
@@ -211,7 +213,8 @@ static void ZPG_Grid_PrintTexture(ZPGGrid* grid, i32 bColourIndices)
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
-            u8 r = grid->cells[x + (y * grid->width)].colour.r;
+            //u8 r = grid->cells[x + (y * grid->width)].colour.r;
+            u8 r = grid->cells[x + (y * grid->width)];
             u8 outputIndex = (u8)((f32)((f32)r / (f32)divider) + 0.5f);
             u8 ch = colours[outputIndex];
             //if (outputIndex >= numColours) { outputIndex = numColours - 1; }

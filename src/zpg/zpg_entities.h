@@ -19,6 +19,27 @@ static i32 ZPG_Grid_CountCardinalNeighbours(
     ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGPoint* results)
 {
     i32 count = 0;
+    if (ZPG_GRID_POS_SAFE(grid, x - 1, y) && ZPG_GRID_GET(grid, x - 1, y) == type)
+    {
+        results[count] = { -1, 0 };
+        count++;
+    }
+    if (ZPG_GRID_POS_SAFE(grid, x + 1, y) && ZPG_GRID_GET(grid, x + 1, y) == type)
+    {
+        results[count] = { 1, 0 };
+        count++;
+    }
+    if (ZPG_GRID_POS_SAFE(grid, x, y - 1) && ZPG_GRID_GET(grid, x, y - 1) == type)
+    {
+        results[count] = { 0, -1 };
+        count++;
+    }
+    if (ZPG_GRID_POS_SAFE(grid, x, y + 1) && ZPG_GRID_GET(grid, x, y + 1) == type)
+    {
+        results[count] = { 0, 1 };
+        count++;
+    }
+    /*
     ZPGCell* cell;
     // left
     cell = ZPG_Grid_GetCellAt(grid, x - 1, y);
@@ -36,17 +57,22 @@ static i32 ZPG_Grid_CountCardinalNeighbours(
     cell = ZPG_Grid_GetCellAt(grid, x, y + 1);
     if (cell && cell->tile.type == type)
     { results[count] = { 0, 1 }; count++; }
+    */
     return count;
 }
 
 static void ZPG_AnalyseCellForEntities(
     ZPGGrid* grid, i32 x, i32 y, ZPGGrid* result, i32* seed)
 {
-    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    if (cell == NULL) { printf("Grid cell is null\n"); return; }
-    ZPGCell* target = ZPG_Grid_GetCellAt(result, x, y);
-    if (target == NULL) { printf("target cell is null\n"); return; }
-    ZPGCellTypeDef* def = ZPG_GetType(cell->tile.type);
+    // ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+    // if (cell == NULL) { printf("Grid cell is null\n"); return; }
+    // ZPGCell* target = ZPG_Grid_GetCellAt(result, x, y);
+    // if (target == NULL) { printf("target cell is null\n"); return; }
+    // ZPGCellTypeDef* def = ZPG_GetType(cell->tile.type);
+
+    if (!ZPG_GRID_POS_SAFE(grid, x, y)) { return; }
+
+    ZPGCellTypeDef* def = ZPG_GetType(ZPG_GRID_GET(grid, x, y));
     if (def == NULL) { printf("Cell type def is null\n");return;}
     ZPGPoint dirs[4];
     i32 count = 0;
@@ -54,23 +80,23 @@ static void ZPG_AnalyseCellForEntities(
     {
         case ZPG_GEOMETRY_TYPE_PATH:
         count = ZPG_Grid_CountNeighourRingsAt(grid, x, y);
-        ZPG_Grid_SetCellTypeAt(result, x, y, (u8)count, NULL);
+        ZPG_Grid_SetValueWithStencil(result, x, y, (u8)count, NULL);
         break;
         case ZPG_GEOMETRY_TYPE_SOLID:
         // TODO: How to record for later usage that this cell
         // could be used for a hidden monster trap
         count = ZPG_Grid_CountCardinalNeighbours(
             grid, x, y, ZPG_GEOMETRY_TYPE_PATH, dirs);
-        ZPG_Grid_SetCellTypeAt(result, x, y, (u8)count, NULL);
+        ZPG_Grid_SetValueWithStencil(result, x, y, (u8)count, NULL);
         /*for (i32 i = 0; i < count; ++i)
         {
-            ZPG_Grid_SetCellTypeAt(result, x, y, (u8)count, NULL);
+            ZPG_Grid_SetValueWithStencil(result, x, y, (u8)count, NULL);
         }*/
         break;
         case ZPG_GEOMETRY_TYPE_VOID:
         count = ZPG_Grid_CountCardinalNeighbours(
             grid, x, y, ZPG_GEOMETRY_TYPE_PATH, dirs);
-        ZPG_Grid_SetCellTypeAt(result, x, y, (u8)count + 4, NULL);
+        ZPG_Grid_SetValueWithStencil(result, x, y, (u8)count + 4, NULL);
         
         break;
         default: return;
@@ -242,7 +268,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
         for (i32 i = numObjectives - 1; i >= 0; --i)
         {
             ZPGEntityInfo* info = &objectives[i];
-            ZPG_Grid_SetCellTypeAt(grid, info->pos.x, info->pos.y, info->entType, NULL);
+            ZPG_Grid_SetValueWithStencil(grid, info->pos.x, info->pos.y, info->entType, NULL);
         }
     }
     // Randomly place enemies on remaining tiles:
@@ -257,7 +283,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
 
         // place enemy
         ZPGPoint* p = &emptyTiles[randomIndex];
-        ZPG_Grid_SetCellTypeAt(grid, p->x, p->y, ZPG_CELL_TYPE_ENEMY, NULL);
+        ZPG_Grid_SetValueWithStencil(grid, p->x, p->y, ZPG_CELL_TYPE_ENEMY, NULL);
         tilesCursor--;
 
         // Reduce usable tiles

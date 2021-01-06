@@ -133,7 +133,9 @@ struct ZPGWalkCfg
 #define ZPG_CELL_CHANNEL_2 2
 #define ZPG_CELL_CHANNEL_3 3
 
+#if 0
 // TODO: This could get very messy as more functionality is piled in.
+// TODO: Replace with grid stack instead
 #pragma pack(push, 1)
 union ZPGCell
 {
@@ -174,12 +176,40 @@ union ZPGCell
     } colour;
 };
 #pragma pack(pop)
-
+#endif
 struct ZPGGridEntityStats
 {
     i32 numFloorTiles;
     i32 numObjectiveTags;
 };
+
+#define ZPG_IS_POS_SAFE(gridWidthI32, gridHeightI32, gridPosX, gridPosY) \
+(gridPosX >= 0 && gridPosX < gridWidthI32 && gridPosY >= 0 && gridPosY < gridHeightI32)
+
+#define ZPG_POS_TO_INDEX(gridWidthI32, gridPosX, gridPosY) \
+(gridPosX + (gridPosY * gridWidthI32))
+
+#define ZPG_GRID_POS_SAFE(gridPtr, gridPosX, gridPosY) \
+(ZPG_IS_POS_SAFE(gridPtr->width, gridPtr->height, gridPosX, gridPosY))
+
+#define ZPG_GRID_POS_TO_INDEX(gridPtr, gridPosX, gridPosY) \
+(gridPosX + (gridPosY * gridPtr->width))
+
+#define ZPG_GRID_GET(gridPtr, gridPosX, gridPosY) \
+(gridPtr->cells[ZPG_POS_TO_INDEX(gridPtr->width, gridPosX, gridPosY)])
+
+#define ZPG_GRID_GET_ADDR(gridPtr, gridPosX, gridPosY) \
+(&gridPtr->cells[ZPG_POS_TO_INDEX(gridPtr->width, gridPosX, gridPosY)])
+
+#define ZPG_GRID_SET(gridPtr, gridPosX, gridPosY, valToWrite) \
+{ if ZPG_IS_POS_SAFE(gridPtr->width, gridPtr->height, gridPosX, gridPosY) \
+{ gridPtr->cells[ZPG_POS_TO_INDEX(grid->width, gridPosX, gridPosY)] = valToWrite; }}
+
+#define ZPG_BGRID_GET(byteGridPtr, gridPosX, gridPosY) \
+byteGridPtr->cells[ZPG_POS_TO_INDEX(byteGridPtr->width, gridPosX, gridPosY)]
+
+#define ZPG_BGRID_SET(byteGridPtr, gridPosX, gridPosY, newCellValueU8) \
+byteGridPtr->cells[ZPG_POS_TO_INDEX(byteGridPtr->width, gridPosX, gridPosY)] = newCellValueU8
 
 struct ZPGGrid
 {
@@ -191,15 +221,22 @@ struct ZPGGrid
     // used for generating entities
     ZPGGridEntityStats stats;
     // row by row cell store
-    ZPGCell *cells;
-};
-
-struct ZPGByteGrid
-{
-    i32 width;
-    i32 height;
-    i32 id;
     u8* cells;
+    //ZPGCell *cells;
+    u8 GetValue(i32 x, i32 y)
+    {
+        return this->cells[ZPG_POS_TO_INDEX(this->width, x, y)];
+    }
+
+    void SetValue(i32 x, i32 y, u8 val)
+    {
+        this->cells[ZPG_POS_TO_INDEX(this->width, x, y)] = val;
+    }
+
+    i32 IsSafe(i32 x, i32 y)
+    {
+        return ZPG_IS_POS_SAFE(this->width, this->height, x, y);
+    }
 };
 
 #define ZPG_MAX_GRID_STACKS 32
@@ -209,7 +246,7 @@ struct ZPGGridStack
     i32 maxGrids;
     i32 width;
     i32 height;
-    ZPGByteGrid* grids[ZPG_MAX_GRID_STACKS];
+    ZPGGrid* grids[ZPG_MAX_GRID_STACKS];
 };
 
 #define ZPG_MAX_PREFAB_EXITS 4

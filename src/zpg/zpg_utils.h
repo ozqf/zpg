@@ -161,9 +161,12 @@ static i32 ZPG_MarchOutOfStencil(
             *cursor = nextPos;
             if (bPaintPath == YES)
             {
-                ZPG_Grid_SetCellTypeGeometry(
-                    grid, cursor->x, cursor->y, typeToPaint, def->geometryType);
-                //ZPG_Grid_SetCellTypeAt(grid, cursor->x, cursor->y, typeToPaint);
+                // ZPG_Grid_SetCellTypeGeometry(
+                //     grid, cursor->x, cursor->y, typeToPaint, def->geometryType);
+                ZPG_Grid_SetCellTypeByGeometryMatch(
+                    grid, grid, cursor->x, cursor->y, typeToPaint, def->geometryType);
+
+                //ZPG_Grid_SetValueWithStencil(grid, cursor->x, cursor->y, typeToPaint);
             }
         }
         else
@@ -247,10 +250,22 @@ static i32 ZPG_RaycastForHitOrGridEdge(
     for (; n > 0; --n)
     {
         i32 bHit = NO;
-        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, plotX, plotY);
+        if (!ZPG_IS_POS_SAFE(grid->width, grid->height, plotX, plotY))
+        {
+            bHit = YES;
+        }
+        else
+        {
+            i32 val = grid->cells[ZPG_POS_TO_INDEX(grid->width, plotX, plotY)];
+            if (val != 0)
+            {
+                bHit = YES;
+            }
+        }
+        /*ZPGCell* cell = ZPG_Grid_GetCellAt(grid, plotX, plotY);
         if (cell != NULL)
         {
-            //ZPG_Grid_SetCellTypeAt(grid, plotX, plotY, ZPG_CELL_TYPE_VOID, NULL);
+            //ZPG_Grid_SetValueWithStencil(grid, plotX, plotY, ZPG_CELL_TYPE_VOID, NULL);
             if (cell->tile.type != 0)
             {
                 bHit = YES;
@@ -263,7 +278,7 @@ static i32 ZPG_RaycastForHitOrGridEdge(
             printf("Ray off grid at %d/%d - result %d/%d\n",
                 plotX, plotY, lastPlotX, lastPlotY);
             bHit = YES;
-        }
+        }*/
     
         if (bHit == YES)
         {

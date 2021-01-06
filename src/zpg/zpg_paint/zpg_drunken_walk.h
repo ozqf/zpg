@@ -64,7 +64,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     ZPGPoint cursor = { cfg->startX, cfg->startY };
     ZPGPoint lastPos = cursor;
     i32 bMarkStencilExitsAsStart = YES;
-    ZPG_Grid_SetCellTypeAt(grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
+    ZPG_Grid_SetValueWithStencil(grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
     // move start out of stencil if required.
     if (ZPG_MarchOutOfStencil(grid, stencil, &cursor, &dir, YES, cfg->typeToPaint) == NO)
     {
@@ -73,7 +73,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     }
     if (cfg->bPlaceObjectives)
     {
-        ZPG_Grid_SetCellTypeAt(
+        ZPG_Grid_SetValueWithStencil(
             grid, cursor.x, cursor.y, ZPG_CELL_TYPE_START, NULL);
     }
     ZPGRect border;
@@ -95,8 +95,15 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     i32 tilesPlaced = 0;
     while (tilesPlaced < cfg->tilesToPlace)
     {
-        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, cursor.x, cursor.y);
-        if (cell != NULL && cell->tile.type != cfg->typeToPaint)
+        // ZPGCell* cell = ZPG_Grid_GetCellAt(grid, cursor.x, cursor.y);
+        i32 isSafe = ZPG_GRID_POS_SAFE(grid, cursor.x, cursor.y);
+        u8 val = 0;
+        if (isSafe)
+        {
+            val = ZPG_GRID_GET(grid, cursor.x, cursor.y);
+        }
+        
+        if (isSafe != NULL && val != cfg->typeToPaint)
         {
             f32 r = ZPG_Randf32(cfg->seed++);
             if (r < cfg->bigRoomChance)
@@ -117,7 +124,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
                     printf("Paint cell %d at %d/%d\n",
                         cfg->typeToPaint, cursor.x, cursor.y);
                 }
-                ZPG_Grid_SetCellTypeAt(
+                ZPG_Grid_SetValueWithStencil(
                     grid, cursor.x, cursor.y, cfg->typeToPaint, NULL);
             }
             lastPos = cursor;
@@ -143,7 +150,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     //ZPG_SetCellTagAt(grid, lastPos.x, lastPos.y, ZPG_CELL_TAG_RANDOM_WALK_END);
     if (cfg->bPlaceObjectives)
     {
-        ZPG_Grid_SetCellTypeAt(grid, cursor.x, cursor.y, ZPG_CELL_TYPE_END, NULL);
+        ZPG_Grid_SetValueWithStencil(grid, cursor.x, cursor.y, ZPG_CELL_TYPE_END, NULL);
     }
     //printf("Drunken walk placed %d tiles in %d iterations\n",
     //    tilesPlaced, iterations);

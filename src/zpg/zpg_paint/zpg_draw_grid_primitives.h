@@ -41,7 +41,7 @@ static i32 ZPG_FillRectWithStencil(
         for (i32 x = min.x; x <= max.x; ++x)
         {
             if (ZPG_Grid_CheckStencilOccupied(stencil, x, y ) == YES) { continue; }
-            ZPG_Grid_GetCellAt(grid, x, y)->tile.type = typeToPaint;
+            grid->SetValue(x, y, typeToPaint);
             numCellsPainted++;
         }
     }
@@ -114,9 +114,9 @@ static void ZPG_DrawLine(
 
     for (; n > 0; --n)
     {
-        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, plotX, plotY);
-        if (cell != NULL)
+        if (ZPG_IS_POS_SAFE(grid->width, grid->height, plotX, plotY))
         {
+            i32 i = ZPG_POS_TO_INDEX(grid->width, plotX, plotY);
             f32 r = ZPG_Randf32(0);
             if (r < bigRoomChance)
             {
@@ -126,10 +126,10 @@ static void ZPG_DrawLine(
             }
             else
             {
-                cell->tile.type = typeToPaint;
+                grid->cells[i] = typeToPaint;
             }
         }
-
+        
         if (error > 0)
         {
             plotY += y_inc;
@@ -200,7 +200,7 @@ static void ZPG_AddGridsOfSameSize(ZPGGrid* target, ZPGGrid* source)
     i32 numCells = target->width * target->height;
     for (i32 i = 0; i < numCells; ++i)
     {
-        target->cells[i].tile.type += source->cells[i].tile.type;
+        target->cells[i] += source->cells[i];
     }
 }
 
@@ -217,35 +217,46 @@ static void ZPG_BlitGrids(ZPGGrid* target, ZPGGrid* source, ZPGPoint topLeft, ZP
     {
         for(i32 sourceX = 0; sourceX < source->width; ++sourceX)
         {
-            ZPGCell* sourceCell = ZPG_Grid_GetCellAt(source, sourceX, sourceY);
+            
             ZPGPoint tarPos;
             tarPos.x = topLeft.x + sourceX;
             tarPos.y = topLeft.y + sourceY;
-            ZPGCell* targetCell = ZPG_Grid_GetCellAt(target, tarPos.x, tarPos.y);
-            if (sourceCell == NULL || targetCell == NULL) { continue; }
-            *targetCell = *sourceCell;
+            if (!source->IsSafe(sourceX, sourceY)) { continue; }
+            if (!target->IsSafe(tarPos.x, tarPos.y)) { continue; }
+            target->SetValue(tarPos.x, tarPos.y, source->GetValue(sourceX, sourceY));
+
+            // ZPGCell* sourceCell = ZPG_Grid_GetCellAt(source, sourceX, sourceY);
+            // ZPGCell* targetCell = ZPG_Grid_GetCellAt(target, tarPos.x, tarPos.y);
+            // if (sourceCell == NULL || targetCell == NULL) { continue; }
+            // *targetCell = *sourceCell;
             if (writeStencil != NULL)
             {
-                ZPG_Grid_SetCellTypeAt(
+                ZPG_Grid_SetValueWithStencil(
                     writeStencil, tarPos.x, tarPos.y, ZPG_STENCIL_TYPE_FULL, NULL);
             }
         }
     }
 }
 
-static ZPGCell* ZPG_Grid_FindFirstCellWithType(
-    ZPGGrid* grid, u8 type, i32* resultX, i32* resultY)
+static i32 ZPG_Grid_FindFirstCellWithType(
+    ZPGGrid* grid, u8 type, ZPGPoint* result)
 {
     ZPG_BEGIN_GRID_ITERATE(grid)
-        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+        if (ZPG_GRID_GET(grid, x, y) == type)
+        {
+            result->x = x;
+            result->y = y;
+            return YES;
+        }
+        /*ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
         if (cell != NULL && cell->tile.type == type)
         {
             *resultX = x;
             *resultY = y;
             return cell;
-        }
+        }*/
     ZPG_END_GRID_ITERATE
-    return NULL;
+    return NO;
 }
 
 static void ZPG_PushPointToStack(
@@ -261,24 +272,27 @@ static void ZPG_MatchAndPushFillNode(
     ZPGGrid* grid, ZPGPoint* points, i32* numPoints, i32 maxPoints,
     i32 x, i32 y, u8 queryValue)
 {
-    if (ZPG_Grid_CheckTypeAt(grid, x, y, queryValue, NO) == YES)
+    if (ZPG_Grid_CheckValueAt(grid, x, y, queryValue, NO) == YES)
     {
         ZPG_PushPointToStack(points, numPoints, maxPoints, x, y);
     }
 }
 
 static void ZPG_MatchAndPushFillNode_WithTagCheck(
-    ZPGGrid* grid, ZPGPoint* points, i32* numPoints, i32 maxPoints,
+    ZPGGrid* grid, ZPGGrid* tagGrid, ZPGPoint* points, i32* numPoints, i32 maxPoints,
     i32 x, i32 y, u8 queryValue, u8 tag)
 {
-    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    if (cell == NULL) { return; }
+    if (!ZPG_GRID_POS_SAFE(grid, x, y)) { return; }
+    if (ZPG_GRID_GET(tagGrid, x, y) == 1) { return; }
+    // ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+    // if (cell == NULL) { return; }
     // already visited?
-    if (cell->tile.tag == tag) { return; }
+    // if (cell->tile.tag == tag) { return; }
     
-    if (ZPG_Grid_CheckTypeAt(grid, x, y, queryValue, NO) == YES)
+    if (ZPG_Grid_CheckValueAt(grid, x, y, queryValue, NO) == YES)
     {
-        cell->tile.tag = 1;
+        //cell->tile.tag = 1;
+        ZPG_GRID_SET(tagGrid, x, y, 1);
         ZPG_PushPointToStack(points, numPoints, maxPoints, x, y);
         return;
     }
@@ -288,7 +302,8 @@ static void ZPG_Grid_FloodFill(
     ZPGGrid* grid, i32 x, i32 y, u8 fillValue)
 {
     if (ZPG_Grid_IsPositionSafe(grid, x, y) == NO) { return; }
-    u8 emptyValue = ZPG_Grid_GetCellAt(grid, x, y)->tile.type;
+    //u8 emptyValue = ZPG_Grid_GetCellAt(grid, x, y)->tile.type;
+    u8 emptyValue = ZPG_GRID_GET(grid, x, y);
     i32 maxPoints = grid->width * grid->height;
     ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(maxPoints * sizeof(ZPGPoint), ZPG_MEM_TAG_POINTS);
     i32 numPoints = 0;
@@ -299,7 +314,7 @@ static void ZPG_Grid_FloodFill(
         // Grab and point top of stack
         ZPGPoint* p = &points[numPoints - 1];
         numPoints--;
-        ZPG_Grid_SetCellTypeAt(grid, p->x, p->y, fillValue, NULL);
+        ZPG_Grid_SetValueWithStencil(grid, p->x, p->y, fillValue, NULL);
         ZPG_MatchAndPushFillNode(grid, points, &numPoints, maxPoints, p->x - 1, p->y, emptyValue);
         ZPG_MatchAndPushFillNode(grid, points, &numPoints, maxPoints, p->x + 1, p->y, emptyValue);
         ZPG_MatchAndPushFillNode(grid, points, &numPoints, maxPoints, p->x, p->y - 1, emptyValue);
@@ -315,11 +330,15 @@ static void ZPG_Grid_FloodFill(
     ZPG_Free(points);
 }
 
+/**
+ * Tag grid must be an available grid of equal size so that searched cells
+ * can be marked
+ */
 static i32 ZPG_Grid_FloodSearch(
-    ZPGGrid* grid, i32 posX, i32 posY, ZPGPoint* results, i32 maxResults)
+    ZPGGrid* grid, ZPGGrid* tagGrid, i32 posX, i32 posY, ZPGPoint* results, i32 maxResults)
 {
     if (ZPG_Grid_IsPositionSafe(grid, posX, posY) == NO) { return 0; }
-    u8 emptyValue = ZPG_Grid_GetCellAt(grid, posX, posY)->tile.type;
+    u8 emptyValue = ZPG_GRID_GET(grid, posX, posY);
     i32 maxPoints = grid->width * grid->height;
     ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(maxPoints * sizeof(ZPGPoint), ZPG_MEM_TAG_POINTS);
     i32 numPoints = 0;
@@ -339,18 +358,19 @@ static i32 ZPG_Grid_FloodSearch(
         results[numResults].y = y;
         numResults++;
         // set tag so we don't count this cell again!
-        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-        cell->tile.tag = 1;
+        ZPG_GRID_SET(tagGrid, x, y, 1);
+        // ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+        // cell->tile.tag = 1;
         if (numResults >= maxResults) { printf(" max results\n"); break; }
         // add further nodes
         ZPG_MatchAndPushFillNode_WithTagCheck(
-            grid, points, &numPoints, maxPoints, x - 1, y, emptyValue, tagValue);
+            grid, tagGrid, points, &numPoints, maxPoints, x - 1, y, emptyValue, tagValue);
         ZPG_MatchAndPushFillNode_WithTagCheck(
-            grid, points, &numPoints, maxPoints, x + 1, y, emptyValue, tagValue);
+            grid, tagGrid, points, &numPoints, maxPoints, x + 1, y, emptyValue, tagValue);
         ZPG_MatchAndPushFillNode_WithTagCheck(
-            grid, points, &numPoints, maxPoints, x, y - 1, emptyValue, tagValue);
+            grid, tagGrid, points, &numPoints, maxPoints, x, y - 1, emptyValue, tagValue);
         ZPG_MatchAndPushFillNode_WithTagCheck(
-            grid, points, &numPoints, maxPoints, x, y + 1, emptyValue, tagValue);
+            grid, tagGrid, points, &numPoints, maxPoints, x, y + 1, emptyValue, tagValue);
         exitCounter++;
         if (exitCounter >= maxPoints)
         {

@@ -5,7 +5,7 @@ byteGridPtr->cells[ZPG_POS_TO_INDEX(byteGridPtr->width, gridPosX, gridPosY)]
 
 #define ZPG_BGRID_SET(byteGridPtr, gridPosX, gridPosY, newCellValueU8) \
 byteGridPtr->cells[ZPG_POS_TO_INDEX(byteGridPtr->width, gridPosX, gridPosY)] = newCellValueU8
-
+#if 0
 /////////////////////////////////////////////////////////////
 // Grid Allocation/Deallocation
 /////////////////////////////////////////////////////////////
@@ -132,3 +132,4 @@ static void ZPG_BGrid_HealRoomScatter2(ZPGByteGrid* grid, ZPGByteGrid* stencil, 
     }
 }
 
+#endif

@@ -30,8 +30,9 @@ static void ZPG_SeedCaves(
             *seed += 1;
             if (rand < seedChance)
             {
-                ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-                cell->tile.type = paintType;
+                ZPG_GRID_SET(grid, x, y, paintType);
+                // ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+                // cell->tile.type = paintType;
             }
         }
     }
@@ -51,17 +52,26 @@ static void ZPG_IterateCaves(
     ZPG_BEGIN_GRID_ITERATE(grid)
         if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES)
         { continue; }
-        ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+        //ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+        u8* val = ZPG_GRID_GET_ADDR(grid, x, y);
         i32 neighbours = ZPG_Grid_CountNeighboursAt(grid, x, y).count;
         if (neighbours < criticalNeighbours)
         {
-            if (cell->tile.type == solidType)
+            // if (cell->tile.type == solidType)
+            // {
+            //     cell->tile.type = emptyType;
+            // }
+            // else if (cell->tile.type == emptyType)
+            // {
+            //     cell->tile.type = solidType;
+            // }
+            if (*val == solidType)
             {
-                cell->tile.type = emptyType;
+                *val = emptyType;
             }
-            else if (cell->tile.type == emptyType)
+            else if (*val == emptyType)
             {
-                cell->tile.type = solidType;
+                *val = solidType;
             }
         }
     ZPG_END_GRID_ITERATE

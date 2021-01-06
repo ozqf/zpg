@@ -51,12 +51,6 @@ if (gridAPtr->width != gridBPtr->width || gridAPtr->height != gridBPtr->height) 
 #define ZPG_ALLOC_ARRAY(dataType, arraySize, memAllocTag) \
 (##dataType##*)ZPG_Alloc(sizeof(##dataType##) * arraySize##, memAllocTag##)
 
-#define ZPG_POS_TO_INDEX(gridWidthI32, gridPosX, gridPosY) \
-(gridPosX + (gridPosY * gridWidthI32))
-
-#define ZPG_IS_POS_SAFE(gridWidthI32, gridHeightI32, gridPosX, gridPosY) \
-(gridPosX >= 0 && gridPosX < gridWidthI32 && gridPosY >= 0 && gridPosY < gridHeightI32)
-
 //////////////////////////////////////////
 // Iterating grid cells
 #ifndef ZPG_BEGIN_GRID_ITERATE
@@ -187,16 +181,16 @@ static void ZPG_DrawOuterBorder(ZPGGrid* grid, ZPGGrid* stencil, u8 typeToPaint)
 
 // Grid manipulation
 static i32 ZPG_Grid_PositionToIndexSafe(ZPGGrid* grid, i32 x, i32 y);
-static ZPGCell* ZPG_Grid_GetCellAt(ZPGGrid* grid, i32 x, i32 y);
-static ZPGCellTypeDef* ZPG_Grid_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y);
+// static ZPGCell* ZPG_Grid_GetCellAt(ZPGGrid* grid, i32 x, i32 y);
+//static ZPGCellTypeDef* ZPG_Grid_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y);
 static void ZPG_Grid_Clear(ZPGGrid* grid);
 static i32 ZPG_Grid_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y);
-static i32 ZPG_Grid_GetTagAt(ZPGGrid* grid, i32 x, i32 y);
-static void ZPG_Grid_SetCellTypeAt(ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGGrid* stencil);
-static i32 ZPG_Grid_SetCellTypeGeometry(ZPGGrid* grid, i32 x, i32 y, u8 typeToPaint, u8 geometryType);
-static void ZPG_Grid_SetCellTypeAll(ZPGGrid* grid, u8 type);
-static void ZPG_Grid_ClearAllTags(ZPGGrid* grid);
-static void ZPG_Grid_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel);
+// static i32 ZPG_Grid_GetTagAt(ZPGGrid* grid, i32 x, i32 y);
+// static void ZPG_Grid_SetValueWithStencil(ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGGrid* stencil);
+// static i32 ZPG_Grid_SetCellTypeGeometry(ZPGGrid* grid, i32 x, i32 y, u8 typeToPaint, u8 geometryType);
+// static void ZPG_Grid_SetCellTypeAll(ZPGGrid* grid, u8 type);
+// static void ZPG_Grid_ClearAllTags(ZPGGrid* grid);
+// static void ZPG_Grid_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel);
 static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original);
 static void ZPG_Grid_CalcStats(ZPGGrid* grid);
 static ZPGNeighbours ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y);

@@ -145,9 +145,10 @@ static ZPGGrid* ZPG_ReadGridAsci(u8* chars, i32 len)
         {
             u8 c = chars[i];
             ZPGCellTypeDef* def = ZPG_GetTypeByAsci(c);
-            ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-            *cell = {};
-            cell->tile.type = def->value;
+            grid->cells[ZPG_GRID_POS_TO_INDEX(grid, x, y)] = def->value;
+            // ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
+            // *cell = {};
+            // cell->tile.type = def->value;
         }
     }
 

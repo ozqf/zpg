@@ -9,10 +9,12 @@ static ZPGGrid* ZPG_Preset_Perlin(ZPGPresetCfg* presetCfg)
     //i32 w = 1024, h = 1024;
     //i32 w = 8, h = 8;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
-    ZPG_Grid_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
+    //ZPG_Grid_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
+    ZPG_Grid_SetAll(grid, ZPG_CELL_TYPE_WALL);
 
     ZPGGrid* stencil = ZPG_CreateGrid(w, h);
-    ZPG_Grid_SetCellTypeAll(stencil, ZPG_CELL_TYPE_PATH);
+    //ZPG_Grid_SetCellTypeAll(stencil, ZPG_CELL_TYPE_PATH);
+    ZPG_Grid_SetAll(stencil, ZPG_CELL_TYPE_PATH);
     ZPG_DrawOuterBorder(stencil, NULL, ZPG_CELL_TYPE_WALL);
     zpg_perlin_cfg cfg = {};
     ZPG_Perlin_SetCfgPreset(&cfg, 1);
