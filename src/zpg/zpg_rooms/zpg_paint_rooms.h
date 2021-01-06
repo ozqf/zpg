@@ -23,7 +23,8 @@ static void ZPG_Room_PaintIds(ZPGGrid* grid, ZPGRoom* rooms, i32 numRooms)
 	}
 }
 
-static void ZPG_PaintRoomCell4x4(ZPGGrid* grid, ZPGGrid* src, ZPGRoom* rooms, i32 numRooms, i32 x, i32 y)
+static void ZPG_PaintRoomCell4x4(
+	ZPGGrid* grid, ZPGGrid* src, ZPGRoom* rooms, i32 numRooms, i32 x, i32 y)
 {
 	i32 destX = x * 4;
 	i32 destY = y * 4;

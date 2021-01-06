@@ -10,6 +10,19 @@
 #define ZPG_MIN(x, y) ((x) < (y) ? (x) : (y))
 #define ZPG_MAX(x, y) ((x) > (y) ? (x) : (y))
 
+#define ZPG_MEM_TAG_NONE 0
+#define ZPG_MEM_TAG_GRID 1
+#define ZPG_MEM_TAG_POINTS 2
+#define ZPG_MEM_TAG_ROOMS 3
+#define ZPG_MEM_TAG_DOORS 4
+#define ZPG_MEM_TAG_INTS 5
+#define ZPG_MEM_TAG_FLOATS 6
+#define ZPG_MEM_TAG_GRID_STACK 7
+#define ZPG_MEM_TAG_FILE 8
+#define ZPG_MEM_TAG_PATHNODES 9
+#define ZPG_MEM_TAG_ENTITIES 10
+#define ZPG_MEM_TAG_BYTE_GRID 11
+
 // Standard lib calls
 #define ZPG_STRLEN(ptrToCharArray) \
 strlen(ptrToCharArray)
@@ -35,8 +48,14 @@ if (##paramPtr == NULL) { printf("Param %s was null\n", #paramPtr##); return fai
 if (gridAPtr->width != gridBPtr->width || gridAPtr->height != gridBPtr->height) \
 { printf("Grid size mismatch %d - %s\n", __LINE__, __FILE__); return failureReturnVal; }
 
-#define ZPG_ALLOC_ARRAY(dataType, arraySize) \
-(##dataType##*)ZPG_Alloc(sizeof(##dataType##) * arraySize##)
+#define ZPG_ALLOC_ARRAY(dataType, arraySize, memAllocTag) \
+(##dataType##*)ZPG_Alloc(sizeof(##dataType##) * arraySize##, memAllocTag##)
+
+#define ZPG_POS_TO_INDEX(gridWidthI32, gridPosX, gridPosY) \
+(gridPosX + (gridPosY * gridWidthI32))
+
+#define ZPG_IS_POS_SAFE(gridWidthI32, gridHeightI32, gridPosX, gridPosY) \
+(gridPosX >= 0 && gridPosX < gridWidthI32 && gridPosY >= 0 && gridPosY < gridHeightI32)
 
 //////////////////////////////////////////
 // Iterating grid cells
@@ -161,10 +180,13 @@ struct ZPGRoom
 //////////////////////////////////////////
 // Functions
 //////////////////////////////////////////
+//static void* ZPG_Alloc(i32 numBytes, i32 tag);
+//ZPG_EXPORT i32 ZPG_Free(void* ptr);
+
 static void ZPG_DrawOuterBorder(ZPGGrid* grid, ZPGGrid* stencil, u8 typeToPaint);
 
 // Grid manipulation
-static i32 ZPG_Grid_PositionToIndex(ZPGGrid* grid, i32 x, i32 y);
+static i32 ZPG_Grid_PositionToIndexSafe(ZPGGrid* grid, i32 x, i32 y);
 static ZPGCell* ZPG_Grid_GetCellAt(ZPGGrid* grid, i32 x, i32 y);
 static ZPGCellTypeDef* ZPG_Grid_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y);
 static void ZPG_Grid_Clear(ZPGGrid* grid);

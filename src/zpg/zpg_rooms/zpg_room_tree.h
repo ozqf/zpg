@@ -47,7 +47,7 @@ static i32 ZPG_CheckPointsConnected(ZPGPoint a, ZPGPoint b)
     return NO;
 }
 
-static i32 ZPG_Rooms_FindConnections(ZPGRoom* a, ZPGRoom* b)
+static i32 ZPG_Rooms_FindConnections(ZPGRoom* a, ZPGRoom* b, i32 bVerbose)
 {
     i32 count = 0;
     for (i32 i = 0; i < a->numPoints; ++i)
@@ -58,9 +58,11 @@ static i32 ZPG_Rooms_FindConnections(ZPGRoom* a, ZPGRoom* b)
             ZPGPoint* pb = &b->points[j];
             if (ZPG_CheckPointsConnected(*pa, *pb) == YES)
             {
-                printf("Connection between %d and %d\n", a->id, b->id);
-                printf("\tFrom %d, %d to %d, %d\n", pa->x, pa->y, pb->x, pb->y);
-                
+				if (bVerbose)
+				{
+					printf("Connection between %d and %d\n", a->id, b->id);
+					printf("\tFrom %d, %d to %d, %d\n", pa->x, pa->y, pb->x, pb->y);
+                }
                 count += 1;
                 //return YES;
             }
@@ -91,13 +93,13 @@ static i32 ZPG_FindIndexPair(
  * all of its connections to other rooms.
  */
 static i32 ZPG_Rooms_FindConnectionsForRoom(
-    ZPGRoom* rooms, i32 numRooms, i32 queryRoomIndex, i32** connections)
+    ZPGRoom* rooms, i32 numRooms, i32 queryRoomIndex, i32** connections, i32 bVerbose)
 {
     ZPGRoom* room = &rooms[queryRoomIndex];
     const i32 maxPairs = 16;
     i32 numPairs = 0;
     //ZPGIndexPair* pairs = (ZPGIndexPair*)ZPG_Alloc(sizeof(ZPGIndexPair) * maxPairs);
-    *connections = ZPG_ALLOC_ARRAY(i32, maxPairs);
+    *connections = ZPG_ALLOC_ARRAY(i32, maxPairs, ZPG_MEM_TAG_INTS);
     //printf("Find connections for room %d (%d) points\n",
     //    queryRoomIndex, room->numPoints);
     for (i32 i = 0; i < numRooms; ++i)
@@ -108,7 +110,7 @@ static i32 ZPG_Rooms_FindConnectionsForRoom(
         //i32 numQueryPoints = rooms[i].numPoints;
         if (rooms[i].tileType == 0) { continue; }
         // Find ajoining rooms
-        i32 numRoomConnections = ZPG_Rooms_FindConnections(room, &rooms[i]);
+        i32 numRoomConnections = ZPG_Rooms_FindConnections(room, &rooms[i], bVerbose);
         if (numRoomConnections > 0)
         {
             // add pair if necessary
@@ -175,7 +177,7 @@ static ZPGGrid* ZPG_Rooms_BuildConnectionsGrid(ZPGGrid* src, ZPGRoom* rooms, i32
             if (ZPG_Rooms_IsPointOtherRoom(src, room->tileType, p, { p.x + 1, p.y}))
             { flags |= (1 << 3); }
             //if (flags > 0) { printf("Flags! %d\n", flags); }
-            i32 tileIndex = ZPG_Grid_PositionToIndex(src, p.x, p.y);
+            i32 tileIndex = ZPG_Grid_PositionToIndexSafe(src, p.x, p.y);
             result->cells[tileIndex].tile.type = flags;
         }
     }
@@ -282,6 +284,21 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     u8 maxType = 16;
     u8 healThreshold = 1;
 
+    const i32 mainGrid = 0;
+    const i32 originalGrid = 1;
+
+    // Stack grid
+    ZPGGridStack* stack = ZPG_CreateGridStack(w, h, 8);
+    ZPG_ByteGrid_FillRandom(stack->grids[0], minType, maxType, &cfg->seed);
+    ZPG_ByteGrid_Copy(stack->grids[0], stack->grids[1]);
+    ZPG_BGrid_HealRoomScatter2(stack->grids[0], NULL, YES, NO);
+    ZPG_ZeroOutLoneValues(stack->grids[0]);
+
+    ZPG_BGrid_PrintValues(stack->grids[0], YES);
+
+
+
+    // Original grid type
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     //printf("Assign random values\n");
     ZPG_SetRandomGridValues(grid, minType, maxType, &cfg->seed);
@@ -295,8 +312,8 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     
     //ZPG_HealRoomScatter(grid, healThreshold);
 	ZPG_HealRoomScatter2(grid, NO, YES);
-    // ZPG_HealRoomScatter2(grid, YES, NO);
-    // ZPG_HealRoomScatter2(grid, YES, YES);
+    //ZPG_HealRoomScatter2(grid, YES, NO);
+    //ZPG_HealRoomScatter2(grid, YES, YES);
 
     if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
@@ -357,7 +374,13 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     ZPG_Grid_ClearAllTags(grid);
     i32 numCells = grid->width * grid->height;
     i32 numRooms = 0;
-    ZPGRoom* rooms = (ZPGRoom*)ZPG_Alloc(sizeof(ZPGRoom) * maxPoints);
+    // allocate for worst case; everyone cell is a room
+    // also zero out room memory.
+    ZPGRoom* rooms = (ZPGRoom*)ZPG_Alloc(sizeof(ZPGRoom) * maxPoints, ZPG_MEM_TAG_ROOMS);
+    for (i32 i = 0; i < maxPoints; ++i)
+    {
+        rooms[i] = {};
+    }
     i32 nextRoom = 0;
 
     ZPG_BEGIN_GRID_ITERATE(grid)
@@ -390,6 +413,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
         ZPG_Grid_PrintChannelValues(grid, ZPG_CELL_CHANNEL_3, YES);
     }
     
+    ////////////////////////////////////////////////////////
     // build room connections tree
     if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
@@ -402,7 +426,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
         if (room->tileType == 0) { continue; }
         i32* connections;
         room->numConnections = ZPG_Rooms_FindConnectionsForRoom(
-            rooms, nextRoom, i, &connections);
+            rooms, nextRoom, i, &connections, ((cfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0));
 		room->connections = connections;
 		//printf("%d has %d connections\n", i, room->numConnections);
     }
@@ -435,15 +459,20 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 		ZPG_Grid_PrintValues(grid, YES);
 	}
 
+	
 	ZPGGrid* canvas = ZPG_GenerateRoomBorder(grid, rooms, nextRoom, YES);
-	ZPG_Grid_PrintValues(canvas, YES);
+	if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
+    {
+		ZPG_Grid_PrintValues(canvas, YES);
+	}
     
-    printf("Connections bitmask\n");
     ZPGGrid* connectionGrid = ZPG_Rooms_BuildConnectionsGrid(grid, rooms, nextRoom);
-    ZPG_Grid_PrintValues(connectionGrid, NO);
-
-	ZPG_FreeGrid(canvas);
-
+	if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
+    {
+		printf("Connections bitmask\n");
+		ZPG_Grid_PrintValues(connectionGrid, NO);
+	}
+	
     ///////////////////////////////////////
     // create a route
 
@@ -493,7 +522,14 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     ZPG_Path_SearchRooms(rooms, nextRoom, startIndex, endIndex);
 #endif
     // Cleanup
+    //ZPG_PrintAllocations();
+    printf("Free points\n");
     ZPG_Free(points);
+    printf("Free grids\n");
+    ZPG_FreeGridStack(stack);
+    ZPG_FreeGrid(canvas);
+	ZPG_FreeGrid(connectionGrid);
+    //ZPG_PrintAllocations();
     ZPG_FreeRooms(rooms, numRooms);
     printf("Room tree test finished\n");
     return grid;

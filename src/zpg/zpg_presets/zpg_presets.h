@@ -273,7 +273,7 @@ static ZPGGrid* ZPG_TestDrawOffsetLines(ZPGPresetCfg* presetCfg)
 
     // Draw main path
     i32 bVertical = NO;
-    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(sizeof(ZPGPoint) * numPoints);
+    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(sizeof(ZPGPoint) * numPoints, ZPG_MEM_TAG_POINTS);
     ZPG_PlotSegmentedPath_Old(grid, &seed, points, numPoints, bVertical, NO);
     ZPG_DrawSegmentedLine(grid, NULL, points, numPoints, ZPG_CELL_TYPE_PATH, 0.2f);
 

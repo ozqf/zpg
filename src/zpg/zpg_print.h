@@ -4,6 +4,40 @@
 #include "zpg_internal.h"
 
 
+static void ZPG_BGrid_PrintValues(ZPGByteGrid* grid, i32 bBlankZeroes)
+{
+    ZPG_PARAM_NULL(grid, )
+	if (grid->width > 100 || grid->height > 100)
+	{
+		printf("SKIP: Grid size %d/%d is too big to print\n", grid->width, grid->height);
+		return;
+	}
+    printf("------ Byte Grid %d/%d ------\n", grid->width, grid->height);
+    for (i32 y = 0; y < grid->height; ++y)
+    {
+        printf("|");
+        for (i32 x = 0; x < grid->width; ++x)
+        {
+            i32 val = ZPG_BGRID_GET(grid, x, y);
+            if (bBlankZeroes && val == 0)
+            {
+                //printf(" ");
+                printf("    ");
+            }
+            else
+            {
+                printf(" %03d", val);
+            }
+        }
+        printf("|\n");
+    }
+    printf("------------------\n");
+}
+
+
+/////////////////////////////////////////////
+// Grid printing
+/////////////////////////////////////////////
 static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
 {
     ZPG_PARAM_NULL(grid, )

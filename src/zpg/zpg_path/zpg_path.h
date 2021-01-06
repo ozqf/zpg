@@ -47,9 +47,9 @@ static void ZPG_Path_SearchRooms(
     ZPGRoom* end = &rooms[endIndex];
 
     // Create open and closed lists
-    ZPGPathNode* closed = ZPG_ALLOC_ARRAY(ZPGPathNode, numRooms);
+    ZPGPathNode* closed = ZPG_ALLOC_ARRAY(ZPGPathNode, numRooms, ZPG_MEM_TAG_PATHNODES);
     i32 numClosed = 0;
-    ZPGPathNode* open = ZPG_ALLOC_ARRAY(ZPGPathNode, numRooms);
+    ZPGPathNode* open = ZPG_ALLOC_ARRAY(ZPGPathNode, numRooms, ZPG_MEM_TAG_PATHNODES);
     i32 numOpen = 0;
 
     // add start node for inspection

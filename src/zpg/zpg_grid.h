@@ -12,7 +12,7 @@ static i32 ZPG_ArePointsEqual(ZPGPoint a, ZPGPoint b)
     return NO;
 }
 
-static i32 ZPG_Grid_PositionToIndex(ZPGGrid* grid, i32 x, i32 y)
+static i32 ZPG_Grid_PositionToIndexSafe(ZPGGrid* grid, i32 x, i32 y)
 {
     if (x < 0 || x >= grid->width) { return -1; }
     if (y < 0 || y >= grid->height) { return -1; }
@@ -28,7 +28,7 @@ static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y)
 
 static ZPGCell* ZPG_Grid_GetCellAt(ZPGGrid* grid, i32 x, i32 y)
 {
-    i32 i = ZPG_Grid_PositionToIndex(grid, x, y);
+    i32 i = ZPG_Grid_PositionToIndexSafe(grid, x, y);
     if (i == -1) { return NULL; }
     return &grid->cells[i];
 }
@@ -369,7 +369,7 @@ static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
     i32 memTotal = sizeof(ZPGGrid) + memForGrid;
     //printf("Make grid %d by %d (%d cells, %d bytes)\n",
     //    width, height, (width * height), memTotal);
-    u8* ptr = (u8*)ZPG_Alloc(memTotal);
+    u8* ptr = (u8*)ZPG_Alloc(memTotal, ZPG_MEM_TAG_GRID);
     // Create grid struct at END of cells array
     ZPGGrid* grid = (ZPGGrid*)(ptr + memForGrid);
     *grid = {};
@@ -405,7 +405,7 @@ static i32 ZPG_AddGridToStack(ZPGGridStack* stack)
         return -1;
     }
     i32 i = stack->numGrids;
-    ZPGGrid* grid = ZPG_CreateGrid(
+    ZPGByteGrid* grid = ZPG_CreateByteGrid(
         stack->width, stack->height);
     if (grid == NULL) { return -1; }
     grid->id = i;
@@ -414,15 +414,32 @@ static i32 ZPG_AddGridToStack(ZPGGridStack* stack)
     return i;
 }
 
-static ZPGGridStack* ZPG_CreateGridStack(i32 width, i32 height)
+static ZPGGridStack* ZPG_CreateGridStack(i32 width, i32 height, i32 initialGridCount)
 {
-    ZPGGridStack* stack = (ZPGGridStack*)ZPG_Alloc(sizeof(ZPGGridStack));
+    ZPGGridStack* stack = (ZPGGridStack*)ZPG_Alloc(sizeof(ZPGGridStack), ZPG_MEM_TAG_GRID_STACK);
     stack->maxGrids = ZPG_MAX_GRID_STACKS;
-    stack->grids[0] = ZPG_CreateGrid(width, height);
-    stack->numGrids = 1;
+    stack->numGrids = 0;
     stack->width = width;
     stack->height = height;
+
+    for (i32 i = 0; i < initialGridCount; ++i)
+    {
+        i32 j = ZPG_AddGridToStack(stack);
+
+    }
+    // stack->grids[0] = ZPG_CreateByteGrid(width, height);
+    // stack->numGrids = 1;
     return stack;
+}
+
+static void ZPG_FreeGridStack(ZPGGridStack* stack)
+{
+    i32 len = stack->numGrids;
+    for (i32 i = 0; i < len; ++i)
+    {
+        ZPG_FreeByteGrid(stack->grids[i]);
+    }
+    ZPG_Free(stack);
 }
 
 /**
@@ -433,14 +450,17 @@ static i32 ZPG_Grid_CreatePointsArray(ZPGGrid* grid, ZPGPoint** points)
 {
     i32 numCells = grid->width * grid->height;
     i32 numBytes = sizeof(ZPGPoint) * numCells;
-    *points = (ZPGPoint*)ZPG_Alloc(numBytes);
+    *points = (ZPGPoint*)ZPG_Alloc(numBytes, ZPG_MEM_TAG_POINTS);
     return numCells;
 }
 
+/**
+ * does not free the source!
+ */
 static ZPGPoint* ZPG_AllocAndCopyPoints(ZPGPoint* source, i32 numPoints)
 {
     i32 bytes = sizeof(ZPGPoint) * numPoints;
-    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(bytes);
+    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(bytes, ZPG_MEM_TAG_POINTS);
     if (points == NULL) { return NULL; }
     ZPG_MEMCPY(points, source, bytes);
     return points;

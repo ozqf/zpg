@@ -96,7 +96,7 @@ static u8* ZPG_StageFile(char* fileName, i32* bytesRead)
     fseek(f, 0, SEEK_END);
     *bytesRead = ftell(f);
     fseek(f, 0, SEEK_SET);
-    void* mem = ZPG_Alloc(*bytesRead);
+    void* mem = ZPG_Alloc(*bytesRead, ZPG_MEM_TAG_FILE);
     if (mem == NULL)
     {
         fclose(f);

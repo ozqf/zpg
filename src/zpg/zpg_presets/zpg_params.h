@@ -74,6 +74,12 @@ static void ZPG_InitParams()
     param->data.flag = ZPG_API_FLAG_PRINT_GREYSCALE;
     param->helpText = "-g print greyscale if applicable\n";
 
+    param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_FLAG;
+    param->asciChar = 'm';
+    param->data.flag = ZPG_API_FLAG_PRINT_FINAL_ALLOCS;
+    param->helpText = "-m (debugging) print remaining allocs after run\n";
+
     // param = &g_paramTypes[g_numParamTypes++];
     // param->type = ZPG_PARAM_TYPE_FLAG;
     // param->asciChar = 's';

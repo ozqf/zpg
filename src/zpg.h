@@ -15,6 +15,7 @@
 #define ZPG_API_FLAG_STEP_THROUGH (1 << 2)
 #define ZPG_API_FLAG_NO_ENTITIES (1 << 3)
 #define ZPG_API_FLAG_PRINT_GREYSCALE (1 << 4)
+#define ZPG_API_FLAG_PRINT_FINAL_ALLOCS (1 << 5)
 
 #define ZPG_FLAG_ABOVE_LEFT (1 << 0)
 #define ZPG_FLAG_ABOVE (1 << 1)
@@ -193,6 +194,14 @@ struct ZPGGrid
     ZPGCell *cells;
 };
 
+struct ZPGByteGrid
+{
+    i32 width;
+    i32 height;
+    i32 id;
+    u8* cells;
+};
+
 #define ZPG_MAX_GRID_STACKS 32
 struct ZPGGridStack
 {
@@ -200,7 +209,7 @@ struct ZPGGridStack
     i32 maxGrids;
     i32 width;
     i32 height;
-    ZPGGrid* grids[ZPG_MAX_GRID_STACKS];
+    ZPGByteGrid* grids[ZPG_MAX_GRID_STACKS];
 };
 
 #define ZPG_MAX_PREFAB_EXITS 4

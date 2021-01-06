@@ -290,7 +290,7 @@ static void ZPG_Grid_FloodFill(
     if (ZPG_Grid_IsPositionSafe(grid, x, y) == NO) { return; }
     u8 emptyValue = ZPG_Grid_GetCellAt(grid, x, y)->tile.type;
     i32 maxPoints = grid->width * grid->height;
-    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(maxPoints * sizeof(ZPGPoint));
+    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(maxPoints * sizeof(ZPGPoint), ZPG_MEM_TAG_POINTS);
     i32 numPoints = 0;
     ZPG_PushPointToStack(points, &numPoints, maxPoints, x, y);
     i32 exitCounter = 0;
@@ -321,7 +321,7 @@ static i32 ZPG_Grid_FloodSearch(
     if (ZPG_Grid_IsPositionSafe(grid, posX, posY) == NO) { return 0; }
     u8 emptyValue = ZPG_Grid_GetCellAt(grid, posX, posY)->tile.type;
     i32 maxPoints = grid->width * grid->height;
-    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(maxPoints * sizeof(ZPGPoint));
+    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(maxPoints * sizeof(ZPGPoint), ZPG_MEM_TAG_POINTS);
     i32 numPoints = 0;
     ZPG_PushPointToStack(points, &numPoints, maxPoints, posX, posY);
     i32 exitCounter = 0;

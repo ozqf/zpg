@@ -15,6 +15,7 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 #include "zpg_random_table.h"
 #include "zpg_cell_types.h"
 #include "zpg_alloc.h"
+#include "zpg_byte_grid.h"
 #include "zpg_grid.h"
 #include "zpg_utils.h"
 #include "zpg_file.h"
@@ -137,6 +138,16 @@ static void ZPG_PrintPresetHelp(char* exeName)
     ZPG_Params_PrintHelp();
 }
 
+static void ZPG_PrintArgvs(i32 argc, char** argv)
+{
+	printf("Options: ");
+	for (i32 i = 0; i < argc; ++i)
+	{
+		printf("%s ", argv[i]);
+	}
+	printf("\n");
+}
+
 ZPG_EXPORT
 void ZPG_RunPresetCLI(
     i32 argc, char** argv,
@@ -148,6 +159,7 @@ void ZPG_RunPresetCLI(
         ZPG_PrintPresetHelp(argv[0]);
         return;
     }
+	ZPG_PrintArgvs(argc, argv);
     ZPGPresetCfg cfg = {};
     // Seed randomly - param may override
     cfg.seed = (i32)time(NULL);
@@ -176,17 +188,6 @@ void ZPG_RunPresetCLI(
         printf("ERROR - no grid was returned...\n");
         return;
     }
-
-    // disable crazy console prints
-	// TODO: Remove this - handled in print functions themselves as they should
-	// have been!
-    // if (grid->width > 100 || grid->height > 100)
-    // {
-        // printf("Grid size %d/%d is too large for console printing\n",
-            // grid->width, grid->height);
-        // cfg.flags &= ~ZPG_API_FLAG_PRINT_RESULT;
-        // cfg.flags &= ~ZPG_API_FLAG_PRINT_WORKING;
-    // }
     if ((cfg.flags & ZPG_API_FLAG_NO_ENTITIES) == 0)
     {
         if (cfg.flags & ZPG_API_FLAG_PRINT_WORKING)
@@ -217,6 +218,16 @@ void ZPG_RunPresetCLI(
         *resultPtr = (u8*)grid->cells;
         *resultWidth = grid->width;
         *resultHeight = grid->height;
+    }
+
+    if (cfg.flags & ZPG_API_FLAG_PRINT_FINAL_ALLOCS)
+    {
+        ZPG_PrintAllocations();
+    }
+    ZPG_FreeAll();
+    if (cfg.flags & ZPG_API_FLAG_PRINT_FINAL_ALLOCS)
+    {
+        ZPG_PrintAllocations();
     }
 	printf("Initial seed was %d\n", originalSeed);
     // TODO: Assumes caller will free grid memory

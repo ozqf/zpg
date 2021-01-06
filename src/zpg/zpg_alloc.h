@@ -11,6 +11,7 @@ struct ZPGAlloc
 {
     void* ptr;
     i32 size;
+    i32 tag;
 };
 
 #define ZPG_MAX_ALLOCATIONS 256
@@ -22,17 +23,19 @@ static i32 ZPG_GetNumAllocs()
     return g_numAllocs;
 }
 
-static void* ZPG_Alloc(i32 numBytes)
+static void* ZPG_Alloc(i32 numBytes, i32 tag)
 {
     //printf("Alloc %d at %d\n", numBytes, g_numAllocs);
     ZPGAlloc* record = &g_allocs[g_numAllocs++];
     record->size = numBytes;
     record->ptr = g_ptrAlloc(numBytes);
+    record->tag = tag;
     return record->ptr;
 }
 
 ZPG_EXPORT i32 ZPG_Free(void* ptr)
 {
+    if (ptr == NULL) { return 0; }
     i32 lastIndex = g_numAllocs - 1;
     if (lastIndex == 0)
     {
@@ -57,8 +60,22 @@ ZPG_EXPORT i32 ZPG_Free(void* ptr)
             return 0;
         }
     }
-    printf("FREE failed, no matching alloc found\n");
+    printf("FREE %d failed, no matching alloc found\n", (u32)ptr);
     return 1;
+}
+
+/**
+ * Will free *every* remaining allocation
+ */
+static void ZPG_FreeAll()
+{
+    printf("Free all\n");
+    for (i32 i = g_numAllocs - 1; i >= 0; --i)
+    {
+        ZPG_Free(g_allocs[i].ptr);
+        g_allocs[i] = {};
+    }
+    g_numAllocs = 0;
 }
 
 /**
@@ -67,16 +84,12 @@ ZPG_EXPORT i32 ZPG_Free(void* ptr)
  */
 static void ZPG_FreeRooms(ZPGRoom* rooms, i32 numRooms)
 {
+    printf("Free %d rooms\n", numRooms);
     for (i32 i = 0; i < numRooms; ++i)
     {
-        if (rooms[i].points != NULL)
-        {
-            ZPG_Free(rooms[i].points);
-        }
-        if (rooms[i].connections != NULL)
-        {
-            ZPG_Free(rooms[i].connections);
-        }
+        ZPG_Free(rooms[i].points);
+        ZPG_Free(rooms[i].connections);
+        ZPG_Free(rooms[i].doorways);
     }
     ZPG_Free(rooms);
 }
@@ -87,7 +100,7 @@ static void ZPG_PrintAllocations()
     for (i32 i = 0; i < g_numAllocs; ++i)
     {
         f32 kb = (f32)g_allocs[i].size / 1024.f;
-        printf("%d: %d, %.3fKB\n", i, (u32)g_allocs[i].ptr, kb);
+        printf("%d: tag %d, addr %d, %.3fKB\n", i, g_allocs[i].tag, (u32)g_allocs[i].ptr, kb);
     }
 }
 
