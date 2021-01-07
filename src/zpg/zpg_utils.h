@@ -5,7 +5,9 @@
 
 static f32 ZPG_Distance(ZPGPoint a, ZPGPoint b)
 {
-    return sqrtf(((f32)b.x * (f32)a.x) + ((f32)b.y * (f32)a.y));
+    f32 dx = (f32)b.x - (f32)a.x;
+    f32 dy = (f32)b.y - (f32)a.y;
+    return sqrtf((dx * dx) + (dy * dy));
 }
 
 static i32 ZPG_RandomDir(i32* seed)

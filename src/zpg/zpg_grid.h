@@ -210,6 +210,8 @@ static ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y)
 
 static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original)
 {
+    printf("Cloning grid %d size %d, %d\n",
+        original->id, original->width, original->height);
     ZPGGrid* clone = ZPG_CreateGrid(original->width, original->height);
     i32 totalCells = original->width * original->height;
     memcpy(clone->cells, original->cells, sizeof(u8) * totalCells);
@@ -305,10 +307,10 @@ eg:
 */
 static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y)
 {
-    if (ZPG_IS_POS_SAFE(grid->width, grid->height, x, y))
+    if (!ZPG_IS_POS_SAFE(grid->width, grid->height, x, y))
     {
-        printf("Cannot Plot rings at %d/%d - outside grid %d, %d\n",
-               x, y, grid->x, grid->y);
+        printf("ABORT Cannot Plot rings at %d/%d - outside grid %d, %d\n",
+               x, y, grid->width, grid->height);
         return 0;
     }
     

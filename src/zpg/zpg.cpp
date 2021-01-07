@@ -155,7 +155,7 @@ void ZPG_RunPresetCLI(
     u8** resultPtr, i32* resultWidth, i32* resultHeight)
 {
     // for debugging - force params
-    #if 0
+    #if 1
     char* arrArgs[32];
     argc = 0;
     arrArgs[argc++] = "zpg.exe";

@@ -315,7 +315,10 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
         printf("Seed grid with random values\n");
         ZPG_Grid_PrintValues(grid, YES);
     }
-    ZPGGrid* clone = ZPG_Grid_CreateClone(grid);
+    //ZPGGrid* clone = ZPG_Grid_CreateClone(grid);
+    ZPGGrid* clone = stack->grids[originalGrid];
+    ZPG_Grid_Copy(grid, clone);
+
     
     //ZPG_HealRoomScatter(grid, healThreshold);
 	ZPG_HealRoomScatter2(grid, NO, YES);
