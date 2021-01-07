@@ -4,6 +4,12 @@ Library to hold various routines for procedural level generation I plan to use i
 
 Output is purely grid based so far. Currently features random walk for creating paths and cellular automata/perlin noise for creating random caves.
 
+Example command lines:
+
+zpg preset 12 -p -s 1610013895
+
+
+
 Plan to replace the current grid data structure with a grid 'stack' instead,
 where each grid cell has a single byte data value and extra grid layers are
 added when new fields are necessary.

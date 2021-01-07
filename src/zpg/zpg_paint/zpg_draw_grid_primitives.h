@@ -288,8 +288,8 @@ static void ZPG_MatchAndPushFillNode_WithTagCheck(
     // if (cell == NULL) { return; }
     // already visited?
     // if (cell->tile.tag == tag) { return; }
-    
-    if (ZPG_Grid_CheckValueAt(grid, x, y, queryValue, NO) == YES)
+    i32 bMatch = ZPG_Grid_CheckValueAt(grid, x, y, queryValue, NO);
+    if (bMatch == YES)
     {
         //cell->tile.tag = 1;
         ZPG_GRID_SET(tagGrid, x, y, 1);

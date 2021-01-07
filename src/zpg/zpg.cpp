@@ -162,6 +162,7 @@ void ZPG_RunPresetCLI(
     arrArgs[argc++] = "preset";
     arrArgs[argc++] = "13";
     arrArgs[argc++] = "-e";
+    arrArgs[argc++] = "-p";
     arrArgs[argc++] = "-s";
     arrArgs[argc++] = "42";
     arrArgs[argc++] = "-v";

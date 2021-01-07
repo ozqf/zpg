@@ -4,6 +4,30 @@
 
 #include "zpg.h"
 
+static i32 g_numAllocs = 0;
+static u32 g_totalAllocated = 0;
+
+// allocate a big heap
+static u8* g_heap;
+static u32 g_heapSize;
+static u32 g_cursor = 0;
+
+static void* track_malloc(size_t size)
+{
+	u8* result = &g_heap[g_cursor];
+	g_cursor += (u32)size;
+	return (void*)result;
+	/*void* ptr = malloc(size);
+	g_numAllocs += 1;
+	g_totalAllocated += size;
+	return ptr;*/
+}
+
+static void track_free(void* ptr)
+{
+	//free(ptr);
+}
+
 static void print_help(char* exeName)
 {
 	printf("--- Help ---\n");
@@ -51,7 +75,10 @@ int main(int argc, char** argv)
 	printf("Zealous Procedural Generator build %s, %s\n",
 		__DATE__, __TIME__);
 	#if 1
-	ZPG_Init(NULL, NULL);
+	// ZPG_Init(NULL, NULL);
+	g_heapSize = 1024 * 1024 * 128;
+	g_heap = (u8*)malloc(g_heapSize);
+	ZPG_Init(track_malloc, track_free);
 	run_preset_cli(argc, argv);
 	#endif
 

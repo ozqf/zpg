@@ -35,7 +35,7 @@ static void ZPG_Grid_Copy(ZPGGrid* src, ZPGGrid* dest)
     if (srcLen != destLen) { return; }
     for (i32 i = 0; i < srcLen; ++i)
     {
-        dest[i] = src[i];
+        dest->cells[i] = src->cells[i];
     }
 }
 
@@ -75,7 +75,7 @@ static i32 ZPG_Grid_CheckValueAt(
     ZPGGrid* grid, i32 x, i32 y, u8 queryType, i32 bYesIfOutOfBounds)
 {
     if (!ZPG_IS_POS_SAFE(grid->width, grid->height, x, y)) { return bYesIfOutOfBounds ? YES : NO; }
-    return grid->cells[ZPG_POS_TO_INDEX(grid->width, x, y)];
+    return (i32)(grid->cells[ZPG_POS_TO_INDEX(grid->width, x, y)] == queryType);
 }
 
 static void ZPG_Grid_Clear(ZPGGrid* grid)
@@ -112,8 +112,15 @@ static i32 ZPG_Grid_SetCellTypeByGeometryMatch(ZPGGrid* target, ZPGGrid* queryGr
 static void ZPG_Grid_SetValueWithStencil(ZPGGrid* grid, i32 x, i32 y, u8 val, ZPGGrid* stencil)
 {
     if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES) { return; }
-    if (ZPG_IS_POS_SAFE(grid->width, grid->height, x, y)) { return; }
+    if (!ZPG_IS_POS_SAFE(grid->width, grid->height, x, y)) { return; }
     grid->cells[ZPG_POS_TO_INDEX(grid->width, x, y)] = val;
+}
+
+static i32 ZPG_Grid_SafeMatch(ZPGGrid* grid, i32 x, i32 y, u8 match)
+{
+    if (!ZPG_GRID_POS_SAFE(grid, x, y)) return NO;
+    return (ZPG_GRID_GET(grid, x, y) == match);
+
 }
 
 /**
@@ -123,7 +130,7 @@ static void ZPG_Grid_SetValueWithStencil(ZPGGrid* grid, i32 x, i32 y, u8 val, ZP
 static i32 ZPG_Grid_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y)
 {
     if (grid == NULL) { return NO; }
-    if (ZPG_IS_POS_SAFE(grid->width, grid->height, x, y)) { return NO; }
+    if (!ZPG_IS_POS_SAFE(grid->width, grid->height, x, y)) { return NO; }
     return (grid->cells[ZPG_POS_TO_INDEX(grid->width, x, y)] != ZPG_STENCIL_TYPE_EMPTY);
     // ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
     // if (cell == NULL) { return NO; }
@@ -248,44 +255,45 @@ static ZPGNeighbours ZPG_Grid_CountNeighboursAt(
         return neighbours;
     }
     u8 matchType = grid->GetValue(x, y);
-    if (grid->GetValue(x - 1, y - 1) == matchType)
+    
+    if (ZPG_Grid_SafeMatch(grid, x - 1, y - 1, matchType))
     {
         neighbours.count++;
 		neighbours.flags |= ZPG_FLAG_ABOVE_LEFT;
     }
-    if (grid->GetValue(x, y - 1) == matchType)
+    if (ZPG_Grid_SafeMatch(grid, x, y - 1, matchType))
     {
         neighbours.count++;
 		neighbours.flags |= ZPG_FLAG_ABOVE;
     }
-    if (grid->GetValue(x + 1, y - 1) == matchType)
+    if (ZPG_Grid_SafeMatch(grid, x + 1, y - 1, matchType))
     {
         neighbours.count++;
 		neighbours.flags |= ZPG_FLAG_ABOVE_RIGHT;
     }
 
-    if (grid->GetValue(x - 1, y) == matchType)
+    if (ZPG_Grid_SafeMatch(grid, x - 1, y, matchType))
     {
         neighbours.count++;
 		neighbours.flags |= ZPG_FLAG_LEFT;
     }
-    if (grid->GetValue(x + 1, y) == matchType)
+    if (ZPG_Grid_SafeMatch(grid, x + 1, y, matchType))
     {
         neighbours.count++;
 		neighbours.flags |= ZPG_FLAG_RIGHT;
     }
 
-    if (grid->GetValue(x - 1, y + 1) == matchType)
+    if (ZPG_Grid_SafeMatch(grid, x - 1, y + 1, matchType))
     {
         neighbours.count++;
 		neighbours.flags |= ZPG_FLAG_BELOW_LEFT;
     }
-    if (grid->GetValue(x, y + 1) == matchType)
+    if (ZPG_Grid_SafeMatch(grid, x, y + 1, matchType))
     {
         neighbours.count++;
 		neighbours.flags |= ZPG_FLAG_BELOW;
     }
-    if (grid->GetValue(x + 1, y + 1) == matchType)
+    if (ZPG_Grid_SafeMatch(grid, x + 1, y + 1, matchType))
     {
         neighbours.count++;
 		neighbours.flags |= ZPG_FLAG_BELOW_RIGHT;

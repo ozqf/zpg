@@ -291,24 +291,27 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     const i32 mainGrid = 0;
     const i32 originalGrid = 1;
     const i32 tagGridIndex = 2;
+    const i32 stackSize = 24;
 
     // Stack grid
-    ZPGGridStack* stack = ZPG_CreateGridStack(w, h, 8);
-    ZPG_Grid_FillRandom(stack->grids[0], minType, maxType, &cfg->seed);
+    ZPGGridStack* stack = ZPG_CreateGridStack(w, h, stackSize);
+    ZPGGrid* grid = stack->grids[mainGrid];
+    //ZPG_Grid_FillRandom(stack->grids[0], minType, maxType, &cfg->seed);
+    ZPG_FillRectWithStencil(grid, NULL, { 0, 0 }, { (w / 2) - 1, h }, 1);
+    ZPG_FillRectWithStencil(grid, NULL, { (w / 2), 0 }, { w - 1, h }, 2);
     
     ZPG_Grid_Copy(stack->grids[0], stack->grids[1]);
-    ZPG_HealRoomScatter2(stack->grids[0], YES, NO);
-    ZPG_ZeroOutLoneValues(stack->grids[0]);
+    ZPG_HealRoomScatter2(grid, YES, NO);
+    ZPG_ZeroOutLoneValues(grid);
 
-    ZPG_Grid_PrintValues(stack->grids[0], YES);
+    ZPG_Grid_PrintValues(grid, YES);
 
 
 
     // Original grid type
     //ZPGGrid* grid = ZPG_CreateGrid(w, h);
-    ZPGGrid* grid = stack->grids[mainGrid];
     //printf("Assign random values\n");
-    ZPG_Grid_FillRandom(grid, minType, maxType, &cfg->seed);
+    //ZPG_Grid_FillRandom(grid, minType, maxType, &cfg->seed);
 
     if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
@@ -387,6 +390,8 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 
     i32 numCells = grid->width * grid->height;
     i32 numRooms = 0;
+    printf("Gather rooms from:\n");
+    ZPG_Grid_PrintValues(grid, YES);
     // allocate for worst case; everyone cell is a room
     // also zero out room memory.
     ZPGRoom* rooms = (ZPGRoom*)ZPG_Alloc(sizeof(ZPGRoom) * maxPoints, ZPG_MEM_TAG_ROOMS);
@@ -398,16 +403,21 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 
     ZPG_BEGIN_GRID_ITERATE(grid)
         //cell = ZPG_Grid_GetCellAt(grid, x, y);
+        // skip if cell is marked
         if (ZPG_GRID_GET(tagGrid, x, y) > 0) { continue; }
+        // start a room on this tile
         u8 val = ZPG_GRID_GET(grid, x, y);
         numRooms++;
+        // flood search for attached cells
         i32 numPoints = ZPG_Grid_FloodSearch(grid, tagGrid, x, y, points, maxPoints);
+        // tag flood searched cells to avoid overwriting
         for (i32 j = 0; j < numPoints; ++j)
         {
             ZPG_GRID_SET(tagGrid, points[j].x, points[j].y, 1);
             // ZPGCell* pointCell = ZPG_Grid_GetCellAt(grid, points[j].x, points[j].y);
             // pointCell->tile.tag = 1;
         }
+        // alloc a room and copy points
         ZPGRoom* room = &rooms[nextRoom];
         room->id = nextRoom + 1;
         // default weight for now
@@ -416,6 +426,8 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
         //room->tileType = cell->tile.type;
         room->points = ZPG_AllocAndCopyPoints(points, numPoints);
         room->numPoints = numPoints;
+        printf("Did room %d, %d tiles, tag grid:\n", nextRoom, numPoints);
+        ZPG_Grid_PrintValues(tagGrid, YES);
         nextRoom++;
 
 
@@ -444,7 +456,11 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
         room->numConnections = ZPG_Rooms_FindConnectionsForRoom(
             rooms, nextRoom, i, &connections, ((cfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0));
 		room->connections = connections;
-		//printf("%d has %d connections\n", i, room->numConnections);
+        
+        if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
+        {
+		    printf("%d has %d connections\n", i, room->numConnections);
+        }
     }
 
 	// List rooms
@@ -468,6 +484,9 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 	    }
     }
 
+
+    // create room layout and draw geometry
+#if 1
 	ZPG_Room_PaintIds(grid, rooms, nextRoom);
 	if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
@@ -475,20 +494,20 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 		ZPG_Grid_PrintValues(grid, YES);
 	}
 
-	
+    ZPGGrid* connectionGrid = ZPG_Rooms_BuildConnectionsGrid(grid, rooms, nextRoom);
+    if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
+    {
+        printf("Connections bitmask\n");
+        ZPG_Grid_PrintValues(connectionGrid, NO);
+    }
+
 	ZPGGrid* canvas = ZPG_GenerateRoomBorder(grid, rooms, nextRoom, YES);
 	if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
 		ZPG_Grid_PrintValues(canvas, YES);
 	}
-    
-    ZPGGrid* connectionGrid = ZPG_Rooms_BuildConnectionsGrid(grid, rooms, nextRoom);
-	if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
-    {
-		printf("Connections bitmask\n");
-		ZPG_Grid_PrintValues(connectionGrid, NO);
-	}
-	
+#endif
+
     ///////////////////////////////////////
     // create a route
 
@@ -543,8 +562,8 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     ZPG_Free(points);
     printf("Free grids\n");
     ZPG_FreeGridStack(stack);
-    ZPG_FreeGrid(canvas);
-	ZPG_FreeGrid(connectionGrid);
+    //ZPG_FreeGrid(canvas);
+	//ZPG_FreeGrid(connectionGrid);
     //ZPG_PrintAllocations();
     ZPG_FreeRooms(rooms, numRooms);
     printf("Room tree test finished\n");
