@@ -244,7 +244,7 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
     {
         for (i32 x = 0;  x < grid->width; ++x)
         {
-            ZPGCellTypeDef* def = ZPG_Grid_GetCellTypeAt(grid, x, y);
+            ZPGCellTypeDef* def = ZPG_Grid_GetTypeDefAt(grid, x, y);
             if (def->category == ZPG_CELL_CATEGORY_OBJECTIVE)
             {
                 objectives[numObjectives].pos.x = x;

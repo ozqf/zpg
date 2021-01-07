@@ -25,10 +25,12 @@ static i32 ZPG_GetNumAllocs()
 
 static void* ZPG_Alloc(i32 numBytes, i32 tag)
 {
-    //printf("Alloc %d at %d\n", numBytes, g_numAllocs);
+    printf("Alloc tag %d num bytes %d at index %d of %d from fn 0X%X\n",
+        tag, numBytes, g_numAllocs, ZPG_MAX_ALLOCATIONS, (u32)g_ptrAlloc);
     ZPGAlloc* record = &g_allocs[g_numAllocs++];
     record->size = numBytes;
     record->ptr = g_ptrAlloc(numBytes);
+    printf("\tallocated at 0x%X\n", (u32)record->ptr);
     record->tag = tag;
     return record->ptr;
 }
@@ -60,7 +62,7 @@ ZPG_EXPORT i32 ZPG_Free(void* ptr)
             return 0;
         }
     }
-    printf("FREE %d failed, no matching alloc found\n", (u32)ptr);
+    printf("FREE 0x%X failed, no matching alloc found\n", (u32)ptr);
     return 1;
 }
 

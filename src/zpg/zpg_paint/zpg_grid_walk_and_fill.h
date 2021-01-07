@@ -64,6 +64,12 @@ static ZPGPoint ZPG_RandomWalkAndFill(
 {
     ZPGPoint cursor = { cfg->startX, cfg->startY };
     if (dir.x == 0 && dir.y == 0) { return cursor; }
+    if (!ZPG_GRID_POS_SAFE(grid, cursor.x, cursor.y))
+    {
+        printf("ABORT Walk and fill invalid start at %d, %d in grid sized %d, %d\n",
+            cursor.x, cursor.y, grid->width, grid->height);
+        return cursor;
+    }
     // Clear stencil tags.
     // Cells that have no valid exits are tagged. and are not
     // added to the visits list.

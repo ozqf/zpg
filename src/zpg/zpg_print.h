@@ -161,7 +161,7 @@ static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 marke
         if (yNum >= 10) { yNum = 0; }
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCellTypeDef* def = ZPG_Grid_GetCellTypeAt(grid, x, y);
+            ZPGCellTypeDef* def = ZPG_Grid_GetTypeDefAt(grid, x, y);
             u8 c = def->asciChar;
             // Special case
             if (c == '#')

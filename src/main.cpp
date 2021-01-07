@@ -50,7 +50,13 @@ int main(int argc, char** argv)
 {
 	printf("Zealous Procedural Generator build %s, %s\n",
 		__DATE__, __TIME__);
-	if (argc == 1)
+	#if 1
+	ZPG_Init(NULL, NULL);
+	run_preset_cli(argc, argv);
+	#endif
+
+	#if 0
+	if (argc <= 1)
 	{
 		printf("No command specified\n");
 		print_help(argv[0]);
@@ -82,6 +88,7 @@ int main(int argc, char** argv)
 		print_help(argv[0]);
 		return 0;
 	}
+	#endif
 	printf("\nDone\n");
 	return 0;
 }

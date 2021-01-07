@@ -225,7 +225,7 @@ extern "C" void ZPG_PlotSegmentedPath_Old(
  * create the path so the straight body of the line from start to
  * end should not touch the stencil
  */
-extern "C" void ZPG_PlotSegmentedPath(
+extern "C" i32  ZPG_PlotSegmentedPath(
     ZPGGrid* grid,
     ZPGGrid* stencil,
     i32* seed,
@@ -242,6 +242,13 @@ extern "C" void ZPG_PlotSegmentedPath(
     f32 dy = (f32)lastPoint->y - (f32)firstPoint->y;
     if (dy < 0) { dy = -dy; }
     f32 length = sqrtf((dx * dx) + (dy * dy));
+    f32 saneDistance = ZPG_Distance({ 0, 0}, { grid->width, grid->height});
+    if (length > saneDistance)
+    {
+        printf("ABORT Plot segemented path\nExcessive line length of %f on grid with diagonal of %f\n",
+            length, saneDistance);
+        return ZPG_ERROR_UNKNOWN;
+    }
     printf("Line length %.3f\n", length);
     dx /= length;
     dy /= length;
@@ -279,6 +286,7 @@ extern "C" void ZPG_PlotSegmentedPath(
         p->x = leftRayEnd.x + offsetDX;
         p->y = leftRayEnd.y + offsetDY;
     }
+    return ZPG_ERROR_NONE;
 }
 
 #endif // ZPG_RANDOM_WALK_H

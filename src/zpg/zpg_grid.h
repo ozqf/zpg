@@ -47,7 +47,7 @@ static ZPGCell* ZPG_Grid_GetCellAt(ZPGGrid* grid, i32 x, i32 y)
     return &grid->cells[i];
 }
 
-static ZPGCellTypeDef* ZPG_Grid_GetCellTypeAt(ZPGGrid* grid, i32 x, i32 y)
+static ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y)
 {
     ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
     if (cell == NULL) { return ZPG_GetDefaultType(); }
@@ -201,6 +201,13 @@ static void ZPG_Grid_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel)
     }
 }
 */
+
+static ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y)
+{
+    if (!ZPG_GRID_POS_SAFE(grid, x, y)) { return NULL; }
+    return ZPG_GetType(ZPG_GRID_GET(grid, x, y));
+}
+
 static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original)
 {
     ZPGGrid* clone = ZPG_CreateGrid(original->width, original->height);
@@ -217,7 +224,7 @@ static void ZPG_Grid_CalcStats(ZPGGrid* grid)
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
-            ZPGCellTypeDef* def = ZPG_Grid_GetCellTypeAt(grid, x, y);
+            ZPGCellTypeDef* def = ZPG_Grid_GetTypeDefAt(grid, x, y);
             if (def->geometryType == ZPG_GEOMETRY_TYPE_PATH)
             {
                 grid->stats.numFloorTiles++;
@@ -300,8 +307,8 @@ static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y)
 {
     if (ZPG_IS_POS_SAFE(grid->width, grid->height, x, y))
     {
-        printf("Cannot Plot ringss at %d/%d - outside grid\n",
-               x, y);
+        printf("Cannot Plot rings at %d/%d - outside grid %d, %d\n",
+               x, y, grid->x, grid->y);
         return 0;
     }
     
@@ -416,17 +423,25 @@ static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
     i32 totalCells = width * height;
     i32 memForGrid = (sizeof(u8) * totalCells);
     i32 memTotal = sizeof(ZPGGrid) + memForGrid;
-    //printf("Make grid %d by %d (%d cells, %d bytes)\n",
-    //    width, height, (width * height), memTotal);
+    printf("Make grid %d by %d (%d cells, %d bytes)\n",
+       width, height, (width * height), memTotal);
     u8* ptr = (u8*)ZPG_Alloc(memTotal, ZPG_MEM_TAG_GRID);
-    // Create grid struct at END of cells array
-    ZPGGrid* grid = (ZPGGrid*)(ptr + memForGrid);
+    ZPG_MEMSET(ptr, 0, memTotal);
+    ZPGGrid* grid = (ZPGGrid*)(ptr);
+    *grid = {};
     grid->width = width;
     grid->height = height;
+    grid->cells = (u8*)(ptr + sizeof(ZPGGrid));
+
+#if 0
+    // Create grid struct at END of cells array
+    ZPGGrid* grid = (ZPGGrid*)(ptr + memForGrid);
     *grid = {};
+    grid->width = width;
+    grid->height = height;
     grid->cells = (u8*)ptr;
     ZPG_MEMSET(grid->cells, 0, totalCells);
-    
+#endif
     #if 0
     grid->cells = (ZPGCell*)ptr;
     for (i32 i = 0; i < totalCells; ++i)

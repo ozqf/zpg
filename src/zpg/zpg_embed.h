@@ -134,7 +134,7 @@ static void ZPG_ScanRowForPrefabExits(
     {
         ZPGPoint p = { startX + (iterateX * i), startY + (iterateY * i) };
         //printf("\tCheck %d/%d\n", p.x, p.y);
-        ZPGCellTypeDef* def = ZPG_Grid_GetCellTypeAt(prefab->grid, p.x, p.y);
+        ZPGCellTypeDef* def = ZPG_Grid_GetTypeDefAt(prefab->grid, p.x, p.y);
         if (def->geometryType != ZPG_GEOMETRY_TYPE_PATH) { continue; }
         prefab->exits[prefab->numExits] = { p.x, p.y };
         prefab->exitDirs[prefab->numExits] = dir;

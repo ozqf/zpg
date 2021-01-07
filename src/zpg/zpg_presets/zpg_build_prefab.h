@@ -181,7 +181,12 @@ static void ZPG_PlotAndDrawSegmentedPath(ZPGGrid* grid, ZPGGrid* tagGrid, ZPGGri
 
     f32 nodeOffsetMax = 5;
     i32 seed = 0;
-    ZPG_PlotSegmentedPath(grid, stencil, &seed, nodes, numNodes, nodeOffsetMax);
+    i32 err = ZPG_PlotSegmentedPath(grid, stencil, &seed, nodes, numNodes, nodeOffsetMax);
+    if (err != ZPG_ERROR_NONE)
+    {
+        printf("ABORT %d PlotAndDrawSeg from %d, %d to %d, %d\n", err, a.x, a.y, b.x, b.y);
+        return;
+    }
     ZPG_DrawSegmentedLine(grid, stencil, nodes, numNodes, ZPG_CELL_TYPE_PATH, 0);
 
     ZPGWalkCfg cfg = {};
@@ -225,9 +230,17 @@ static i32 ZPG_FindRoomConnectionPoints(
     dirFlip.x = -connectionDir.x;
     dirFlip.y = -connectionDir.y;
     i32 exitIndexA = ZPG_Prefab_GetExitIndexByDirection(prefabA, connectionDir);
-    if (exitIndexA == -1) { printf("No suitable exit from prefab A"); return 1; }
+    if (exitIndexA == -1)
+    {
+        printf("No suitable exit from prefab A\n");
+        return 1;
+    }
     i32 exitIndexB = ZPG_Prefab_GetExitIndexByDirection(prefabB, dirFlip);
-    if (exitIndexB == -1) { printf("No suitable exit from prefab B"); return 1; }
+    if (exitIndexB == -1)
+    {
+        printf("No suitable exit from prefab B\n");
+        return 1;
+    }
 
     resultStart->x = topLeftA.x + prefabA->exits[exitIndexA].x;
     resultStart->y = topLeftA.y + prefabA->exits[exitIndexA].y;

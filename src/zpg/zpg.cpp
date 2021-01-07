@@ -85,6 +85,7 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
 
     g_ptrAlloc = ptrAlloc;
     g_ptrFree = ptrFree;
+    printf("Allocate/Free set at 0X%X and 0X%X\n", (u32)g_ptrAlloc, (u32)g_ptrFree);
 
     g_directions[ZPG_DIR_RIGHT] = { 1, 0 };
     g_directions[ZPG_DIR_UP] = { 0, -1 };
@@ -153,6 +154,37 @@ void ZPG_RunPresetCLI(
     i32 argc, char** argv,
     u8** resultPtr, i32* resultWidth, i32* resultHeight)
 {
+    // for debugging - force params
+    #if 0
+    char* arrArgs[32];
+    argc = 0;
+    arrArgs[argc++] = "zpg.exe";
+    arrArgs[argc++] = "preset";
+    arrArgs[argc++] = "13";
+    arrArgs[argc++] = "-e";
+    arrArgs[argc++] = "-s";
+    arrArgs[argc++] = "42";
+    arrArgs[argc++] = "-v";
+    arrArgs[argc++] = "-w";
+    arrArgs[argc++] = "8";
+    arrArgs[argc++] = "-h";
+    arrArgs[argc++] = "8";
+    argv = arrArgs;
+    #endif
+    #if 0
+    char* arrArgs[32];
+    argc = 0;
+    arrArgs[argc++] = "zpg.exe";
+    arrArgs[argc++] = "preset";
+    arrArgs[argc++] = "12";
+    arrArgs[argc++] = "-v";
+    arrArgs[argc++] = "-e";
+    arrArgs[argc++] = "-p";
+    arrArgs[argc++] = "-s";
+    arrArgs[argc++] = "42";
+    argv = arrArgs;
+    #endif
+    
     if (argc <= 2)
     {
         printf("No preset settings received\n");

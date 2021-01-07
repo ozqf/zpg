@@ -27,7 +27,7 @@ extern "C" void ZPG_WriteGridAsAsci(ZPGGrid* grid, char* fileName)
         {
             // Note: Keep to regular non-extended asci here to avoid
             // garbling output in some text editors
-            fprintf(f, "%c", ZPG_Grid_GetCellTypeAt(grid, x, y)->asciChar);
+            fprintf(f, "%c", ZPG_Grid_GetTypeDefAt(grid, x, y)->asciChar);
         }
         if (y < (grid->height - 1)) { fprintf(f, "\n"); }
     }
