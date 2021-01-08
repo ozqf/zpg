@@ -433,8 +433,8 @@ static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
     i32 totalCells = width * height;
     i32 memForGrid = (sizeof(u8) * totalCells);
     i32 memTotal = sizeof(ZPGGrid) + memForGrid;
-    printf("Make grid %d by %d (%d cells, %d bytes)\n",
-       width, height, (width * height), memTotal);
+    // printf("Make grid %d by %d (%d cells, %d bytes)\n",
+    //    width, height, (width * height), memTotal);
     u8* ptr = (u8*)ZPG_Alloc(memTotal, ZPG_MEM_TAG_GRID);
     ZPG_MEMSET(ptr, 0, memTotal);
     ZPGGrid* grid = (ZPGGrid*)(ptr);

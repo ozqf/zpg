@@ -249,7 +249,7 @@ extern "C" i32  ZPG_PlotSegmentedPath(
             length, saneDistance);
         return ZPG_ERROR_UNKNOWN;
     }
-    printf("Line length %.3f\n", length);
+    // printf("Line length %.3f\n", length);
     dx /= length;
     dy /= length;
     f32 leftNormalX = dy;

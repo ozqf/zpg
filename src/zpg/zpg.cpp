@@ -98,16 +98,19 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
 
     //////////////////////////////////////////////////
     // Build preset list
+    // 0
     ZPG_AddPresetFunction(ZPG_TestDrunkenWalk_FromCentre, "Drunken Walk From Centre");
     ZPG_AddPresetFunction(ZPG_TestDrunkenWalk_Scattered, "Scattered drunken walks");
     ZPG_AddPresetFunction(ZPG_TestCaveGen, "Test Cellular Caves");
     ZPG_AddPresetFunction(ZPG_TestDrawOffsetLines, "Test Draw Offset Lines");
     ZPG_AddPresetFunction(ZPG_TestDrawLines, "Test Draw Lines");
+    // 5
     ZPG_AddPresetFunction(ZPG_TestDrunkenWalk_WithinSpace, "Test Drunken walk within space");
     ZPG_AddPresetFunction(ZPG_Preset_Perlin, "Test Perlin noise");
     ZPG_AddPresetFunction(ZPG_TestLoadAsciFile, "Test asci file load");
     ZPG_AddPresetFunction(ZPG_TestEmbed, "Test Embed");
     ZPG_AddPresetFunction(ZPG_TestBlit, "Test blit");
+    // 10
     ZPG_AddPresetFunction(ZPG_Test_PrefabBuildA, "Prefab Build A");
     ZPG_AddPresetFunction(ZPG_Test_WalkBetweenPrefabs, "Offset path between two prefabs");
     ZPG_AddPresetFunction(ZPG_Preset_PrefabsLinesCaves, "Offset path around four prefabs");
@@ -155,7 +158,7 @@ void ZPG_RunPresetCLI(
     u8** resultPtr, i32* resultWidth, i32* resultHeight)
 {
     // for debugging - force params
-    #if 1
+    #if 0
     char* arrArgs[32];
     argc = 0;
     arrArgs[argc++] = "zpg.exe";
@@ -212,6 +215,7 @@ void ZPG_RunPresetCLI(
     
     /////////////////////////////////////////////
     // Run
+    printf("=== Preset %s ===\n", g_presetLabels[cfg.preset]);
     printf("Seed: %d\n", cfg.seed);
 	i32 originalSeed = cfg.seed;
     srand(cfg.seed);
@@ -266,136 +270,6 @@ void ZPG_RunPresetCLI(
     // TODO: Assumes caller will free grid memory
     // (and that they passed in malloc/free functions)
 }
-
-#if 0
-
-ZPG_EXPORT
-void ZPG_RunPreset(
-    i32 mode, char* outputPath, i32 apiFlags,
-    u8** resultPtr, i32* resultWidth, i32* resultHeight)
-{
-
-    if (g_bInitialised == false) { return; }
-    i32 srandSeed;
-    // Seed randomly
-    srandSeed = (i32)time(NULL);
-    // seed specifically
-    //srandSeed = 1578760952;
-    srand(srandSeed);
-
-    i32 seed = 0;
-    char titleBorder[81];
-    titleBorder[80] = '\0';
-    memset(titleBorder, '-', 80);
-    printf("%s\n", titleBorder);
-    printf("-- ZPG RUN PRESET mode %d seed %d--\n", mode, srandSeed);
-    printf("%s\n", titleBorder);
-    ZPGGrid* grid = NULL;
-    i32 bPlaceEntities = YES;
-    i32 bPrintValues = NO;
-    i32 bPrintChars = YES;
-    i32 bSaveGridAsci = YES;
-    i32 bSaveGridPNG = NO;
-
-    ZPGPresetCfg cfg = {};
-    cfg.seed = seed;
-    
-    //////////////////////////////////////////
-    // Generate geometry
-    //////////////////////////////////////////
-    switch (mode)
-    {
-        case 1: grid = ZPG_TestDrunkenWalk_FromCentre(&cfg); break;
-        case 2: grid = ZPG_TestDrunkenWalk_Scattered(&cfg); break;
-        case 3: grid = ZPG_TestCaveGen(&cfg); break;
-        case 4: grid = ZPG_TestDrawOffsetLines(&cfg); break;
-        case 5: grid = ZPG_TestDrawLines(&cfg); break;
-        case 6: grid = ZPG_TestDrunkenWalk_WithinSpace(&cfg); break;
-        case 7:
-            grid = ZPG_Preset_Perlin(&cfg);
-            bPrintValues = NO;
-            bPrintChars = NO;
-            bPlaceEntities = NO;
-            bSaveGridAsci = NO;
-            bSaveGridPNG = YES;
-            break;
-        case 8:
-            grid = ZPG_TestLoadAsciFile(&cfg);
-            bSaveGridAsci = NO;
-            break;
-        case 9: grid = ZPG_TestEmbed(&cfg); break;
-        case 10: grid = ZPG_TestBlit(&cfg); break;
-        case 11:
-            grid = ZPG_Test_PrefabBuildA(&cfg); 
-            bPlaceEntities = NO;
-            break;
-        case 12:
-            grid = ZPG_Test_WalkBetweenPrefabs(&cfg);
-            bPlaceEntities = YES;
-            break;
-        case 13:
-            grid = ZPG_Preset_PrefabsLinesCaves(&cfg);
-            bPlaceEntities = YES;
-            break;
-        default: printf("Did not recognise test mode %d\n", mode); break;
-    }
-
-    if (outputPath == NULL
-        || *outputPath == '\0'
-        || ZPG_STRCMP(outputPath, "none") == 0)
-    {
-        bSaveGridAsci = NO;
-    }
-    
-    //////////////////////////////////////////
-    // Generate entities and save
-    //////////////////////////////////////////
-    if (grid != NULL)
-    {
-        if (bPlaceEntities)
-        {
-            printf("-- Grid Loaded --\ncreating entities\n");
-            ZPG_Grid_CountNeighourRings(grid);
-            ZPGGrid* entData = ZPG_CreateGrid(grid->width, grid->height);
-            ZPG_AnalyseForEntities(grid, entData, &seed);
-            ZPG_PlaceScatteredEntities(grid, &seed);
-        }
-
-        if (bPrintValues)
-        {
-            ZPG_Grid_PrintValues(grid, YES);
-        }
-        if (bPrintChars)
-        {
-            ZPG_Grid_PrintChars(grid, '\0', 0, 0);    
-        }
-        if (bSaveGridAsci)
-        {
-            ZPG_WriteGridAsAsci(grid, outputPath);
-        }
-        if (bSaveGridPNG)
-        {
-            ZPG_WriteGridAsPNG(grid, "test_grid.png");
-        }
-    }
-    else
-    {
-        printf("No grid was generated.\n");
-    }
-
-    if (resultPtr != NULL && resultWidth != NULL && resultHeight != NULL)
-    {
-        *resultPtr = (u8*)grid->cells;
-        *resultWidth = grid->width;
-        *resultHeight = grid->height;
-    }
-    else if (grid != NULL)
-    {
-        ZPG_FreeGrid(grid);
-    }
-}
-
-#endif
 
 ZPG_EXPORT i32 ZPG_Shutdown()
 {

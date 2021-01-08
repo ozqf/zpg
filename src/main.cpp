@@ -7,6 +7,8 @@
 static i32 g_numAllocs = 0;
 static u32 g_totalAllocated = 0;
 
+//#define HEAP_ALLOC_TEST
+
 // allocate a big heap
 static u8* g_heap;
 static u32 g_heapSize;
@@ -14,18 +16,23 @@ static u32 g_cursor = 0;
 
 static void* track_malloc(size_t size)
 {
+#ifndef HEAP_ALLOC_TEST
+	void* ptr = malloc(size);
+	g_numAllocs += 1;
+	g_totalAllocated += size;
+	return ptr;
+#else
 	u8* result = &g_heap[g_cursor];
 	g_cursor += (u32)size;
 	return (void*)result;
-	/*void* ptr = malloc(size);
-	g_numAllocs += 1;
-	g_totalAllocated += size;
-	return ptr;*/
+#endif
 }
 
 static void track_free(void* ptr)
 {
-	//free(ptr);
+#ifndef HEAP_ALLOC_TEST
+	free(ptr);
+#endif
 }
 
 static void print_help(char* exeName)
@@ -76,8 +83,10 @@ int main(int argc, char** argv)
 		__DATE__, __TIME__);
 	#if 1
 	// ZPG_Init(NULL, NULL);
+#ifdef HEAP_ALLOC_TEST
 	g_heapSize = 1024 * 1024 * 128;
 	g_heap = (u8*)malloc(g_heapSize);
+#endif
 	ZPG_Init(track_malloc, track_free);
 	run_preset_cli(argc, argv);
 	#endif

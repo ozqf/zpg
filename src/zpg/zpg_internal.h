@@ -6,6 +6,8 @@
 #include <string.h>
 #include <time.h>
 
+//#define ZPG_DEBUG
+
 #define ZPG_ABS(value) (value = (value >= 0 ? value : -value))
 #define ZPG_MIN(x, y) ((x) < (y) ? (x) : (y))
 #define ZPG_MAX(x, y) ((x) > (y) ? (x) : (y))

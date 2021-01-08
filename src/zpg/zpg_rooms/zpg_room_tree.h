@@ -296,9 +296,9 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     // Stack grid
     ZPGGridStack* stack = ZPG_CreateGridStack(w, h, stackSize);
     ZPGGrid* grid = stack->grids[mainGrid];
-    //ZPG_Grid_FillRandom(stack->grids[0], minType, maxType, &cfg->seed);
-    ZPG_FillRectWithStencil(grid, NULL, { 0, 0 }, { (w / 2) - 1, h }, 1);
-    ZPG_FillRectWithStencil(grid, NULL, { (w / 2), 0 }, { w - 1, h }, 2);
+    //ZPG_FillRectWithStencil(grid, NULL, { 0, 0 }, { (w / 2) - 1, h }, 1);
+    //ZPG_FillRectWithStencil(grid, NULL, { (w / 2), 0 }, { w - 1, h }, 2);
+    ZPG_Grid_FillRandom(stack->grids[0], minType, maxType, &cfg->seed);
     
     ZPG_Grid_Copy(stack->grids[0], stack->grids[1]);
     ZPG_HealRoomScatter2(grid, YES, NO);
@@ -426,8 +426,8 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
         //room->tileType = cell->tile.type;
         room->points = ZPG_AllocAndCopyPoints(points, numPoints);
         room->numPoints = numPoints;
-        printf("Did room %d, %d tiles, tag grid:\n", nextRoom, numPoints);
-        ZPG_Grid_PrintValues(tagGrid, YES);
+        // printf("Did room %d, %d tiles, tag grid:\n", nextRoom, numPoints);
+        // ZPG_Grid_PrintValues(tagGrid, YES);
         nextRoom++;
 
 
