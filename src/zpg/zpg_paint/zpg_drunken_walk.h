@@ -142,7 +142,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
         {
             printf("Iteration %d placed %d - Cursor at %d/%d - dir %d/%d\n",
                 iterations, tilesPlaced, cursor.x, cursor.y, dir.x, dir.y);
-            ZPG_Grid_PrintChars(grid, '@', cursor.x, cursor.y);
+            ZPG_Grid_PrintCellDefChars(grid, '@', cursor.x, cursor.y);
             printf("Press ENTER to continue\n");
             getchar();
         }
@@ -154,7 +154,7 @@ extern "C" ZPGPoint ZPG_GridRandomWalk(
     }
     //printf("Drunken walk placed %d tiles in %d iterations\n",
     //    tilesPlaced, iterations);
-    //ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    //ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0);
     return cursor;
 }
 

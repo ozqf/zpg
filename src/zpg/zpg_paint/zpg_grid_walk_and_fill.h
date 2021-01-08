@@ -112,7 +112,9 @@ static ZPGPoint ZPG_RandomWalkAndFill(
         {
             if (info.numPoints >= info.maxPoints)
             {
-                printf("ABORT Walk - points overflow!\n");
+                printf("ABORT Walk - points overflow at %d of %d points!\nPlaced %d of %d tiles\n",
+                    info.numPoints, info.maxPoints, tilesPlaced, cfg->tilesToPlace);
+                ZPG_Grid_PrintPath(grid, info.points, info.numPoints);
                 ZPG_ASSERT(NO, "Abort walk\n");
                 return cursor;
 			}

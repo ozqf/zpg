@@ -187,6 +187,10 @@ struct ZPGRoom
 //ZPG_EXPORT i32 ZPG_Free(void* ptr);
 static void ZPG_Fatal(const char* msg);
 
+static void ZPG_Grid_PrintPath(ZPGGrid* grid, ZPGPoint* points, i32 numPoints);
+static void ZPG_Grid_PrintCellDefChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY);
+static void ZPG_Grid_PrintAsci(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY);
+
 static void ZPG_DrawOuterBorder(ZPGGrid* grid, ZPGGrid* stencil, u8 typeToPaint);
 
 // Grid manipulation
@@ -209,7 +213,7 @@ static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y);
 static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result);
 static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes);
 static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y);
-static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY);
+static void ZPG_Grid_PrintCellDefChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY);
 static void ZPG_Grid_PerlinToGreyscale(
     ZPGGrid* source, ZPGGrid* destination, u8 sourceChannel, u8 destChannel, i32 bSetAlpha);
 static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);

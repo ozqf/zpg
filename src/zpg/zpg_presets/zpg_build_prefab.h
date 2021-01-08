@@ -66,7 +66,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
         ZPGPoint start = prefab->exits[i];
         ZPGPoint dir = prefab->exitDirs[i];
         //printf("Grid before random walk:\n");
-        //ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+        //ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0);
         printf("Walk starting at %d/%d\n", start.x, start.y);
         ZPGWalkCfg cfg = {};
         cfg.bigRoomChance = 0.02f;
@@ -87,6 +87,9 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
 {
     i32 w = 96, h = 32;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
+    // fill the grid solid
+    //ZPG_Grid_SetAll(grid, 1);
+
     ZPGGrid* tagGrid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
     i32 prefabIndex = 1;
@@ -165,7 +168,7 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
     ZPG_DrawSegmentedLine(grid, stencil, nodes, numNodes, ZPG_CELL_TYPE_PATH, bigRoomChance);
     if ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0)
     {
-        ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+        ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0);
     }
     // random walk from nodes along the line
     #if 1
@@ -280,7 +283,7 @@ static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
     ZPG_FillRectWithStencil(grid, stencil, { 1, 1 }, { w - 1, h - 1}, ZPG_CELL_TYPE_VOID);
     if (presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING)
-    { ZPG_Grid_PrintChars(grid, '\0', 0, 0); }
+    { ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0); }
     ZPG_SeedCaves(
         grid,
         stencil,
@@ -288,7 +291,7 @@ static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
         ZPG_CAVE_GEN_SEED_CHANCE_LOW,
         &presetCfg->seed);
     if (presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING)
-    { ZPG_Grid_PrintChars(grid, '\0', 0, 0); }
+    { ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0); }
 
     for (i32 i = 0; i < 5; ++i)
     {
@@ -300,7 +303,7 @@ static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
             ZPG_CAVE_GEN_CRITICAL_NEIGHBOURS_DEFAULT);
     }
     if (presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING)
-    { ZPG_Grid_PrintChars(grid, '\0', 0, 0); }
+    { ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0); }
 
     ZPGGridPrefab* room = ZPG_GetPrefabByIndex(0);
     i32 step = 5;

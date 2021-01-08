@@ -14,7 +14,7 @@
 @rem zpg.exe preset 6 -g
 
 @rem prefab walk test
-zpg preset 11 -p -s 1610130853
+zpg preset 11 -p -v -s 1610130853
 
 @rem zpg.exe preset 12 -p -v -a output.txt
 @rem zpg.exe preset 13 -s 42

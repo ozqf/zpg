@@ -230,7 +230,7 @@ ZPG_EXPORT void ZPG_PrintPrefabs()
     {
         ZPGGridPrefab* prefab = &g_prefabs[i];
         printf("Prefab %d: \"%s\" (%d exits)\n", i, prefab->label, prefab->numExits);
-        ZPG_Grid_PrintChars(prefab->grid, '\0', 0, 0);
+        ZPG_Grid_PrintCellDefChars(prefab->grid, '\0', 0, 0);
     }
 }
 

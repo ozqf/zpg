@@ -210,7 +210,7 @@ void ZPG_RunPresetCLI(
     }
     if (cfg.flags & ZPG_API_FLAG_PRINT_RESULT)
     {
-        ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+        ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0);
     }
     if (cfg.asciOutput != NULL)
     {

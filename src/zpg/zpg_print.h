@@ -47,6 +47,40 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes
     printf("------------------\n");
 }
 
+static void ZPG_Grid_PrintPath(ZPGGrid* grid, ZPGPoint* points, i32 numPoints)
+{
+    if (grid == NULL) { return; }
+    if (points == NULL) { return; }
+    if (numPoints <= 0) { return; }
+    printf("Print %d points, starting at %d, %d\n", numPoints, points[0].x, points[0].y);
+    i32 w = grid->width, h = grid->height;
+    ZPGGrid* temp = ZPG_CreateGrid(w, h);
+    i32 numCells = w * h;
+    for (i32 i = 0; i < numCells; ++i)
+    {
+        u8 val = grid->cells[i];
+        u8 result = 0;
+        if (val == 1) { result = '#'; }
+        else if (val > 1) { result = '.'; }
+        temp->cells[i] = result;
+    }
+    char c = '0';
+    for (i32 i = 0; i < numPoints; ++i)
+    {
+        ZPGPoint p = points[i];
+        if (!ZPG_GRID_POS_SAFE(grid, p.x, p.y)) { continue; }
+        ZPG_GRID_SET(temp, p.x, p.y, c);
+        c++;
+        if (c > '9') { c = '1'; }
+    }
+    printf("Start\n");
+    ZPG_Grid_PrintAsci(grid, 'X', points[0].x, points[0].y);
+    printf("End\n");
+    ZPG_Grid_PrintAsci(grid, 'X', points[numPoints - 1].x, points[numPoints - 1].y);
+    ZPG_Grid_PrintAsci(temp, '\0', 0, 0);
+
+    ZPG_FreeGrid(temp);
+}
 
 /////////////////////////////////////////////
 // Grid printing
@@ -147,7 +181,7 @@ static void ZPG_PrintPointsAsGrid(
 /**
  * Send '\0' marker to place no special marker
  */
-static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY)
+static void ZPG_Grid_PrintCellDefChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY)
 {
 	ZPG_PARAM_NULL(grid, )
 	if (grid->width > 100 || grid->height > 100)
@@ -187,6 +221,51 @@ static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 marke
             {
                 c = 176;
             }
+            if (marker != '\0' && x == markerX && y == markerY)
+            {
+                c = marker;
+            }
+            printf("%c", c);
+        }
+        printf("\n");
+    }
+    printf("------------------\n");
+}
+
+/**
+ * Send '\0' marker to place no special marker
+ */
+static void ZPG_Grid_PrintAsci(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY)
+{
+	ZPG_PARAM_NULL(grid, )
+	if (grid->width > 100 || grid->height > 100)
+	{
+		printf("SKIP: Grid size %d/%d is too big to print\n", grid->width, grid->height);
+		return;
+	}
+    printf("------ Grid %d/%d (%d total tiles, %d path tiles, %d objectives)------\n",
+        grid->width,
+        grid->height,
+        grid->width * grid->height,
+        grid->stats.numFloorTiles,
+        grid->stats.numObjectiveTags);
+    i32 xNum = 0;
+    i32 yNum = 0;
+    printf(" ");
+    for (i32 x = 0; x < grid->width; ++x)
+    {
+        printf("%d", xNum++);
+        if (xNum >= 10) { xNum = 0; }
+    }
+    printf("\n");
+    for (i32 y = 0; y < grid->height; ++y)
+    {
+        printf("%d", yNum++);
+        if (yNum >= 10) { yNum = 0; }
+        for (i32 x = 0; x < grid->width; ++x)
+        {
+            u8 c = ZPG_GRID_GET(grid, x, y);
+            // Special case
             if (marker != '\0' && x == markerX && y == markerY)
             {
                 c = marker;

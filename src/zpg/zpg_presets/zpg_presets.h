@@ -203,7 +203,7 @@ static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
         &presetCfg->seed);
     if (presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
-        ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+        ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0);
     }
     i32 numIterations = 2;
     for (i32 i = 0; i < numIterations; ++i)
