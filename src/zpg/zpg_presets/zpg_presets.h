@@ -12,6 +12,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
     const i32 width = 64;
     const i32 height = 32;
     ZPGGrid* grid = ZPG_CreateGrid(width, height);
+    ZPG_Grid_SetAll(grid, 1);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(width, height);
     // ZPGPoint centreMin = { 16, 8 };
     // ZPGPoint centreMax = { 48, 24 };
@@ -154,6 +155,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_Scattered(ZPGPresetCfg* presetCfg)
 {
     printf("Generate: Drunken walk - scattered starting points\n");
     ZPGGrid* grid = ZPG_CreateGrid(64, 32);
+    ZPG_Grid_SetAll(grid, 1);
     ZPGWalkCfg cfg = {};
     cfg.seed = presetCfg->seed;
     cfg.tilesToPlace = 80;//256;

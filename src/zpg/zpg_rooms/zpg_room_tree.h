@@ -504,7 +504,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 	ZPGGrid* canvas = ZPG_GenerateRoomBorder(grid, rooms, nextRoom, YES);
 	if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
-		ZPG_Grid_PrintValues(canvas, 0, YES);
+		ZPG_Grid_PrintValues(canvas, 2, YES);
 	}
 #endif
 
