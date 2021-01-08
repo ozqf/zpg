@@ -11,7 +11,10 @@
 @rem zpg.exe preset 3 -s 1610068662 -p -a output.txt
 
 @rem -- Perlin noise --
-zpg.exe preset 6 -g
+@rem zpg.exe preset 6 -g
+
+@rem prefab walk test
+zpg preset 11 -p -s 1610130853
 
 @rem zpg.exe preset 12 -p -v -a output.txt
 @rem zpg.exe preset 13 -s 42

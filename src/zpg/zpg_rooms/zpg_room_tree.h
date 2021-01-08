@@ -304,7 +304,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     ZPG_HealRoomScatter2(grid, YES, NO);
     ZPG_ZeroOutLoneValues(grid);
 
-    ZPG_Grid_PrintValues(grid, YES);
+    ZPG_Grid_PrintValues(grid, 0, YES);
 
 
 
@@ -316,7 +316,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
         printf("Seed grid with random values\n");
-        ZPG_Grid_PrintValues(grid, YES);
+        ZPG_Grid_PrintValues(grid, 0, YES);
     }
     //ZPGGrid* clone = ZPG_Grid_CreateClone(grid);
     ZPGGrid* clone = stack->grids[originalGrid];
@@ -331,14 +331,14 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
         printf("Heal iteration (threshold %d)\n", healThreshold);
-        ZPG_Grid_PrintValues(grid, YES);
+        ZPG_Grid_PrintValues(grid, 0, YES);
     }
     /*
     ZPG_HealRoomScatter(grid, healThreshold);
     if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
         printf("Heal iteration (threshold %d)\n", healThreshold);
-        ZPG_Grid_PrintValues(grid, YES);
+        ZPG_Grid_PrintValues(grid, 0, YES);
     }
     */
     ZPG_ZeroOutLoneValues(grid);
@@ -346,9 +346,9 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
         printf("Zero out lone values\n");
-        ZPG_Grid_PrintValues(grid, YES);
+        ZPG_Grid_PrintValues(grid, 0, YES);
         printf("Before heal:\n");
-        ZPG_Grid_PrintValues(clone, YES);
+        ZPG_Grid_PrintValues(clone, 0, YES);
     }
     ZPG_FreeGrid(clone);
     
@@ -391,7 +391,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     i32 numCells = grid->width * grid->height;
     i32 numRooms = 0;
     printf("Gather rooms from:\n");
-    ZPG_Grid_PrintValues(grid, YES);
+    ZPG_Grid_PrintValues(grid, 0, YES);
     // allocate for worst case; everyone cell is a room
     // also zero out room memory.
     ZPGRoom* rooms = (ZPGRoom*)ZPG_Alloc(sizeof(ZPGRoom) * maxPoints, ZPG_MEM_TAG_ROOMS);
@@ -491,20 +491,20 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 	if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
 		printf("Paint Ids\n");
-		ZPG_Grid_PrintValues(grid, YES);
+		ZPG_Grid_PrintValues(grid, 0, YES);
 	}
 
     ZPGGrid* connectionGrid = ZPG_Rooms_BuildConnectionsGrid(grid, rooms, nextRoom);
     if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
         printf("Connections bitmask\n");
-        ZPG_Grid_PrintValues(connectionGrid, NO);
+        ZPG_Grid_PrintValues(connectionGrid, 0, NO);
     }
 
 	ZPGGrid* canvas = ZPG_GenerateRoomBorder(grid, rooms, nextRoom, YES);
 	if (cfg->flags & ZPG_API_FLAG_PRINT_WORKING)
     {
-		ZPG_Grid_PrintValues(canvas, YES);
+		ZPG_Grid_PrintValues(canvas, 0, YES);
 	}
 #endif
 

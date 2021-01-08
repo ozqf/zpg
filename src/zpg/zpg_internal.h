@@ -41,7 +41,6 @@ memcpy(##destinationPtr##, sourcePtr##, numBytesToCopy##)
 #define ZPG_QSORT(list, lengthOfList, listItemDataType, qSortcompareFunction) \
 qsort(list, lengthOfList, sizeof(listItemDataType), qSortcompareFunction)
 
-
 // Param checking
 #define ZPG_PARAM_NULL(paramPtr, failureReturnVal) \
 if (##paramPtr == NULL) { printf("Param %s was null\n", #paramPtr##); return failureReturnVal; }
@@ -52,6 +51,13 @@ if (gridAPtr->width != gridBPtr->width || gridAPtr->height != gridBPtr->height) 
 
 #define ZPG_ALLOC_ARRAY(dataType, arraySize, memAllocTag) \
 (##dataType##*)ZPG_Alloc(sizeof(##dataType##) * arraySize##, memAllocTag##)
+
+#define ZPG_ASSERT(expression, msg) if (!(expression)) \
+{ \
+    char assertBuf[1024]; \
+    snprintf(assertBuf, 1024, "%s, %d: %s\n", __FILE__, __LINE__, msg); \
+	ZPG_Fatal(assertBuf); \
+}
 
 //////////////////////////////////////////
 // Iterating grid cells
@@ -93,6 +99,7 @@ static ZPGPoint g_directions[ZPG_NUM_DIRECTIONS];
 
 static zpg_allocate_fn g_ptrAlloc = NULL;
 static zpg_free_fn g_ptrFree = NULL;
+static zpg_fatal_fn g_ptrFatal = NULL;
 
 //////////////////////////////////////////
 // Preset types and list of functions
@@ -178,6 +185,7 @@ struct ZPGRoom
 //////////////////////////////////////////
 //static void* ZPG_Alloc(i32 numBytes, i32 tag);
 //ZPG_EXPORT i32 ZPG_Free(void* ptr);
+static void ZPG_Fatal(const char* msg);
 
 static void ZPG_DrawOuterBorder(ZPGGrid* grid, ZPGGrid* stencil, u8 typeToPaint);
 
@@ -199,7 +207,7 @@ static void ZPG_Grid_CalcStats(ZPGGrid* grid);
 static ZPGNeighbours ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y);
 static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y);
 static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result);
-static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes);
+static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes);
 static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y);
 static void ZPG_Grid_PrintChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY);
 static void ZPG_Grid_PerlinToGreyscale(

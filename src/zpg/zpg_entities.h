@@ -121,7 +121,7 @@ static void ZPG_AnalyseForEntities(ZPGGrid* grid, ZPGGrid* result, i32* seed)
         ZPG_AnalyseCellForEntities(grid, x, y, result, seed);
     ZPG_END_GRID_ITERATE
     printf("Entity analysis result:\n");
-    //ZPG_Grid_PrintValues(result, YES);
+    //ZPG_Grid_PrintValues(result, 1, YES);
 }
 
 /**

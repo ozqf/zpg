@@ -45,7 +45,19 @@ extern "C" void ZPG_WriteGridAsAsci(ZPGGrid* grid, char* fileName)
 
 static void ZPG_WriteGridAsPNG(ZPGGrid* grid, char* fileName)
 {
-    i32 err = stbi_write_png(fileName, grid->width, grid->height, 4, grid->cells, 0);
+	i32 w = grid->width, h = grid->height;
+	ZPGColour* pixels = (ZPGColour*)ZPG_Alloc(w * h * sizeof(ZPGColour), 0);
+	i32 numPixels = w * h;
+	for (i32 i = 0; i < numPixels; ++i)
+	{
+		ZPGColour* pix = &pixels[i];
+		pix->arr[0] = grid->cells[i];
+		pix->arr[1] = grid->cells[i];
+		pix->arr[2] = grid->cells[i];
+		pix->arr[3] = 255;
+	}
+    i32 err = stbi_write_png(fileName, grid->width, grid->height, 4, pixels, 0);
+	ZPG_Free(pixels);
     if (err == 1)
     {
         return;

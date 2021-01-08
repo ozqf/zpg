@@ -4,7 +4,7 @@
 #include "zpg_internal.h"
 
 
-static void ZPG_BGrid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
+static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes)
 {
     ZPG_PARAM_NULL(grid, )
 	if (grid->width > 100 || grid->height > 100)
@@ -12,7 +12,19 @@ static void ZPG_BGrid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
 		printf("SKIP: Grid size %d/%d is too big to print\n", grid->width, grid->height);
 		return;
 	}
-    printf("------ Byte Grid %d/%d ------\n", grid->width, grid->height);
+    char* valueFormat = "%d";
+    char* blankFormat = " ";
+    if (digitCount == 2)
+    {
+        valueFormat = " %02d";
+        blankFormat = "   ";
+    }
+    else if (digitCount == 3)
+    {
+        valueFormat = " %03d";
+        blankFormat = "    ";
+    }
+    printf("------ Grid %d/%d ------\n", grid->width, grid->height);
     for (i32 y = 0; y < grid->height; ++y)
     {
         printf("|");
@@ -22,11 +34,12 @@ static void ZPG_BGrid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
             if (bBlankZeroes && val == 0)
             {
                 //printf(" ");
-                printf("    ");
+                printf(blankFormat);
             }
             else
             {
-                printf(" %03d", val);
+                //printf(" %03d", val);
+                printf(valueFormat, val);
             }
         }
         printf("|\n");
@@ -38,6 +51,7 @@ static void ZPG_BGrid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
 /////////////////////////////////////////////
 // Grid printing
 /////////////////////////////////////////////
+#if 0
 static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
 {
     ZPG_PARAM_NULL(grid, )
@@ -68,6 +82,7 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
     }
     printf("------------------\n");
 }
+#endif
 #if 0
 static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 channel, i32 bBlankZeroes)
 {

@@ -24,7 +24,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
     ZPG_BlitGrids(grid, prefab->grid, topLeft, stencil);
 
     //printf("Stencil after blit:\n");
-    //ZPG_Grid_PrintValues(stencil);
+    //ZPG_Grid_PrintValues(stencil, 1, YES);
 
     i32 numRivers = 4;
     for (i32 i = 0; i < numRivers; ++i)
@@ -134,8 +134,14 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
     }
     #endif
 
-    printf("Draw line segment between prefabs - Stencil state:\n");
-    ZPG_Grid_PrintValues(stencil, YES);
+    if ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0)
+    {
+        printf("Draw line segment between prefabs - Grid:\n");
+        ZPG_Grid_PrintValues(grid, 1, YES);
+        printf("Stencil:\n");
+        ZPG_Grid_PrintValues(stencil, 1, YES);
+    }
+    
     const i32 numNodes = 12;
     i32 numNodesMinusOne = numNodes - 1;
     ZPGPoint nodes[numNodes];
@@ -147,7 +153,20 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
     f32 lineNodeOffsetMax = 10;//1.5f;
     f32 bigRoomChance = 0;//0.2f;
     ZPG_PlotSegmentedPath(grid, stencil, &presetCfg->seed, nodes, numNodes, lineNodeOffsetMax);
+    if ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0)
+    {
+        printf("--- Plotted segemented path (%d nodes) ---\n", numNodes);
+        for (i32 i = 0; i < numNodes; ++i)
+        {
+            printf("(%d, %d) ", nodes[i].x, nodes[i].y);
+		}
+        printf("\n");
+	}
     ZPG_DrawSegmentedLine(grid, stencil, nodes, numNodes, ZPG_CELL_TYPE_PATH, bigRoomChance);
+    if ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0)
+    {
+        ZPG_Grid_PrintChars(grid, '\0', 0, 0);
+    }
     // random walk from nodes along the line
     #if 1
     cfg.typeToPaint = ZPG_CELL_TYPE_PATH;

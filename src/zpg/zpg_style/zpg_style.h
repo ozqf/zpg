@@ -61,7 +61,7 @@ static ZPGGrid* ZPG_CreateStylingGrid(ZPGGrid* source)
 
     ZPG_END_GRID_ITERATE
 
-    ZPG_Grid_PrintValues(grid, YES);
+    ZPG_Grid_PrintValues(grid, 0, YES);
     #endif
     return grid;
 }

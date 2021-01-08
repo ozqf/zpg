@@ -35,6 +35,14 @@ static void track_free(void* ptr)
 #endif
 }
 
+static void FatalHandler(const char* msg)
+{
+	printf("ZPG - fatal error\n");
+    printf("%s\n", msg);
+	printf("\nAborting\n");
+	exit(1);
+}
+
 static void print_help(char* exeName)
 {
 	printf("--- Help ---\n");
@@ -87,44 +95,56 @@ int main(int argc, char** argv)
 	g_heapSize = 1024 * 1024 * 128;
 	g_heap = (u8*)malloc(g_heapSize);
 #endif
-	ZPG_Init(track_malloc, track_free);
+
+	 // for debugging - force params
+    #if 0
+    char* arrArgs[32];
+    argc = 0;
+    arrArgs[argc++] = "zpg.exe";
+    arrArgs[argc++] = "preset";
+    arrArgs[argc++] = "13";
+    arrArgs[argc++] = "-e";
+    arrArgs[argc++] = "-p";
+    arrArgs[argc++] = "-s";
+    arrArgs[argc++] = "42";
+    arrArgs[argc++] = "-v";
+    arrArgs[argc++] = "-w";
+    arrArgs[argc++] = "8";
+    arrArgs[argc++] = "-h";
+    arrArgs[argc++] = "8";
+    argv = arrArgs;
+    #endif
+    #if 0
+    char* arrArgs[32];
+    argc = 0;
+    arrArgs[argc++] = "zpg.exe";
+    arrArgs[argc++] = "preset";
+    arrArgs[argc++] = "12";
+    arrArgs[argc++] = "-v";
+    arrArgs[argc++] = "-e";
+    arrArgs[argc++] = "-p";
+    arrArgs[argc++] = "-s";
+    arrArgs[argc++] = "42";
+    argv = arrArgs;
+    #endif
+    #if 0
+    char* arrArgs[32];
+    argc = 0;
+    arrArgs[argc++] = "zpg.exe";
+    arrArgs[argc++] = "preset";
+    arrArgs[argc++] = "11";
+    arrArgs[argc++] = "-v";
+    arrArgs[argc++] = "-p";
+    arrArgs[argc++] = "-s";
+    arrArgs[argc++] = "1610110326";
+    argv = arrArgs;
+    #endif
+    
+	// Run!
+	ZPG_Init(track_malloc, track_free, FatalHandler);
 	run_preset_cli(argc, argv);
 	#endif
 
-	#if 0
-	if (argc <= 1)
-	{
-		printf("No command specified\n");
-		print_help(argv[0]);
-		return 0;
-	}
-	if (strcmp(argv[1], "preset") == 0)
-	{
-		ZPG_Init(NULL, NULL);
-		run_preset_cli(argc, argv);
-	}
-	else if (strcmp(argv[1], "script") == 0)
-	{
-		printf("Sorry, script mode disabled\n");
-		#if 0
-		ZPG_Init(NULL, NULL);
-		run_script(argv[2], argv[3]);
-		#endif
-	}
-	else if (strcmp(argv[1], "data") == 0)
-	{
-		ZPG_Init(NULL, NULL);
-		printf("--- DATA ---\n");
-		ZPG_PrintTileTypes();
-		ZPG_PrintPrefabs();
-	}
-	else
-	{
-		printf("Unrecognised command \"%s\"\n", argv[1]);
-		print_help(argv[0]);
-		return 0;
-	}
-	#endif
 	printf("\nDone\n");
 	return 0;
 }

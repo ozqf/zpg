@@ -29,7 +29,7 @@ static ZPGGrid* ZPG_Preset_Perlin(ZPGPresetCfg* presetCfg)
             ZPG_CELL_TYPE_PATH,
             ZPG_CAVE_GEN_CRITICAL_NEIGHBOURS_DEFAULT);
     }
-    //ZPG_Grid_PrintValues(grid, YES);
+    //ZPG_Grid_PrintValues(grid, 1, YES);
     ZPG_Grid_PerlinToGreyscale(grid, NULL, 0, 0, YES);
     //ZPG_Grid_PrintTexture(grid, YES);
     if (w <= 96 && h <= 96

@@ -68,6 +68,7 @@ static ZPGPoint ZPG_RandomWalkAndFill(
     {
         printf("ABORT Walk and fill invalid start at %d, %d in grid sized %d, %d\n",
             cursor.x, cursor.y, grid->width, grid->height);
+        ZPG_ASSERT(NO, "Abort walk\n");
         return cursor;
     }
     // Clear stencil tags.
@@ -109,6 +110,12 @@ static ZPGPoint ZPG_RandomWalkAndFill(
         // record visit if stencil tag is clear.
         if (ZPG_GRID_GET(tagGrid, cursor.x, cursor.y) == 0)
         {
+            if (info.numPoints >= info.maxPoints)
+            {
+                printf("ABORT Walk - points overflow!\n");
+                ZPG_ASSERT(NO, "Abort walk\n");
+                return cursor;
+			}
             info.points[info.numPoints] = cursor;
             info.numPoints++;
         }

@@ -19,7 +19,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
     ZPGPoint centreMax = { 40, 20 };
     ZPG_FillRectWithStencil(stencil, NULL, centreMin, centreMax, ZPG_STENCIL_TYPE_FULL );
     // debug check stencil
-    //ZPG_Grid_PrintValues(stencil);
+    //ZPG_Grid_PrintValues(stencil, 1, YES;
     ZPGWalkCfg cfg = {};
     cfg.seed = presetCfg->seed;
     cfg.startX = 31;
@@ -53,7 +53,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
         if (bStepThrough)
         {
             printf("River %d:\n", i);
-            ZPG_Grid_PrintValues(grid, YES);
+            ZPG_Grid_PrintValues(grid, 0, YES);
             printf("Press ENTER to continue\n");
             getchar();
         }
@@ -70,7 +70,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
         if (bStepThrough)
         {
             printf("Path %d:\n", i);
-            ZPG_Grid_PrintValues(grid, YES);
+            ZPG_Grid_PrintValues(grid, 0, YES);
             printf("Press ENTER to continue\n");
             getchar();
         }
@@ -222,17 +222,17 @@ static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
 static ZPGGrid* ZPG_TestCaveLayers(ZPGPresetCfg* presetCfg)
 {
     ZPGGrid* grid = ZPG_TestCaveGen(presetCfg);
-    ZPG_Grid_PrintValues(grid, YES);
+    ZPG_Grid_PrintValues(grid, 0, YES);
     ZPGGrid* gridB = ZPG_TestCaveGen(presetCfg);
-    ZPG_Grid_PrintValues(gridB, YES);
+    ZPG_Grid_PrintValues(gridB, 0, YES);
     ZPG_AddGridsOfSameSize(grid, gridB);
     ZPG_AddGridsOfSameSize(grid, gridB);
     ZPG_FreeGrid(gridB);
 
-    ZPG_Grid_PrintValues(grid, YES);
+    ZPG_Grid_PrintValues(grid, 0, YES);
     ZPG_Grid_PerlinToGreyscale(grid, NULL, 0, 0, YES);
     //ZPG_Grid_PrintTexture(grid, YES);
-	//ZPG_Grid_PrintValues(grid, YES);
+	//ZPG_Grid_PrintValues(grid, 0, YES);
     if (presetCfg->flags & ZPG_API_FLAG_PRINT_GREYSCALE)
     {
 		printf("Draw grid as texture\n");

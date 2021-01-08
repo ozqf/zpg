@@ -70,6 +70,17 @@ typedef int ZPGError;
 // Data types
 //////////////////////////////////////////
 
+#pragma pack(push, 1)
+union ZPGColour
+{
+	u8 arr[4];
+	struct channels
+	{
+		u8 r, g, b, a;
+	};
+};
+#pragma pack(pop)
+
 struct ZPGNeighbours
 {
 	i32 count;
@@ -263,6 +274,7 @@ struct ZPGGridPrefab
 // void *(__cdecl *)(size_t)
 typedef void* (*zpg_allocate_fn)(size_t size);
 typedef void (*zpg_free_fn)(void* ptr);
+typedef void (*zpg_fatal_fn)(const char* msg);
 
 //////////////////////////////////////////
 // Functions
@@ -271,7 +283,7 @@ typedef void (*zpg_free_fn)(void* ptr);
 ZPG_EXPORT i32 ZPG_ApiVersion();
 // On error init returns a none 0 code
 // TODO: Init is called automatically anyway in run functions
-ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree);
+ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree, zpg_fatal_fn fatal);
 // Shutdown clears any still allocated memory on error returns none 0
 ZPG_EXPORT i32 ZPG_Shutdown();
 //ZPG_EXPORT void ZPG_RunPreset(i32 mode, char* outputPath, i32 apiFlags,

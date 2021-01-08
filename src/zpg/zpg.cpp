@@ -66,7 +66,12 @@ static void ZPG_AddPresetFunction(zpg_preset_fn funcPtr, char* label)
     g_nextPreset++;
 }
 
-extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree)
+static void ZPG_Fatal(const char* msg)
+{
+    g_ptrFatal(msg);
+}
+
+extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree, zpg_fatal_fn ptrFatal)
 {
     if (g_bInitialised == YES) { return 0; }
     
@@ -157,38 +162,6 @@ void ZPG_RunPresetCLI(
     i32 argc, char** argv,
     u8** resultPtr, i32* resultWidth, i32* resultHeight)
 {
-    // for debugging - force params
-    #if 0
-    char* arrArgs[32];
-    argc = 0;
-    arrArgs[argc++] = "zpg.exe";
-    arrArgs[argc++] = "preset";
-    arrArgs[argc++] = "13";
-    arrArgs[argc++] = "-e";
-    arrArgs[argc++] = "-p";
-    arrArgs[argc++] = "-s";
-    arrArgs[argc++] = "42";
-    arrArgs[argc++] = "-v";
-    arrArgs[argc++] = "-w";
-    arrArgs[argc++] = "8";
-    arrArgs[argc++] = "-h";
-    arrArgs[argc++] = "8";
-    argv = arrArgs;
-    #endif
-    #if 0
-    char* arrArgs[32];
-    argc = 0;
-    arrArgs[argc++] = "zpg.exe";
-    arrArgs[argc++] = "preset";
-    arrArgs[argc++] = "12";
-    arrArgs[argc++] = "-v";
-    arrArgs[argc++] = "-e";
-    arrArgs[argc++] = "-p";
-    arrArgs[argc++] = "-s";
-    arrArgs[argc++] = "42";
-    argv = arrArgs;
-    #endif
-    
     if (argc <= 2)
     {
         printf("No preset settings received\n");
