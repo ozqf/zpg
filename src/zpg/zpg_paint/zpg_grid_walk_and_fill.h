@@ -80,7 +80,6 @@ static ZPGPoint ZPG_RandomWalkAndFill(
         //ZPG_Grid_ClearAllTags(stencil);
     }
 
-    ZPGCellTypeDef* def = ZPG_GetType(cfg->typeToPaint);
     ZPGWalkInfo info;
     info.numPoints = 0;
     info.maxPoints = grid->width * grid->height;
@@ -96,11 +95,18 @@ static ZPGPoint ZPG_RandomWalkAndFill(
     ///////////////////////////////////////////////
     while(bPainting == YES)
     {
-        // paint current
-        if (ZPG_Grid_SetCellTypeByGeometryMatch(grid, grid, cursor.x, cursor.y, def->value, def->geometryType))
+        // paint current if possible - based on geometry of cell def
+        // if (ZPG_Grid_SetCellTypeByGeometryMatch(grid, grid, cursor.x, cursor.y, def->value, def->geometryType))
+        // {
+        //     tilesPlaced++;
+        // }
+        // simpler: paint if current is not type to paint
+        if (ZPG_GRID_GET(grid, cursor.x, cursor.y) != cfg->typeToPaint)
         {
+            ZPG_GRID_SET(grid, cursor.x, cursor.y, cfg->typeToPaint);
             tilesPlaced++;
         }
+
         /*if (ZPG_Grid_SetCellTypeGeometry(
             grid, cursor.x, cursor.y, def->value, def->geometryType) == YES)
         {

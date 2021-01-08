@@ -396,11 +396,9 @@ static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result)
  * source channel can be 0-3. dest can only be 0-2 (alpha is always 255)
  */
 static void ZPG_Grid_PerlinToGreyscale(
-    ZPGGrid* source, ZPGGrid* destination, u8 sourceChannel, u8 destChannel, i32 bSetAlpha)
+    ZPGGrid* source, ZPGGrid* destination)
 {
     ZPG_PARAM_NULL(source, )
-    if (sourceChannel > 3) { return; }
-    if (destChannel > 2) { return; }
     u8 highest = 0;
     i32 numPixels = source->width * source->height;
     for (i32 i = 0; i < numPixels; ++i)
@@ -418,10 +416,6 @@ static void ZPG_Grid_PerlinToGreyscale(
     {
         u8 cellValue = source->cells[i];
         destination->cells[i] = cellValue * step;
-        /*if (bSetAlpha)
-        {
-            source->cells[i].colour.a = 255;
-        }*/
     }
 }
 

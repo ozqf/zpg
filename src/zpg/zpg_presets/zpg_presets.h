@@ -230,7 +230,7 @@ static ZPGGrid* ZPG_TestCaveLayers(ZPGPresetCfg* presetCfg)
     ZPG_FreeGrid(gridB);
 
     ZPG_Grid_PrintValues(grid, 0, YES);
-    ZPG_Grid_PerlinToGreyscale(grid, NULL, 0, 0, YES);
+    ZPG_Grid_PerlinToGreyscale(grid, NULL);
     //ZPG_Grid_PrintTexture(grid, YES);
 	//ZPG_Grid_PrintValues(grid, 0, YES);
     if (presetCfg->flags & ZPG_API_FLAG_PRINT_GREYSCALE)

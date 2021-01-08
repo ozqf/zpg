@@ -162,6 +162,7 @@ void ZPG_RunPresetCLI(
     i32 argc, char** argv,
     u8** resultPtr, i32* resultWidth, i32* resultHeight)
 {
+    printf("argc %d\n", argc);
     if (argc <= 2)
     {
         printf("No preset settings received\n");

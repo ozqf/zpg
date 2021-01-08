@@ -82,68 +82,98 @@ static void run_script(char* inputFileName, char* outputFileName)
 	i32 flags = ZPG_API_FLAG_PRINT_WORKING | ZPG_API_FLAG_PRINT_RESULT;
 	ZPG_RunScript(buf, size, flags);
 	free(buf);
+}
 
+static void run_test()
+{
+	char* argv[32];
+	i32 argc = 0;
+	 // for debugging - force params
+    #if 0
+    argv[argc++] = "zpg.exe";
+    argv[argc++] = "preset";
+    argv[argc++] = "13";
+    argv[argc++] = "-e";
+    argv[argc++] = "-p";
+    argv[argc++] = "-s";
+    argv[argc++] = "42";
+    argv[argc++] = "-v";
+    argv[argc++] = "-w";
+    argv[argc++] = "8";
+    argv[argc++] = "-h";
+    argv[argc++] = "8";
+    #endif
+    #if 0
+    argv[argc++] = "zpg.exe";
+    argv[argc++] = "preset";
+    argv[argc++] = "12";
+    argv[argc++] = "-v";
+    argv[argc++] = "-e";
+    argv[argc++] = "-p";
+    argv[argc++] = "-s";
+    argv[argc++] = "42";
+    #endif
+    #if 1
+    argv[argc++] = "zpg.exe";
+    argv[argc++] = "preset";
+    argv[argc++] = "11";
+    argv[argc++] = "-v";
+    argv[argc++] = "-p";
+    argv[argc++] = "-s";
+    argv[argc++] = "1610110326";
+    #endif
+    run_preset_cli(argc, argv);
 }
 
 int main(int argc, char** argv)
 {
 	printf("Zealous Procedural Generator build %s, %s\n",
 		__DATE__, __TIME__);
-	#if 1
+	
 	// ZPG_Init(NULL, NULL);
 #ifdef HEAP_ALLOC_TEST
 	g_heapSize = 1024 * 1024 * 128;
 	g_heap = (u8*)malloc(g_heapSize);
 #endif
-
-	 // for debugging - force params
-    #if 0
-    char* arrArgs[32];
-    argc = 0;
-    arrArgs[argc++] = "zpg.exe";
-    arrArgs[argc++] = "preset";
-    arrArgs[argc++] = "13";
-    arrArgs[argc++] = "-e";
-    arrArgs[argc++] = "-p";
-    arrArgs[argc++] = "-s";
-    arrArgs[argc++] = "42";
-    arrArgs[argc++] = "-v";
-    arrArgs[argc++] = "-w";
-    arrArgs[argc++] = "8";
-    arrArgs[argc++] = "-h";
-    arrArgs[argc++] = "8";
-    argv = arrArgs;
-    #endif
-    #if 0
-    char* arrArgs[32];
-    argc = 0;
-    arrArgs[argc++] = "zpg.exe";
-    arrArgs[argc++] = "preset";
-    arrArgs[argc++] = "12";
-    arrArgs[argc++] = "-v";
-    arrArgs[argc++] = "-e";
-    arrArgs[argc++] = "-p";
-    arrArgs[argc++] = "-s";
-    arrArgs[argc++] = "42";
-    argv = arrArgs;
-    #endif
-    #if 0
-    char* arrArgs[32];
-    argc = 0;
-    arrArgs[argc++] = "zpg.exe";
-    arrArgs[argc++] = "preset";
-    arrArgs[argc++] = "11";
-    arrArgs[argc++] = "-v";
-    arrArgs[argc++] = "-p";
-    arrArgs[argc++] = "-s";
-    arrArgs[argc++] = "1610110326";
-    argv = arrArgs;
-    #endif
-    
+	
 	// Run!
 	ZPG_Init(track_malloc, track_free, FatalHandler);
-	run_preset_cli(argc, argv);
-	#endif
+	
+	if (argc <= 0)
+	{
+		// ... ?
+		return 0;
+	}
+	if (argc == 1)
+	{
+		printf("No command specified\n");
+		run_test();
+		print_help(argv[0]);
+	}
+	else if (strcmp(argv[1], "preset") == 0)
+	{
+		run_preset_cli(argc, argv);
+	}
+	else if (strcmp(argv[1], "script") == 0)
+	{
+		printf("Sorry, script mode disabled\n");
+		#if 0
+		ZPG_Init(NULL, NULL);
+		run_script(argv[2], argv[3]);
+		#endif
+	}
+	else if (strcmp(argv[1], "data") == 0)
+	{
+		printf("--- DATA ---\n");
+		ZPG_PrintTileTypes();
+		ZPG_PrintPrefabs();
+	}
+	else
+	{
+		printf("Unrecognised command \"%s\"\n", argv[1]);
+		print_help(argv[0]);
+		return 0;
+	}
 
 	printf("\nDone\n");
 	return 0;

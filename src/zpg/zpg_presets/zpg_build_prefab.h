@@ -88,7 +88,7 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
     i32 w = 96, h = 32;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     // fill the grid solid
-    //ZPG_Grid_SetAll(grid, 1);
+    ZPG_Grid_SetAll(grid, 1);
 
     ZPGGrid* tagGrid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
