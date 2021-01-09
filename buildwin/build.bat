@@ -39,7 +39,7 @@ cl %compilerFlags% %compilerDefines% %outputExe% %compInput_0% %compInput_1% %co
 @if not %ERRORLEVEL% == 0 goto :FINISHED
 
 @rem Auto run if you like
-@rem @call "../buildwin/r.bat"
+@call "../buildwin/r.bat"
 
 @echo off
 

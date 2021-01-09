@@ -74,12 +74,22 @@ typedef int ZPGError;
 union ZPGColour
 {
 	u8 arr[4];
-	struct channels
+	struct
 	{
-		u8 r, g, b, a;
-	};
+		u8 r;
+        u8 g;
+        u8 b;
+        u8 a;
+	} channels;
 };
 #pragma pack(pop)
+#define ZPG_BLACK { 0, 0, 0, 255 }
+#define ZPG_WHITE { 255, 255, 255, 255 }
+#define ZPG_DARK_GREY { 50, 50, 50, 255 }
+#define ZPG_LIGHT_GREY { 125, 125, 125, 255 }
+#define ZPG_BLUE { 0, 0, 255, 255 }
+#define ZPG_GREEN { 0, 255, 0, 255 }
+#define ZPG_RED { 255, 0, 0, 255 }
 
 struct ZPGNeighbours
 {
@@ -96,6 +106,8 @@ struct ZPGCellTypeDef
     u8 category;
     // char to write when saving grid as text
     u8 asciChar;
+    // colour to draw when saving in picture mode
+    ZPGColour colour;
     // display name
     char* label;
 };

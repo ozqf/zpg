@@ -43,18 +43,31 @@ extern "C" void ZPG_WriteGridAsAsci(ZPGGrid* grid, char* fileName)
     fclose(f);
 }
 
-static void ZPG_WriteGridAsPNG(ZPGGrid* grid, char* fileName)
+static void ZPG_WriteGridAsPNG(ZPGGrid* grid, char* fileName, i32 bUseCellTypeColours)
 {
 	i32 w = grid->width, h = grid->height;
-	ZPGColour* pixels = (ZPGColour*)ZPG_Alloc(w * h * sizeof(ZPGColour), 0);
+    i32 bitmapBytes = w * h * sizeof(ZPGColour);
+	ZPGColour* pixels = (ZPGColour*)ZPG_Alloc(bitmapBytes, 0);
 	i32 numPixels = w * h;
+    printf("Saving %.3fKB of bitmap to PNG %s\n", ((f32)bitmapBytes / 1024.f), fileName);
 	for (i32 i = 0; i < numPixels; ++i)
 	{
 		ZPGColour* pix = &pixels[i];
-		pix->arr[0] = grid->cells[i];
-		pix->arr[1] = grid->cells[i];
-		pix->arr[2] = grid->cells[i];
-		pix->arr[3] = 255;
+        if (bUseCellTypeColours == YES)
+        {
+            ZPGCellTypeDef* def = ZPG_GetType(grid->cells[i]);
+            pix->arr[0] = def->colour.channels.r;
+		    pix->arr[1] = def->colour.channels.g;
+		    pix->arr[2] = def->colour.channels.b;
+		    pix->arr[3] = def->colour.channels.a;
+        }
+        else
+        {
+            pix->arr[0] = grid->cells[i];
+		    pix->arr[1] = grid->cells[i];
+		    pix->arr[2] = grid->cells[i];
+		    pix->arr[3] = 255;
+        }
 	}
     i32 err = stbi_write_png(fileName, grid->width, grid->height, 4, pixels, 0);
 	ZPG_Free(pixels);

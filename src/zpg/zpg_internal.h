@@ -113,6 +113,7 @@ struct ZPGPresetCfg
     i32 height;
     char* asciOutput;
     char* imageOutput;
+    char* pictureOutput;
 };
 
 typedef ZPGGrid* (*zpg_preset_fn)(ZPGPresetCfg* cfg);
@@ -209,8 +210,8 @@ static ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y);
 static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original);
 static void ZPG_Grid_CalcStats(ZPGGrid* grid);
 static ZPGNeighbours ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y);
-static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y);
-static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result);
+static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y, u32* iterateCount);
+static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result, i32 ignoreValue, i32 bVerbose);
 static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes);
 static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y);
 static void ZPG_Grid_PrintCellDefChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY);

@@ -6,7 +6,10 @@
 static ZPGGrid* ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
 {
     //i32 w = 48, h = 48;
-    i32 w = 96, h = 48;
+    i32 w = presetCfg->width;
+    i32 h = presetCfg->height;
+    if (w <= 0) { w = 96; }
+    if (h <= 0) { h = 48; }
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPG_Grid_SetAll(grid, 1);
     ZPGGrid* tagGrid = ZPG_CreateGrid(w, h);
@@ -86,7 +89,10 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
 
 static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
 {
-    i32 w = 96, h = 32;
+    i32 w = presetCfg->width;
+    i32 h = presetCfg->height;
+    if (w <= 0) { w = 96; }
+    if (h <= 0) { h = 32; }
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     // fill the grid solid
     ZPG_Grid_SetAll(grid, 1);
@@ -277,8 +283,10 @@ static i32 ZPG_FindRoomConnectionPoints(
 
 static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
 {
-    const i32 w = 96;
-    const i32 h = 64;
+    i32 w = presetCfg->width;
+    i32 h = presetCfg->height;
+    if (w <= 0) { w = 96; }
+    if (h <= 0) { h = 64; }
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPGGrid* tagGrid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);

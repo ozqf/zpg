@@ -313,7 +313,7 @@ eg:
           #.....#
           #######
 */
-static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y)
+static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y, i32* iterationCount)
 {
     if (!ZPG_IS_POS_SAFE(grid->width, grid->height, x, y))
     {
@@ -334,6 +334,7 @@ static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y)
         {
             for (i32 iX = -ringTest; iX <= ringTest; ++iX)
             {
+                if (iterationCount) { *iterationCount += 1; }
                 plotX = x + iX;
                 plotY = y + iY;
                 if (!ZPG_IS_POS_SAFE(grid->width, grid->height, plotX, plotY))
@@ -375,19 +376,37 @@ static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y)
 /**
  * result must be the same size as grid!
  */
-static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result)
+static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result, i32 ignoreValue, i32 bVerbose)
 {
     ZPG_PARAM_NULL(grid, );
     ZPG_PARAM_NULL(result, );
     ZPG_PARAM_GRIDS_EQUAL_SIZE(grid, result, )
-    printf("Calc rings\n");
+    i32 count = 0;
+    if (bVerbose)
+    {
+        printf("Calc rings\n");
+    }
     for (i32 y = 0; y < grid->height; ++y)
     {
         for (i32 x = 0; x < grid->width; ++x)
         {
+            count++;
             i32 i = ZPG_POS_TO_INDEX(grid->width, x, y);
-            result->cells[i] = ZPG_Grid_CountNeighourRingsAt(grid, x, y);
+            if (ignoreValue >= 0)
+            {
+                u8 val = grid->cells[i];
+                if (val == (u8)ignoreValue)
+                {
+                    continue;
+                }
+            }
+            result->cells[i] = ZPG_Grid_CountNeighourRingsAt(grid, x, y, &count);
         }
+    }
+    if (bVerbose)
+    {
+        ZPG_Grid_PrintValues(result, 0, YES);
+        printf("Iterations: %d\n", count);
     }
 }
 

@@ -1,6 +1,10 @@
 @cd..
 @cd bin
 @echo *** Run ZPG ***
+
+@rem Just print preset options
+zpg preset
+
 @rem Call in a separate window:
 @rem start zpg.exe
 @rem Run in this window
@@ -10,11 +14,14 @@
 @rem segmented line + wanders
 @rem zpg.exe preset 3 -s 1610068662 -p -a output.txt
 
+@rem prefab to prefab segmented walk with png output
+@rem zpg preset 11 -i preset11_raw.png -c preset11_colours.png -w 128 -h 128 -v
+
 @rem -- Perlin noise --
 @rem zpg.exe preset 6 -g
 
 @rem prefab walk test
-zpg preset 11 -p -v -s 1610130853
+@rem zpg preset 11 -p -v -s 1610130853
 
 @rem zpg.exe preset 12 -p -v -a output.txt
 @rem zpg.exe preset 13 -s 42

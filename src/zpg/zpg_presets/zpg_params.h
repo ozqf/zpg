@@ -40,10 +40,21 @@ static i32 ZPG_ParamImageOutputFile(i32 argc, char** argv, ZPGPresetCfg* cfg)
 {
     if (argc < 1)
     {
-        printf("Error: -a must specify file name for asci output\n");
+        printf("Error: -i must specify file name for raw image output\n");
         return 0;
     }
     cfg->imageOutput = argv[1];
+    return 1;
+}
+
+static i32 ZPG_ParamPictureOutputFile(i32 argc, char** argv, ZPGPresetCfg* cfg)
+{
+    if (argc < 1)
+    {
+        printf("Error: -c must specify file name for picture output\n");
+        return 0;
+    }
+    cfg->pictureOutput = argv[1];
     return 1;
 }
 
@@ -122,7 +133,13 @@ static void ZPG_InitParams()
     param->type = ZPG_PARAM_TYPE_FUNCTION;
     param->asciChar = 'i';
     param->data.func = ZPG_ParamImageOutputFile;
-    param->helpText = "-i <filename> Save final result as png to filename\n";
+    param->helpText = "-i <filename> Save final result as raw png to filename\n";
+    
+    param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_FUNCTION;
+    param->asciChar = 'c';
+    param->data.func = ZPG_ParamPictureOutputFile;
+    param->helpText = "-c <filename> Save final result using tile colours to filename\n";
 }
 
 static void ZPG_Params_PrintHelp()

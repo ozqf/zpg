@@ -76,10 +76,11 @@ static void ZPG_AnalyseCellForEntities(
     if (def == NULL) { printf("Cell type def is null\n");return;}
     ZPGPoint dirs[4];
     i32 count = 0;
+    i32 iterations = 0;
     switch (def->geometryType)
     {
         case ZPG_GEOMETRY_TYPE_PATH:
-        count = ZPG_Grid_CountNeighourRingsAt(grid, x, y);
+        count = ZPG_Grid_CountNeighourRingsAt(grid, x, y, &iterations);
         ZPG_Grid_SetValueWithStencil(result, x, y, (u8)count, NULL);
         break;
         case ZPG_GEOMETRY_TYPE_SOLID:
@@ -308,6 +309,25 @@ static i32 ZPG_PlaceScatteredEntities(ZPGGrid* grid, i32* seed)
     ZPG_Free(emptyTiles);
     ZPG_Free(objectives);
     return 0;
+}
+
+static i32 ZPG_GenerateEntites(ZPGPresetCfg* cfg, ZPGGrid* target)
+{
+    
+    if ((cfg->flags & ZPG_API_FLAG_NO_ENTITIES) != 0)
+    {
+        return NO;
+    }
+    i32 bVerbose = (cfg->flags & ZPG_API_FLAG_PRINT_WORKING);
+    if (bVerbose)
+    { printf("-- Grid Loaded --\ncreating entities\n"); }
+
+    ZPGGrid* entData = ZPG_CreateGrid(target->width, target->height);
+    ZPG_Grid_CountNeighourRings(target, entData, ZPG_CELL_TYPE_WALL, bVerbose);
+    
+    ZPG_AnalyseForEntities(target, entData, &cfg->seed);
+    ZPG_PlaceScatteredEntities(target, &cfg->seed);
+    return NO;
 }
 
 #endif // ZPG_ENTITIES_H

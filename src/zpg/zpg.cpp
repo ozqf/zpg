@@ -6,6 +6,9 @@ Research material
 https://www.gamasutra.com/blogs/HermanTulleken/20161005/282629/Algorithms_for_making_more_interesting_mazes.php
 https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon/
 
+Noise and non-uniform random numbers
+https://www.redblobgames.com/articles/noise/introduction.html
+
 */
 
 // Internally shared functionality
@@ -29,7 +32,7 @@ https://www.boristhebrave.com/2019/07/28/dungeon-generation-in-enter-the-gungeon
 #include "zpg_paint/zpg_grid_walk_and_fill.h"
 #include "zpg_paint/zpg_cave_gen.h"
 #include "zpg_path/zpg_path.h"
-#include "zpg_entities.h"
+#include "zpg_entities/zpg_entities.h"
 
 // Combined generation functions
 #include "zpg_presets/zpg_build_prefab.h"
@@ -199,16 +202,9 @@ void ZPG_RunPresetCLI(
         printf("ERROR - no grid was returned...\n");
         return;
     }
-    if ((cfg.flags & ZPG_API_FLAG_NO_ENTITIES) == 0)
-    {
-        if (cfg.flags & ZPG_API_FLAG_PRINT_WORKING)
-        { printf("-- Grid Loaded --\ncreating entities\n"); }
-        ZPGGrid* entData = ZPG_CreateGrid(grid->width, grid->height);
-        ZPG_Grid_CountNeighourRings(grid, entData);
-        
-        ZPG_AnalyseForEntities(grid, entData, &cfg.seed);
-        ZPG_PlaceScatteredEntities(grid, &cfg.seed);
-    }
+
+    ZPG_GenerateEntites(&cfg, grid);
+
     if (cfg.flags & ZPG_API_FLAG_PRINT_RESULT)
     {
         ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0);
@@ -219,7 +215,11 @@ void ZPG_RunPresetCLI(
     }
     if (cfg.imageOutput != NULL)
     {
-        ZPG_WriteGridAsPNG(grid, cfg.imageOutput);
+        ZPG_WriteGridAsPNG(grid, cfg.imageOutput, NO);
+    }
+    if (cfg.pictureOutput != NULL)
+    {
+        ZPG_WriteGridAsPNG(grid, cfg.pictureOutput, YES);
     }
 
     if (resultPtr != NULL 

@@ -47,6 +47,7 @@ static void ZPG_AddCellType(
     u8 geometryType,
     u8 category,
     u8 asciChar,
+    ZPGColour colour,
     char* label
     )
 {
@@ -55,6 +56,7 @@ static void ZPG_AddCellType(
     def->geometryType = geometryType;
     def->category = category;
     def->asciChar = asciChar;
+    def->colour = colour;
     def->label = label;
     //printf("Init cell def %d (%s) geo %d, cat %d, display %c\n",
     //    index, label, geometryType, category, asciChar);
@@ -65,20 +67,20 @@ static void ZPG_InitCellTypes()
 {
     memset(g_types, 0, sizeof(g_types));
     ZPG_AddCellType(ZPG_CELL_TYPE_PATH, ZPG_GEOMETRY_TYPE_PATH,
-        ZPG_CELL_CATEGORY_NONE, ' ', "Path");
+        ZPG_CELL_CATEGORY_NONE, ' ', ZPG_DARK_GREY, "Path");
     ZPG_AddCellType(ZPG_CELL_TYPE_WALL, ZPG_GEOMETRY_TYPE_SOLID,
-        ZPG_CELL_CATEGORY_NONE, '#', "Solid");
+        ZPG_CELL_CATEGORY_NONE, '#', ZPG_LIGHT_GREY, "Solid");
     ZPG_AddCellType(ZPG_CELL_TYPE_VOID, ZPG_GEOMETRY_TYPE_VOID,
-        ZPG_CELL_CATEGORY_NONE, '.', "Void");
+        ZPG_CELL_CATEGORY_NONE, '.', ZPG_BLUE, "Void");
 
     ZPG_AddCellType(ZPG_CELL_TYPE_START, ZPG_GEOMETRY_TYPE_PATH,
-        ZPG_CELL_CATEGORY_OBJECTIVE, 's' , "Start");
+        ZPG_CELL_CATEGORY_OBJECTIVE, 's', ZPG_GREEN, "Start");
     ZPG_AddCellType(ZPG_CELL_TYPE_END, ZPG_GEOMETRY_TYPE_PATH,
-        ZPG_CELL_CATEGORY_OBJECTIVE, 'e' , "End");
+        ZPG_CELL_CATEGORY_OBJECTIVE, 'e', ZPG_GREEN, "End");
     ZPG_AddCellType(ZPG_CELL_TYPE_KEY, ZPG_GEOMETRY_TYPE_PATH,
-        ZPG_CELL_CATEGORY_OBJECTIVE, 'k' , "Key");
+        ZPG_CELL_CATEGORY_OBJECTIVE, 'k', ZPG_GREEN, "Key");
     ZPG_AddCellType(ZPG_CELL_TYPE_ENEMY, ZPG_GEOMETRY_TYPE_PATH,
-        ZPG_CELL_CATEGORY_ENEMY, 'x' , "Enemy");
+        ZPG_CELL_CATEGORY_ENEMY, 'x', ZPG_RED, "Enemy");
 
 
     //printf("%d Cell Types defined\n", g_numTypes);
