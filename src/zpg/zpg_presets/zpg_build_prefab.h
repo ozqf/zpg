@@ -8,6 +8,7 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
     //i32 w = 48, h = 48;
     i32 w = 96, h = 48;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
+    ZPG_Grid_SetAll(grid, 1);
     ZPGGrid* tagGrid = ZPG_CreateGrid(w, h);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
     i32 gridHalfWidth = w / 2, gridHalfHeight = h / 2;
