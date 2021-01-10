@@ -245,7 +245,16 @@ static void ZPG_Grid_CalcStats(ZPGGrid* grid)
         }
     }
 }
-
+/*
+static i32 ZPG_Grid_ValueDiff(ZPGGrid* grid, i32 x, i32 y, u8 queryValue)
+{
+    if (!ZPG_GRID_POS_SAFE(grid, x, y)) { return 0; }
+    u8 val = ZPG_GRID_GET(grid, x, y);
+    i32 diff = val - queryValue;
+    if (diff < 0) { diff = -diff; }
+    return diff;
+}
+*/
 static ZPGNeighbours ZPG_Grid_CountNeighboursAt(
 	ZPGGrid* grid, i32 x, i32 y)
 {
@@ -561,6 +570,19 @@ static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)
     ZPG_Grid_SetAll(stencil, ZPG_STENCIL_TYPE_EMPTY);
     ZPG_DrawOuterBorder(stencil, NULL, ZPG_STENCIL_TYPE_FULL);
     return stencil;
+}
+
+static void ZPG_Grid_SetAllWithStencil(ZPGGrid* target, ZPGGrid* stencil, u8 valToSet)
+{
+    ZPG_PARAM_NULL(target, )
+    ZPG_PARAM_NULL(stencil, )
+    ZPG_PARAM_GRIDS_EQUAL_SIZE(target, stencil, )
+    ZPG_BEGIN_GRID_ITERATE(target)
+        if (ZPG_GRID_GET(stencil, x, y) == 0)
+        {
+            ZPG_GRID_SET(target, x, y, valToSet);
+        }
+    ZPG_END_GRID_ITERATE
 }
 
 #endif // ZPG_GRID_H

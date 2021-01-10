@@ -18,6 +18,13 @@ static i32 ZPG_RandomDir(i32* seed)
     else { return 1; }
 }
 
+static i32 ZPG_WithinThreshold(u8 val, u8 queryValue, u8 threshold)
+{
+    i32 diff = queryValue - val;
+    //if (diff < 0) { diff = -diff; }
+    return (diff >= threshold);
+}
+
 static ZPGPoint ZPG_RandomGridCellOutsideStencil(ZPGGrid* stencil, i32* seed)
 {
     i32 bBadPos = YES;

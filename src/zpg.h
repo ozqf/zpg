@@ -227,7 +227,7 @@ struct ZPGGridEntityStats
 
 #define ZPG_GRID_SET(gridPtr, gridPosX, gridPosY, valToWrite) \
 { if ZPG_IS_POS_SAFE(gridPtr->width, gridPtr->height, gridPosX, gridPosY) \
-{ gridPtr->cells[ZPG_POS_TO_INDEX(grid->width, gridPosX, gridPosY)] = valToWrite; }}
+{ gridPtr->cells[ZPG_POS_TO_INDEX(gridPtr->width, gridPosX, gridPosY)] = valToWrite; }}
 
 #define ZPG_BGRID_GET(byteGridPtr, gridPosX, gridPosY) \
 byteGridPtr->cells[ZPG_POS_TO_INDEX(byteGridPtr->width, gridPosX, gridPosY)]
