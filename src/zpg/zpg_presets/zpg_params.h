@@ -122,7 +122,16 @@ static void ZPG_InitParams()
     end = (u8*)&cfg.height;
     param->data.integerOffsetBytes = (i32)(end - start);
     param->helpText = "-h Result height in pixels/characters. If not specified a default is used\n";
+	//
 
+	param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_INTEGER;
+    param->asciChar = 'r';
+    start = (u8*)&cfg;
+    end = (u8*)&cfg.roomCount;
+    param->data.integerOffsetBytes = (i32)(end - start);
+    param->helpText = "-r Intended room count\n";
+	
     param = &g_paramTypes[g_numParamTypes++];
     param->type = ZPG_PARAM_TYPE_FUNCTION;
     param->asciChar = 'a';

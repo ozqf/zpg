@@ -111,6 +111,7 @@ struct ZPGPresetCfg
     i32 flags;
     i32 width;
     i32 height;
+	i32 roomCount;
     char* asciOutput;
     char* imageOutput;
     char* pictureOutput;
