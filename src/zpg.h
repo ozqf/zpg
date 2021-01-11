@@ -70,52 +70,16 @@ typedef int ZPGError;
 // Data types
 //////////////////////////////////////////
 
-#pragma pack(push, 1)
-union ZPGColour
-{
-	u8 arr[4];
-	struct
-	{
-		u8 r;
-        u8 g;
-        u8 b;
-        u8 a;
-	} channels;
-};
-#pragma pack(pop)
-#define ZPG_BLACK { 0, 0, 0, 255 }
-#define ZPG_WHITE { 255, 255, 255, 255 }
-#define ZPG_DARK_GREY { 50, 50, 50, 255 }
-#define ZPG_LIGHT_GREY { 125, 125, 125, 255 }
-#define ZPG_BLUE { 0, 0, 255, 255 }
-#define ZPG_GREEN { 0, 255, 0, 255 }
-#define ZPG_RED { 255, 0, 0, 255 }
-
-struct ZPGNeighbours
-{
-	i32 count;
-	u32 flags;
-};
-
-struct ZPGCellTypeDef
-{
-    u8 value;
-    // Solid/floor/void
-    u8 geometryType;
-    // for grouping - eg none/enemy/objective/trap etc
-    u8 category;
-    // char to write when saving grid as text
-    u8 asciChar;
-    // colour to draw when saving in picture mode
-    ZPGColour colour;
-    // display name
-    char* label;
-};
-
 struct ZPGPoint
 {
     i32 x;
     i32 y;
+};
+
+struct ZPGPointPair
+{
+    ZPGPoint a;
+    ZPGPoint b;
 };
 
 struct ZPGRect
@@ -132,12 +96,61 @@ struct ZPGRect
     }
 };
 
+struct ZPGNeighbours
+{
+	i32 count;
+	u32 flags;
+};
+
+#pragma pack(push, 1)
+union ZPGColour
+{
+	u8 arr[4];
+	struct
+	{
+		u8 r;
+        u8 g;
+        u8 b;
+        u8 a;
+	} channels;
+};
+#pragma pack(pop)
+
+#define ZPG_BLACK { 0, 0, 0, 255 }
+#define ZPG_WHITE { 255, 255, 255, 255 }
+#define ZPG_DARK_GREY { 50, 50, 50, 255 }
+#define ZPG_LIGHT_GREY { 125, 125, 125, 255 }
+#define ZPG_BLUE { 0, 0, 255, 255 }
+#define ZPG_GREEN { 0, 255, 0, 255 }
+#define ZPG_RED { 255, 0, 0, 255 }
+
+struct ZPGCellTypeDef
+{
+    u8 value;
+    // Solid/floor/void
+    u8 geometryType;
+    // for grouping - eg none/enemy/objective/trap etc
+    u8 category;
+    // char to write when saving grid as text
+    u8 asciChar;
+    // colour to draw when saving in picture mode
+    ZPGColour colour;
+    // display name
+    char* label;
+};
+
 struct ZPGEntity
 {
     ZPGPoint pos;
     i32 degrees;
     i32 type;
     i32 tag;
+};
+
+struct ZPGGridEntityStats
+{
+    i32 numFloorTiles;
+    i32 numObjectiveTags;
 };
 
 struct ZPGWalkCfg
@@ -201,11 +214,6 @@ union ZPGCell
 };
 #pragma pack(pop)
 #endif
-struct ZPGGridEntityStats
-{
-    i32 numFloorTiles;
-    i32 numObjectiveTags;
-};
 
 #define ZPG_IS_POS_SAFE(gridWidthI32, gridHeightI32, gridPosX, gridPosY) \
 (gridPosX >= 0 && gridPosX < gridWidthI32 && gridPosY >= 0 && gridPosY < gridHeightI32)

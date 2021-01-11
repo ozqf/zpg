@@ -59,7 +59,8 @@ static i32 ZPG_CheckPointsConnected(ZPGPoint a, ZPGPoint b)
     return NO;
 }
 
-static i32 ZPG_Rooms_FindConnections(ZPGRoom* a, ZPGRoom* b, i32 bVerbose)
+static i32 ZPG_Rooms_FindConnectionsBetweenRooms(
+    ZPGRoom* a, ZPGRoom* b, i32 bVerbose)
 {
     i32 count = 0;
     for (i32 i = 0; i < a->numPoints; ++i)
@@ -95,17 +96,26 @@ static i32 ZPG_Rooms_FindConnectionsForRoom(
     i32 numPairs = 0;
     //ZPGIndexPair* pairs = (ZPGIndexPair*)ZPG_Alloc(sizeof(ZPGIndexPair) * maxPairs);
     *connections = ZPG_ALLOC_ARRAY(i32, maxPairs, ZPG_MEM_TAG_INTS);
-    //printf("Find connections for room %d (%d) points\n",
-    //    queryRoomIndex, room->numPoints);
+    if (bVerbose)
+    {
+        printf("Find connections for room %d (%d) points\n",
+            queryRoomIndex, room->numPoints);
+    }
     for (i32 i = 0; i < numRooms; ++i)
     {
         if (i == queryRoomIndex) { continue; }
+        if (bVerbose)
+        {
+            printf("Checking connections between rooms %d and %d\n",
+                room->id, rooms[i].id);
+        }
         // grab query room area
         //ZPGPoint* queryPoints = rooms[i].points;
         //i32 numQueryPoints = rooms[i].numPoints;
         if (rooms[i].tileType == 0) { continue; }
         // Find ajoining rooms
-        i32 numRoomConnections = ZPG_Rooms_FindConnections(room, &rooms[i], bVerbose);
+        i32 numRoomConnections = ZPG_Rooms_FindConnectionsBetweenRooms(
+            room, &rooms[i], bVerbose);
         if (numRoomConnections > 0)
         {
             // add pair if necessary
@@ -122,6 +132,122 @@ static i32 ZPG_Rooms_FindConnectionsForRoom(
         }
     }
     return numPairs;
+}
+
+static void ZPG_ConnectRooms(ZPGGrid* roomVolumes, ZPGRoom* rooms, i32 numRooms, i32 bVerbose)
+{
+    if (bVerbose)
+    {
+        printf("Build room connections for %d rooms\n", numRooms);
+    }
+
+    for (i32 i = 0; i < numRooms; ++i)
+    {
+        ZPGRoom* r = &rooms[i];
+        printf("Check room %d\n", r->id);
+        if (r->tileType == 0) { continue; }
+        i32* connections;
+        r->numConnections = ZPG_Rooms_FindConnectionsForRoom(
+            rooms, numRooms, i, &connections, bVerbose);
+        r->connections = connections;
+        
+        if (bVerbose)
+        {
+		    printf("%d has %d connections\n", i, r->numConnections);
+        }
+    }
+}
+
+static void ZPG_FindAllRoomConnectionPoints(
+    ZPGGrid* roomVolumes, ZPGRoom* rooms, i32 numRooms, i32 bVerbose)
+{
+    // > for every point in each room, search other rooms.
+    // ? if a connection entry already exists for these two
+    // cells, discard
+    for (i32 i = 0; i < numRooms; ++i)
+    {
+        ZPGRoom* r = &rooms[i];
+        for (i32 j = 0; j < r->numPoints; ++j)
+        {
+            
+        }
+    }
+}
+
+/**
+ * Generate rooms by flood filling to group adjacent cells
+ * of the same value in the 'roomsSeed' grid
+ * 
+ * Returns number of rooms found
+ */
+static i32 ZPG_Grid_FindRooms(
+    ZPGGrid* roomsSeed,
+    ZPGGrid* tagGrid,
+    ZPGRoom** resultRooms)
+{
+    ZPGPoint* points;
+    i32 maxPoints = ZPG_Grid_CreatePointsArray(roomsSeed, &points);
+    ZPGRoom* rooms = (ZPGRoom*)ZPG_Alloc(sizeof(ZPGRoom) * maxPoints, ZPG_MEM_TAG_ROOMS);
+
+    for (i32 i = 0; i < maxPoints; ++i)
+    {
+        rooms[i] = {};
+    }
+    i32 numRooms = 0;
+
+    ZPG_BEGIN_GRID_ITERATE(roomsSeed)
+        //cell = ZPG_Grid_GetCellAt(grid, x, y);
+        // skip if cell is marked
+        if (ZPG_GRID_GET(tagGrid, x, y) > 0) { continue; }
+        // start a room on this tile
+        u8 val = ZPG_GRID_GET(roomsSeed, x, y);
+        // flood search for attached cells
+        i32 numPoints = ZPG_Grid_FloodSearch(roomsSeed, tagGrid, x, y, points, maxPoints);
+        // tag flood searched cells to avoid overwriting
+        for (i32 j = 0; j < numPoints; ++j)
+        {
+            ZPG_GRID_SET(tagGrid, points[j].x, points[j].y, 1);
+            // ZPGCell* pointCell = ZPG_Grid_GetCellAt(grid, points[j].x, points[j].y);
+            // pointCell->tile.tag = 1;
+        }
+        // alloc a room and copy points
+        ZPGRoom* room = &rooms[numRooms];
+        numRooms++;
+        room->id = numRooms;
+        // default weight for now
+        room->weight = 1;
+        room->tileType = val;
+        //room->tileType = cell->tile.type;
+        room->points = ZPG_AllocAndCopyPoints(points, numPoints);
+        room->numPoints = numPoints;
+        // printf("Did room %d, %d tiles, tag grid:\n", nextRoom, numPoints);
+        // ZPG_Grid_PrintValues(tagGrid, YES);
+
+    ZPG_END_GRID_ITERATE
+    printf("Free points\n");
+    ZPG_Free(points);
+    *resultRooms = rooms;
+    return numRooms;
+}
+
+static void ZPG_ListRooms(ZPGRoom* rooms, i32 numRooms)
+{
+    printf("-- List (%d) rooms and connections --\n", numRooms);
+	for (i32 i = 0; i < numRooms; ++i)
+	{
+		ZPGRoom* room = &rooms[i];
+		if (room->tileType == 0) { continue; }
+		printf("Room %d. type: %d. cells: %d connections (%d):",
+			room->id, room->tileType, room->numPoints, room->numConnections);
+		if (room->numConnections == 0) { printf("\n"); continue; }
+        else { printf("\n\t"); }
+		for (i32 j = 0; j < room->numConnections; ++j)
+		{
+			i32 index = room->connections[j];
+			printf(" to room %d (type %d), ", rooms[index].id, rooms[index].tileType);
+		}
+		printf("\n");
+	}
 }
 
 // Returns 1 if tile was altered
@@ -236,12 +362,10 @@ static i32 ZPG_Rooms_IsPointOtherRoom(
  * build a new grid of bitmasks storing connections to other rooms.
  */
 static ZPGGrid* ZPG_Rooms_BuildConnectionsGrid(
-	ZPGGrid* src, ZPGRoom* rooms, i32 numRooms)
+	ZPGGrid* src, ZPGRoom* rooms, i32 numRooms, i32 bVerbose)
 {
     ZPGGrid* result = ZPG_CreateGrid(src->width, src->height);
-    printf("Create bitmask grid\n");
     ZPG_Grid_Clear(result);
-    //ZPG_Grid_SetCellTypeAll(result, 0);
     
     // iterate rooms
     for (i32 i = 0; i < numRooms; ++i)
@@ -270,7 +394,12 @@ static ZPGGrid* ZPG_Rooms_BuildConnectionsGrid(
             result->cells[tileIndex] = flags;
         }
     }
-    
+    if (bVerbose)
+    {
+        printf("Created connections bitmask\n");
+        ZPG_Grid_PrintValues(result, 3, NO);
+    }
+
     return result;
 }
 

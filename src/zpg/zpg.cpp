@@ -123,6 +123,8 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
     ZPG_AddPresetFunction(ZPG_Test_WalkBetweenPrefabs, "Offset path between two prefabs");
     ZPG_AddPresetFunction(ZPG_Preset_PrefabsLinesCaves, "Offset path around four prefabs");
     ZPG_AddPresetFunction(ZPG_Preset_RoomTreeTest, "Test room tree generate");
+    ZPG_AddPresetFunction(ZPG_Preset_TestConnectRooms, "Test room volume connections");
+    // 15
     ZPG_AddPresetFunction(ZPG_TestCaveLayers, "Test Cave Layering");
 
     //printf("Init complete - %d allocs\n", ZPG_GetNumAllocs());
