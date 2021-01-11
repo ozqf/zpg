@@ -147,7 +147,6 @@ struct ZPGParam
 static i32 g_numParamTypes = 0;
 static ZPGParam g_paramTypes[64];
 
-
 //////////////////////////////////////////
 // Room datatypes
 //////////////////////////////////////////
@@ -197,17 +196,9 @@ static void ZPG_DrawOuterBorder(ZPGGrid* grid, ZPGGrid* stencil, u8 typeToPaint)
 
 // Grid manipulation
 static i32 ZPG_Grid_PositionToIndexSafe(ZPGGrid* grid, i32 x, i32 y);
-// static ZPGCell* ZPG_Grid_GetCellAt(ZPGGrid* grid, i32 x, i32 y);
-//static ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y);
 static void ZPG_Grid_Clear(ZPGGrid* grid);
 static i32 ZPG_Grid_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y);
 static ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y);
-// static i32 ZPG_Grid_GetTagAt(ZPGGrid* grid, i32 x, i32 y);
-// static void ZPG_Grid_SetValueWithStencil(ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGGrid* stencil);
-// static i32 ZPG_Grid_SetCellTypeGeometry(ZPGGrid* grid, i32 x, i32 y, u8 typeToPaint, u8 geometryType);
-// static void ZPG_Grid_SetCellTypeAll(ZPGGrid* grid, u8 type);
-// static void ZPG_Grid_ClearAllTags(ZPGGrid* grid);
-// static void ZPG_Grid_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel);
 static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original);
 static void ZPG_Grid_CalcStats(ZPGGrid* grid);
 static ZPGNeighbours ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y);
