@@ -99,7 +99,7 @@ static void ZPG_FreeRooms(ZPGRoom* rooms, i32 numRooms)
     {
         ZPG_Free(rooms[i].points);
         ZPG_Free(rooms[i].connections);
-        ZPG_Free(rooms[i].doorways);
+        //ZPG_Free(rooms[i].doorways);
     }
     ZPG_Free(rooms);
 }

@@ -35,13 +35,26 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     ZPG_Grid_SetAll(tagGrid, 0);
     ZPGRoom* rooms = NULL;
     i32 numRooms = ZPG_Grid_FindRooms(roomVolumes, tagGrid, &rooms);
+	/*
     ZPG_ConnectRooms(roomVolumes, rooms, numRooms, bVerbose);
+	*/
+	ZPGDoorwaySet doors = ZPG_FindAllRoomConnectionPoints(
+		roomVolumes, rooms, numRooms, bVerbose);
     if (bVerbose)
     {
         ZPG_ListRooms(rooms, numRooms);
+		i32 l = doors.numDoors;
+		for (i32 i = 0; i < l; ++i)
+		{
+			ZPGDoorway* d = &doors.doors[i];
+			printf("Door between %d and %d, cells %d, %d to %d, %d\n",
+				d->idA, d->idB, d->posA.x, d->posA.y, d->posB.x, d->posB.y);
+		}
     }
-    
-    return roomVolumes;
+    ZPGGrid* result = ZPG_Grid_CreateClone(roomVolumes);
+	ZPG_FreeGridStack(stack);
+	ZPG_Free(doors.doors);
+    return result;
 }
 
 static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)

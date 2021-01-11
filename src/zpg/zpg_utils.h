@@ -18,6 +18,17 @@ static i32 ZPG_RandomDir(i32* seed)
     else { return 1; }
 }
 
+static i32 ZPG_ArePointsCardinalNeighbours(ZPGPoint a, ZPGPoint b)
+{
+	i32 diffX = b.x - a.x;
+	if (diffX < 0) { diffX = -diffX; }
+	i32 diffY = b.y - a.y;
+	if (diffY < 0) { diffY = -diffY; }
+	if (diffX == 1 && diffY == 0) { return YES; }
+	if (diffY == 1 && diffX == 0) { return YES; }
+	return NO;
+}
+
 static i32 ZPG_WithinThreshold(u8 val, u8 queryValue, u8 threshold)
 {
     i32 diff = queryValue - val;

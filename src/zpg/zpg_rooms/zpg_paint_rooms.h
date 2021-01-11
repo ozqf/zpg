@@ -158,20 +158,79 @@ static void ZPG_ConnectRooms(ZPGGrid* roomVolumes, ZPGRoom* rooms, i32 numRooms,
     }
 }
 
-static void ZPG_FindAllRoomConnectionPoints(
+static i32 ZPG_IndexOfDoorByCells(
+	ZPGDoorway* doors, i32 numDoors, ZPGPoint queryA, ZPGPoint queryB)
+{
+	for (i32 i = 0; i < numDoors; ++i)
+	{
+		ZPGPoint doorA = doors[i].posA;
+		ZPGPoint doorB = doors[i].posB;
+		if (ZPG_ArePointsEqual(doorA, queryA) && ZPG_ArePointsEqual(doorB, queryB))
+		{
+			return i;
+		}
+		if (ZPG_ArePointsEqual(doorB, queryA) && ZPG_ArePointsEqual(doorA, queryB))
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
+static ZPGDoorwaySet ZPG_FindAllRoomConnectionPoints(
     ZPGGrid* roomVolumes, ZPGRoom* rooms, i32 numRooms, i32 bVerbose)
 {
-    // > for every point in each room, search other rooms.
-    // ? if a connection entry already exists for these two
-    // cells, discard
+    // > for every point in each room, search every point
+	//		in other rooms.
+    // > if a connection entry already exists for these two
+    // 		cells, 
+	ZPGDoorwaySet doorSet = {};
+	// 
+	doorSet.maxDoors = numRooms * numRooms * numRooms;
+	doorSet.doors = (ZPGDoorway*)ZPG_Alloc(
+		sizeof(ZPGDoorway) * doorSet.maxDoors, ZPG_MEM_TAG_DOORS);
+	doorSet.numDoors = 0;
+	if (bVerbose)
+	{
+		printf("Find all doorways between %d rooms (%d doors max)\n",
+			numRooms, doorSet.maxDoors);
+	}
     for (i32 i = 0; i < numRooms; ++i)
     {
         ZPGRoom* r = &rooms[i];
         for (i32 j = 0; j < r->numPoints; ++j)
         {
-            
+            ZPGPoint a = r->points[j];
+			for (i32 k = 0; k < numRooms; ++k)
+			{
+				if (i == k) { continue; }
+				ZPGRoom* other = &rooms[k];
+				for (i32 l = 0; l < other->numPoints; ++l)
+				{
+					ZPGPoint b = other->points[l];
+					if (!ZPG_ArePointsCardinalNeighbours(a, b))
+					{
+						continue;
+					}
+					i32 current = ZPG_IndexOfDoorByCells(
+						doorSet.doors, doorSet.numDoors, a, b);
+					if (current >= 0)
+					{
+						continue;
+					}
+					printf("Doorway connection between %d and %d\n",
+						r->id, other->id);
+					ZPGDoorway* door = &doorSet.doors[doorSet.numDoors];
+					doorSet.numDoors++;
+					door->idA = r->id;
+					door->idB = other->id;
+					door->posA = a;
+					door->posB = b;
+				}
+			}
         }
     }
+	return doorSet;
 }
 
 /**

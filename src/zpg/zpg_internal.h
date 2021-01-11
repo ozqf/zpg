@@ -160,11 +160,18 @@ struct ZPGIndexPair
 struct ZPGDoorway
 {
     // Ids of rooms
-    i32 insideId;
-    i32 outsideId;
+    i32 idA;
+    i32 idB;
     // positions of tiles
-    ZPGPoint inside;
-    ZPGPoint outside;
+    ZPGPoint posA;
+    ZPGPoint posB;
+};
+
+struct ZPGDoorwaySet
+{
+	ZPGDoorway* doors;
+	i32 numDoors;
+	i32 maxDoors;
 };
 
 struct ZPGRoom
@@ -177,8 +184,8 @@ struct ZPGRoom
     i32 numPoints;
     i32* connections;
     i32 numConnections;
-    ZPGDoorway* doorways;
-    i32 numDoorways;
+    //ZPGDoorway* doorways;
+    //i32 numDoorways;
 };
 
 //////////////////////////////////////////
