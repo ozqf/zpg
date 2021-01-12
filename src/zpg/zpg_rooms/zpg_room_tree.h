@@ -30,25 +30,38 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     }
 
     ////////////////////////////////////////////////////////
-    // build room connections tree
+    // find rooms by flood fill
     ZPGGrid* tagGrid = stack->grids[tagGridIndex];
     ZPG_Grid_SetAll(tagGrid, 0);
     ZPGRoom* rooms = NULL;
     i32 numRooms = ZPG_Grid_FindRooms(roomVolumes, tagGrid, &rooms);
+
+    // find all potential doorways
 	ZPGDoorwaySet doors = ZPG_FindAllRoomConnectionPoints(
 		roomVolumes, rooms, numRooms, bVerbose);
     if (bVerbose)
     {
         ZPG_ListRooms(rooms, numRooms);
-		i32 l = doors.numDoors;
+        printf("Door to door pairs:\n");
+        i32 l = doors.numPairs;
+        for (i32 i = 0; i < l; ++i)
+        {
+            printf("%d: Room Id %d to %d\n",
+                i + 1, doors.roomPairs[i].a, doors.roomPairs[i].b);
+        }
+		l = doors.numDoors;
 		for (i32 i = 0; i < l; ++i)
 		{
 			ZPGDoorway* d = &doors.doors[i];
-			printf("Door between %d and %d, cells %d, %d to %d, %d\n",
-				d->idA, d->idB, d->posA.x, d->posA.y, d->posB.x, d->posB.y);
+			printf("%d: Door between %d and %d, cells %d, %d to %d, %d\n",
+				i + 1, d->idA, d->idB, d->posA.x, d->posA.y, d->posB.x, d->posB.y);
 		}
     }
-    //ZPGGrid* result = ZPG_Grid_CreateClone(roomVolumes);
+    
+    // select one doorway per connection
+    
+
+    ZPGGrid* result = ZPG_Grid_CreateClone(roomVolumes);
     printf("Cleanup...\n");
     printf("Free rooms\n");
     ZPG_FreeRooms(rooms, numRooms);
@@ -56,7 +69,7 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
 	ZPG_Free(doors.doors);
     printf("Free grid stack\n");
 	ZPG_FreeGridStack(stack);    
-    return NULL;
+    return result;
 }
 
 static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)

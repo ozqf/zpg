@@ -38,7 +38,7 @@ static void ZPG_ZeroOutLoneValues(ZPGGrid* grid)
  */
 #if 0
 static i32 ZPG_FindIndexPair(
-    ZPGIndexPair* pairs, i32 numPairs, ZPGIndexPair query)
+    ZPGInt32Pair* pairs, i32 numPairs, ZPGInt32Pair query)
 {
     for (i32 i = 0; i < numPairs; ++i)
     {
@@ -94,7 +94,7 @@ static i32 ZPG_Rooms_FindConnectionsForRoom(
     ZPGRoom* room = &rooms[queryRoomIndex];
     const i32 maxPairs = 16;
     i32 numPairs = 0;
-    //ZPGIndexPair* pairs = (ZPGIndexPair*)ZPG_Alloc(sizeof(ZPGIndexPair) * maxPairs);
+    //ZPGInt32Pair* pairs = (ZPGInt32Pair*)ZPG_Alloc(sizeof(ZPGInt32Pair) * maxPairs);
     *connections = ZPG_ALLOC_ARRAY(i32, maxPairs, ZPG_MEM_TAG_INTS);
     if (bVerbose)
     {
@@ -186,12 +186,21 @@ static ZPGDoorwaySet ZPG_FindAllRoomConnectionPoints(
     // 		cells, 
 	ZPGDoorwaySet doorSet = {};
 	// 
-    // i32 w = roomVolumes.width;
-    // i32 h = roomVolumes.height;
-	doorSet.maxDoors = numRooms * numRooms * numRooms;
+    i32 w = roomVolumes->width;
+    i32 h = roomVolumes->height;
+
+    // TODO: grow array when maxed out. also use a hash table!
+	doorSet.maxDoors = w * h * 2;
 	doorSet.doors = (ZPGDoorway*)ZPG_Alloc(
 		sizeof(ZPGDoorway) * doorSet.maxDoors, ZPG_MEM_TAG_DOORS);
 	doorSet.numDoors = 0;
+
+    // TODO: also just grow this array and use a hash table!
+    doorSet.maxPairs = numRooms * numRooms;
+    doorSet.numPairs = 0;
+    doorSet.roomPairs = (ZPGInt32Pair*)ZPG_Alloc(
+        sizeof(ZPGInt32Pair) * doorSet.maxPairs, ZPG_MEM_TAG_INDEX_PAIRS);
+
 	if (bVerbose)
 	{
 		printf("Find all doorways between %d rooms (%d doors max)\n",
@@ -199,17 +208,17 @@ static ZPGDoorwaySet ZPG_FindAllRoomConnectionPoints(
 	}
     for (i32 i = 0; i < numRooms; ++i)
     {
-        ZPGRoom* r = &rooms[i];
-        for (i32 j = 0; j < r->numPoints; ++j)
+        ZPGRoom* roomA = &rooms[i];
+        for (i32 j = 0; j < roomA->numPoints; ++j)
         {
-            ZPGPoint a = r->points[j];
+            ZPGPoint a = roomA->points[j];
 			for (i32 k = 0; k < numRooms; ++k)
 			{
 				if (i == k) { continue; }
-				ZPGRoom* other = &rooms[k];
-				for (i32 l = 0; l < other->numPoints; ++l)
+				ZPGRoom* roomB = &rooms[k];
+				for (i32 l = 0; l < roomB->numPoints; ++l)
 				{
-					ZPGPoint b = other->points[l];
+					ZPGPoint b = roomB->points[l];
 					if (!ZPG_ArePointsCardinalNeighbours(a, b))
 					{
 						continue;
@@ -223,14 +232,42 @@ static ZPGDoorwaySet ZPG_FindAllRoomConnectionPoints(
                     if (bVerbose)
                     {
                         printf("Doorway connection between %d and %d\n",
-						    r->id, other->id);
+						    roomA->id, roomB->id);
                     }
 					ZPGDoorway* door = &doorSet.doors[doorSet.numDoors];
 					doorSet.numDoors++;
-					door->idA = r->id;
-					door->idB = other->id;
+					door->idA = roomA->id;
+					door->idB = roomB->id;
 					door->posA = a;
 					door->posB = b;
+
+                    // Check if this room to room pair has been recorded
+                    i32 pairIndex = -1;
+                    for (i32 m = 0; m < doorSet.numPairs; ++m)
+                    {
+                        ZPGInt32Pair* pair = &doorSet.roomPairs[m];
+                        if ((pair->a == door->idA && pair->b == door->idB)
+                            || (pair->a == door->idB && pair->b == door->idA))
+                        {
+                            pairIndex = m;
+                            break;
+                        }
+                    }
+                    if (pairIndex == -1)
+                    {
+                        if (doorSet.numPairs < doorSet.maxPairs)
+                        {
+                            ZPGInt32Pair* pair = &doorSet.roomPairs[doorSet.numPairs];
+                            pair->a = door->idA;
+                            pair->b = door->idB;
+                            doorSet.numPairs += 1;
+                        }
+                        else
+                        {
+                            printf("SKIP ROOM PAIR - no capacity\n");
+                        }
+                        
+                    }
 
                     if (doorSet.numDoors >= doorSet.maxDoors)
                     {
@@ -238,9 +275,9 @@ static ZPGDoorwaySet ZPG_FindAllRoomConnectionPoints(
                             doorSet.numDoors, doorSet.maxDoors);
                         // drop out of loops
                         i = numRooms;
-                        j = r->numPoints;
+                        j = roomA->numPoints;
                         k = numRooms;
-                        l = other->numPoints;
+                        l = roomB->numPoints;
                     }
 				}
 			}
@@ -248,7 +285,8 @@ static ZPGDoorwaySet ZPG_FindAllRoomConnectionPoints(
     }
     if (bVerbose)
     {
-        printf("\tFound %d doorways\n", doorSet.numDoors);
+        printf("\tFound %d room pairs and %d doorways\n",
+            doorSet.numPairs, doorSet.numDoors);
     }
 	return doorSet;
 }

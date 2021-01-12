@@ -24,6 +24,7 @@
 #define ZPG_MEM_TAG_PATHNODES 9
 #define ZPG_MEM_TAG_ENTITIES 10
 #define ZPG_MEM_TAG_BYTE_GRID 11
+#define ZPG_MEM_TAG_INDEX_PAIRS 12
 
 // Standard lib calls
 #define ZPG_STRLEN(ptrToCharArray) \
@@ -151,7 +152,7 @@ static ZPGParam g_paramTypes[64];
 // Room datatypes
 //////////////////////////////////////////
 
-struct ZPGIndexPair
+struct ZPGInt32Pair
 {
     i32 a;
     i32 b;
@@ -172,6 +173,10 @@ struct ZPGDoorwaySet
 	ZPGDoorway* doors;
 	i32 numDoors;
 	i32 maxDoors;
+
+    ZPGInt32Pair* roomPairs;
+    i32 numPairs;
+    i32 maxPairs;
 };
 
 struct ZPGRoom
