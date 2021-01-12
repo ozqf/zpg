@@ -233,16 +233,18 @@ void ZPG_RunPresetCLI(
         *resultHeight = grid->height;
     }
 
+    printf("Initial seed was %d\n", originalSeed);
+
     if (cfg.flags & ZPG_API_FLAG_PRINT_FINAL_ALLOCS)
     {
         ZPG_PrintAllocations();
     }
+    printf("Free all\n");
     ZPG_FreeAll();
     if (cfg.flags & ZPG_API_FLAG_PRINT_FINAL_ALLOCS)
     {
         ZPG_PrintAllocations();
     }
-	printf("Initial seed was %d\n", originalSeed);
     // TODO: Assumes caller will free grid memory
     // (and that they passed in malloc/free functions)
 }

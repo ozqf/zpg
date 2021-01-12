@@ -35,9 +35,6 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     ZPG_Grid_SetAll(tagGrid, 0);
     ZPGRoom* rooms = NULL;
     i32 numRooms = ZPG_Grid_FindRooms(roomVolumes, tagGrid, &rooms);
-	/*
-    ZPG_ConnectRooms(roomVolumes, rooms, numRooms, bVerbose);
-	*/
 	ZPGDoorwaySet doors = ZPG_FindAllRoomConnectionPoints(
 		roomVolumes, rooms, numRooms, bVerbose);
     if (bVerbose)
@@ -51,10 +48,15 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
 				d->idA, d->idB, d->posA.x, d->posA.y, d->posB.x, d->posB.y);
 		}
     }
-    ZPGGrid* result = ZPG_Grid_CreateClone(roomVolumes);
-	ZPG_FreeGridStack(stack);
+    //ZPGGrid* result = ZPG_Grid_CreateClone(roomVolumes);
+    printf("Cleanup...\n");
+    printf("Free rooms\n");
+    ZPG_FreeRooms(rooms, numRooms);
+    printf("Free doors list\n");
 	ZPG_Free(doors.doors);
-    return result;
+    printf("Free grid stack\n");
+	ZPG_FreeGridStack(stack);    
+    return NULL;
 }
 
 static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)

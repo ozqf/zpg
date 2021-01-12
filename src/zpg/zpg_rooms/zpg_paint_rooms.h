@@ -186,6 +186,8 @@ static ZPGDoorwaySet ZPG_FindAllRoomConnectionPoints(
     // 		cells, 
 	ZPGDoorwaySet doorSet = {};
 	// 
+    // i32 w = roomVolumes.width;
+    // i32 h = roomVolumes.height;
 	doorSet.maxDoors = numRooms * numRooms * numRooms;
 	doorSet.doors = (ZPGDoorway*)ZPG_Alloc(
 		sizeof(ZPGDoorway) * doorSet.maxDoors, ZPG_MEM_TAG_DOORS);
@@ -218,17 +220,35 @@ static ZPGDoorwaySet ZPG_FindAllRoomConnectionPoints(
 					{
 						continue;
 					}
-					printf("Doorway connection between %d and %d\n",
-						r->id, other->id);
+                    if (bVerbose)
+                    {
+                        printf("Doorway connection between %d and %d\n",
+						    r->id, other->id);
+                    }
 					ZPGDoorway* door = &doorSet.doors[doorSet.numDoors];
 					doorSet.numDoors++;
 					door->idA = r->id;
 					door->idB = other->id;
 					door->posA = a;
 					door->posB = b;
+
+                    if (doorSet.numDoors >= doorSet.maxDoors)
+                    {
+                        printf("END DOOR SEARCH - max %d of %d doors allocated\n",
+                            doorSet.numDoors, doorSet.maxDoors);
+                        // drop out of loops
+                        i = numRooms;
+                        j = r->numPoints;
+                        k = numRooms;
+                        l = other->numPoints;
+                    }
 				}
 			}
         }
+    }
+    if (bVerbose)
+    {
+        printf("\tFound %d doorways\n", doorSet.numDoors);
     }
 	return doorSet;
 }
