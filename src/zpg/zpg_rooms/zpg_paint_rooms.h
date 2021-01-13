@@ -243,7 +243,7 @@ static ZPGGridStack* ZPG_GenerateRoomBorder(
 // TODO: Remove when 'rooms to geometry' is done
 static void ZPG_Rooms_PaintGeometry(
 	ZPGGrid* src,
-	ZPGGrid* target, // MUST be scale X size of src grid
+	ZPGGrid* target, // MUST be scale * size of src grid
 	ZPGGrid* roomConnectionFlags,
 	ZPGGrid* doorwayFlags,
 	ZPGRoom* rooms,
@@ -261,32 +261,92 @@ static void ZPG_Rooms_PaintGeometry(
 		printf("ABORT - bad canvas height\n");
 		return;
 	}
-	// i32 w = src->width * scale;
-	// i32 h = src->height * scale;
-	// ZPGGridStack* stack = ZPG_CreateGridStack(w, h, 3);
-	// ZPGGrid* geometryGrid = stack->grids[0];
-	// ZPGGrid* roomVolumes = stack->grids[1];
-	// ZPGGrid* roomBoarder = stack->grids[2];
-	// ZPG_Grid_SetAll(geometryGrid, 0);
-	// ZPG_Grid_SetAll(roomVolumes, 0);
-	// ZPG_Grid_SetAll(roomBoarder, 0);
 	
 	// iterate rooms and their points
 	for (i32 i = 0; i < numRooms; ++i)
 	{
 		ZPGRoom* room = &rooms[i];
+		if (room->tileType == ZPG_CELL_EMPTY) { continue; }
+
 		for (i32 j = 0; j < room->numPoints; ++j)
 		{
 			ZPGPoint p = room->points[j];
 			u8 roomFlags = ZPG_GRID_GET(roomConnectionFlags, p.x, p.y);
 			u8 doorFlags = ZPG_GRID_GET(doorwayFlags, p.x, p.y);
 			// create a wall if their i no doorway and no room in that direction
+			//u8 flags = roomFlags;
+			//u8 flags = doorFlags;
 			u8 flags = roomFlags | doorFlags;
+			//u8 flags = (~roomFlags) | doorFlags;
+			//u8 flags = roomFlags | (~doorFlags);
 			ZPGPoint dest = {};
 			dest.x = p.x * scale;
 			dest.y = p.y * scale;
+			u8 val = ZPG_CELL_TYPE_WALL;
+			u8 doorCellType = ZPG_CELL_TYPE_DOOR;
 			
+			///////////////////////////////////////
+			// Draw doors
+			if ((doorFlags & ZPG_FLAG_ABOVE) > 0)
+			{
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 1, dest.y, doorCellType, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 2, dest.y, doorCellType, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y, val, NULL);
+			}
+			if ((doorFlags & ZPG_FLAG_BELOW) > 0)
+			{
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y + 3, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 1, dest.y + 3, doorCellType, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 2, dest.y + 3, doorCellType, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y + 3, val, NULL);
+			}
+			if ((doorFlags & ZPG_FLAG_LEFT) > 0)
+			{
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y + 1, doorCellType, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y + 2, doorCellType, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y + 3, val, NULL);
+			}
+			if ((doorFlags & ZPG_FLAG_RIGHT) > 0)
+			{
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y + 1, doorCellType, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y + 2, doorCellType, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y + 3, val, NULL);
+			}
 			
+			///////////////////////////////////////
+			// Draw solid walls
+			// Paint edges depending on flags
+			if ((flags & ZPG_FLAG_ABOVE) == 0)
+			{
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 1, dest.y, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 2, dest.y, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y, val, NULL);
+			}
+			if ((flags & ZPG_FLAG_BELOW) == 0)
+			{
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y + 3, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 1, dest.y + 3, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 2, dest.y + 3, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y + 3, val, NULL);
+			}
+			if ((flags & ZPG_FLAG_LEFT) == 0)
+			{
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y + 1, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y + 2, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x, dest.y + 3, val, NULL);
+			}
+			if ((flags & ZPG_FLAG_RIGHT) == 0)
+			{
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y + 1, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y + 2, val, NULL);
+				ZPG_Grid_SetValueWithStencil(target, dest.x + 3, dest.y + 3, val, NULL);
+			}
 		}
 	}
 }

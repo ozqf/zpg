@@ -104,7 +104,7 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     // ZPG_Grid_SetAll(canvas->grids[0], ZPG_CELL_TYPE_WALL);
     // ZPG_Grid_SetAllWithStencil(canvas->grids[0], canvas->grids[2], ZPG_CELL_TYPE_PATH);
 
-    ZPGGrid* result = ZPG_Grid_CreateClone(roomVolumes);
+    ZPGGrid* result = ZPG_Grid_CreateClone(canvas);
     ZPG_Grid_PrintValues(result, 1, YES);
     printf("Cleanup...\n");
     printf("Free rooms\n");
