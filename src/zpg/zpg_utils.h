@@ -10,6 +10,12 @@ static f32 ZPG_Distance(ZPGPoint a, ZPGPoint b)
     return sqrtf((dx * dx) + (dy * dy));
 }
 
+static i32 ZPG_PairMatches(ZPGPoint a, ZPGPoint b)
+{
+    return ((a.x == b.x && a.y == b.y)
+        || (a.x == b.y && a.y == b.x));
+}
+
 static i32 ZPG_RandomDir(i32* seed)
 {
     f32 r = ZPG_Randf32(*seed);

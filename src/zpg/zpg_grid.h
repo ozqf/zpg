@@ -464,7 +464,6 @@ static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
     grid->width = width;
     grid->height = height;
     grid->cells = (u8*)(ptr + sizeof(ZPGGrid));
-
 #if 0
     // Create grid struct at END of cells array
     ZPGGrid* grid = (ZPGGrid*)(ptr + memForGrid);

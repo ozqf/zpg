@@ -38,6 +38,7 @@ https://www.redblobgames.com/articles/noise/introduction.html
 #include "zpg_presets/zpg_build_prefab.h"
 #include "zpg_presets/zpg_build_perlin.h"
 #include "zpg_rooms/zpg_paint_rooms.h"
+#include "zpg_rooms/zpg_room_grouping.h"
 #include "zpg_rooms/zpg_room_tree.h"
 
 // styling
