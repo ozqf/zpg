@@ -66,7 +66,7 @@ static i32 ZPG_Rooms_FindConnectionsForRoom(
         // grab query room area
         //ZPGPoint* queryPoints = rooms[i].points;
         //i32 numQueryPoints = rooms[i].numPoints;
-        if (rooms[i].tileType == 0) { continue; }
+        if (rooms[i].tileType == ZPG_CELL_EMPTY) { continue; }
         // Find ajoining rooms
         i32 numRoomConnections = ZPG_Rooms_FindConnectionsBetweenRooms(
             room, &rooms[i], bVerbose);
@@ -99,7 +99,7 @@ static void ZPG_ConnectRooms(ZPGGrid* roomVolumes, ZPGRoom* rooms, i32 numRooms,
     {
         ZPGRoom* r = &rooms[i];
         printf("Check room %d\n", r->id);
-        if (r->tileType == 0) { continue; }
+        if (r->tileType == ZPG_CELL_EMPTY) { continue; }
         i32* connections;
         r->numConnections = ZPG_Rooms_FindConnectionsForRoom(
             rooms, numRooms, i, &connections, bVerbose);
@@ -165,11 +165,13 @@ static ZPGDoorwaySet ZPG_FindAllRoomConnectionPoints(
         ZPGRoom* roomA = &rooms[i];
         for (i32 j = 0; j < roomA->numPoints; ++j)
         {
+            if (roomA->tileType == ZPG_CELL_EMPTY) { continue; }
             ZPGPoint a = roomA->points[j];
 			for (i32 k = 0; k < numRooms; ++k)
 			{
 				if (i == k) { continue; }
 				ZPGRoom* roomB = &rooms[k];
+                if (roomB->tileType == ZPG_CELL_EMPTY) { continue; }
 				for (i32 l = 0; l < roomB->numPoints; ++l)
 				{
 					ZPGPoint b = roomB->points[l];
@@ -301,7 +303,45 @@ static i32 ZPG_Grid_FindRooms(
     return numRooms;
 }
 
-static ZPGRoom* ZPG_FindRoom(ZPGRoom* rooms, i32 numRooms, i32 id)
+/**
+ * Fill in target grid with flags for each cell pointing at neighbours
+ * with the same value
+ */
+static void ZPG_Room_BuildNeighbourFlags(ZPGGrid* roomVolumes, ZPGGrid* target)
+{
+    printf("Build neighbour flags from volumes:\n");
+    ZPG_Grid_PrintValues(roomVolumes, 1, YES);
+    ZPG_PARAM_NULL(roomVolumes, )
+    ZPG_PARAM_NULL(target, )
+    ZPG_PARAM_GRIDS_EQUAL_SIZE(roomVolumes, target, )
+    ZPG_BEGIN_GRID_ITERATE(roomVolumes)
+        u8 val = ZPG_GRID_GET(roomVolumes, x, y);
+        if (val == ZPG_CELL_EMPTY) { continue; }
+        u8 flags = 0;
+        if (ZPG_Grid_IsPositionSafe(roomVolumes, x - 1, y)
+            && ZPG_GRID_GET(roomVolumes, x - 1, y) == val)
+        { flags |= ZPG_FLAG_LEFT; }
+
+        if (ZPG_Grid_IsPositionSafe(roomVolumes, x + 1, y)
+            && ZPG_GRID_GET(roomVolumes, x + 1, y) == val)
+        { flags |= ZPG_FLAG_RIGHT; }
+        
+        if (ZPG_Grid_IsPositionSafe(roomVolumes, x, y - 1)
+            && ZPG_GRID_GET(roomVolumes, x, y - 1) == val)
+        { flags |= ZPG_FLAG_ABOVE; }
+        
+        if (ZPG_Grid_IsPositionSafe(roomVolumes, x, y + 1)
+            && ZPG_GRID_GET(roomVolumes, x, y + 1) == val)
+        { flags |= ZPG_FLAG_BELOW; }
+        
+        i32 i = ZPG_POS_TO_INDEX(roomVolumes->width, x, y);
+        printf("%d: ", i);
+        ZPG_PrintPointDirectionFlags(x, y, val, flags);
+        ZPG_GRID_SET(target, x, y, flags);
+    ZPG_END_GRID_ITERATE
+}
+
+static ZPGRoom* ZPG_FindRoomById(ZPGRoom* rooms, i32 numRooms, i32 id)
 {
 	for (i32 i = 0; i < numRooms; ++i)
 	{
@@ -315,7 +355,7 @@ static i32 ZPG_Rooms_IsPointOtherRoom(
 {
     if (!ZPG_GRID_POS_SAFE(grid, query.x, query.y)) { return NO; }
     u8 val = ZPG_GRID_GET(grid, query.x, query.y);
-    if (val == 0 || val == originRoomType) { return NO; }
+    if (val == ZPG_CELL_EMPTY || val == originRoomType) { return NO; }
     return YES;
 }
 
@@ -332,7 +372,7 @@ static ZPGGrid* ZPG_Rooms_BuildConnectionsGrid(
     for (i32 i = 0; i < numRooms; ++i)
     {
         ZPGRoom* room = &rooms[i];
-        if (room->tileType == 0) { continue; }
+        if (room->tileType == ZPG_CELL_EMPTY) { continue; }
         // iterate points in this room
         for (i32 j = 0; j < room->numPoints; ++j)
         {

@@ -32,7 +32,7 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     ZPG_Grid_SetAll(doorFlags, 0);
     ZPG_Grid_SetAll(roomFlags, 0);
 	
-    #if 1
+    #if 0
     i32 hw = w / 2;
     i32 hh = h / 2;
     ZPG_FillRectWithStencil(roomVolumes, NULL, { 0, 0 }, { hw - 1, hh - 1 }, 1);
@@ -40,7 +40,7 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     ZPG_FillRectWithStencil(roomVolumes, NULL, { 0, hh }, { hw - 1, h - 1 }, 3);
     ZPG_FillRectWithStencil(roomVolumes, NULL, { hw, hh }, { w - 1, h - 1 }, 4);
     #endif
-    #if 0
+    #if 1
     ZPG_Grid_FillRandom(roomVolumes, minType, maxType, &cfg->seed);
     #endif
 	ZPG_HealRoomScatter2(roomVolumes, YES, YES, 5);
@@ -50,6 +50,12 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     // find rooms by flood fill
     ZPGRoom* rooms = NULL;
     i32 numRooms = ZPG_Grid_FindRooms(roomVolumes, tagGrid, &rooms);
+    ZPG_Room_BuildNeighbourFlags(roomVolumes, roomFlags);
+    if (bVerbose)
+    {
+        printf("Room neighbour flags:\n");
+        ZPG_Grid_PrintValues(roomFlags, 3, YES);
+    }
 
     // find all potential doorways
 	ZPGDoorwaySet doors = ZPG_FindAllRoomConnectionPoints(
@@ -88,10 +94,15 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     ZPGGrid* connectionGrid = ZPG_Rooms_BuildConnectionsGrid(
         roomVolumes, rooms, numRooms, bVerbose);
     
-    ZPGGridStack* canvas = ZPG_GenerateRoomBorder(
-        roomVolumes, connectionGrid, rooms, numRooms, YES);
-    ZPG_Grid_SetAll(canvas->grids[0], ZPG_CELL_TYPE_WALL);
-    ZPG_Grid_SetAllWithStencil(canvas->grids[0], canvas->grids[2], ZPG_CELL_TYPE_PATH);
+    ZPGGrid* canvas = ZPG_CreateGrid(roomVolumes->width * 4, roomVolumes->height * 4);
+
+    ZPG_Rooms_PaintGeometry(
+        roomVolumes, canvas, roomFlags, doorFlags, rooms, numRooms, NO);
+    
+    // ZPGGridStack* canvas = ZPG_GenerateRoomBorder(
+    //     roomVolumes, connectionGrid, rooms, numRooms, YES);
+    // ZPG_Grid_SetAll(canvas->grids[0], ZPG_CELL_TYPE_WALL);
+    // ZPG_Grid_SetAllWithStencil(canvas->grids[0], canvas->grids[2], ZPG_CELL_TYPE_PATH);
 
     ZPGGrid* result = ZPG_Grid_CreateClone(roomVolumes);
     ZPG_Grid_PrintValues(result, 1, YES);
@@ -292,7 +303,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 	    for (i32 i = 0; i < numRooms; ++i)
 	    {
 	    	ZPGRoom* room = &rooms[i];
-	    	if (room->tileType == 0) { continue; }
+	    	if (room->tileType == ZPG_CELL_EMPTY) { continue; }
 	    	printf("Room %d. type: %d. cells: %d connections (%d):",
 	    		room->id, room->tileType, room->numPoints, room->numConnections);
 	    	if (room->numConnections == 0) { printf("\n"); continue; }
@@ -326,7 +337,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     {
         startIndex = ZPG_RandArrIndex(nextRoom, cfg->seed++);
         // Reject filled tiles as start or end
-        if (rooms[startIndex].tileType == 0)
+        if (rooms[startIndex].tileType == ZPG_CELL_EMPTY)
         { startIndex = -1; }
     }
     ZPGRoom* start = &rooms[startIndex];
@@ -339,7 +350,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
         // cannot be same room as start!
         if (endIndex == startIndex) { endIndex = -1; continue; }
         // Reject filled tiles as start or end
-        if (rooms[endIndex].tileType == 0)
+        if (rooms[endIndex].tileType == ZPG_CELL_EMPTY)
         { endIndex = -1; continue;  }
         ZPGRoom* room = &rooms[endIndex];
         for (i32 i = 0; i < room->numConnections; ++i)

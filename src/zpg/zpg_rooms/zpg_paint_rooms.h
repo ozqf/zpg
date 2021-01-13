@@ -56,7 +56,7 @@ static void ZPG_ListRooms(ZPGRoom* rooms, i32 numRooms)
 	for (i32 i = 0; i < numRooms; ++i)
 	{
 		ZPGRoom* room = &rooms[i];
-		if (room->tileType == 0) { continue; }
+		if (room->tileType == ZPG_CELL_EMPTY) { continue; }
 		printf("Room %d. type: %d. cells: %d connections (%d):",
 			room->id, room->tileType, room->numPoints, room->numConnections);
 		if (room->numConnections == 0) { printf("\n"); continue; }
@@ -151,7 +151,7 @@ static void ZPG_Room_PaintIds(ZPGGrid* grid, ZPGRoom* rooms, i32 numRooms)
 	for (i32 i = 0; i < numRooms; ++i)
 	{
 		ZPGRoom* room = &rooms[i];
-		if (room->tileType == 0) { continue; }
+		if (room->tileType == ZPG_CELL_EMPTY) { continue; }
 		for (i32 j = 0; j < room->numPoints; ++j)
 		{
 			ZPGPoint p = room->points[j];
@@ -160,6 +160,7 @@ static void ZPG_Room_PaintIds(ZPGGrid* grid, ZPGRoom* rooms, i32 numRooms)
 	}
 }
 
+// TODO: Remove when 'rooms to geometry' is done
 static ZPGGridStack* ZPG_GenerateRoomBorder(
 	ZPGGrid* src,
 	ZPGGrid* roomConnectionFlags,
@@ -177,14 +178,14 @@ static ZPGGridStack* ZPG_GenerateRoomBorder(
 
 	//ZPGGrid* result = ZPG_CreateGrid(src->width * 4, src->height * 4);
 	//ZPG_Grid_SetCellTypeAll(result, 0);
-	ZPG_Grid_SetAll(geometryGrid, 0);
-	ZPG_Grid_SetAll(roomVolumes, 0);
-	ZPG_Grid_SetAll(roomBoarder, 0);
+	ZPG_Grid_SetAll(geometryGrid, ZPG_CELL_EMPTY);
+	ZPG_Grid_SetAll(roomVolumes, ZPG_CELL_EMPTY);
+	ZPG_Grid_SetAll(roomBoarder, ZPG_CELL_EMPTY);
 	
 	for (i32 i = 0; i < numRooms; ++i)
 	{
 		ZPGRoom* room = &rooms[i];
-		if (room->tileType == 0) { continue; }
+		if (room->tileType == ZPG_CELL_EMPTY) { continue; }
 		for (i32 j = 0; j < room->numPoints; ++j)
 		{
 			ZPGPoint p = room->points[j];
@@ -237,4 +238,55 @@ static ZPGGridStack* ZPG_GenerateRoomBorder(
 	}
 
 	return stack;
+}
+
+// TODO: Remove when 'rooms to geometry' is done
+static void ZPG_Rooms_PaintGeometry(
+	ZPGGrid* src,
+	ZPGGrid* target, // MUST be scale X size of src grid
+	ZPGGrid* roomConnectionFlags,
+	ZPGGrid* doorwayFlags,
+	ZPGRoom* rooms,
+	i32 numRooms,
+	i32 bPaintRoomId)
+{
+	const i32 scale = 4;
+	if (target->width != (src->width * scale))
+	{
+		printf("ABORT - bad canvas width\n");
+		return;
+	}
+	if (target->height != (src->height * scale))
+	{
+		printf("ABORT - bad canvas height\n");
+		return;
+	}
+	// i32 w = src->width * scale;
+	// i32 h = src->height * scale;
+	// ZPGGridStack* stack = ZPG_CreateGridStack(w, h, 3);
+	// ZPGGrid* geometryGrid = stack->grids[0];
+	// ZPGGrid* roomVolumes = stack->grids[1];
+	// ZPGGrid* roomBoarder = stack->grids[2];
+	// ZPG_Grid_SetAll(geometryGrid, 0);
+	// ZPG_Grid_SetAll(roomVolumes, 0);
+	// ZPG_Grid_SetAll(roomBoarder, 0);
+	
+	// iterate rooms and their points
+	for (i32 i = 0; i < numRooms; ++i)
+	{
+		ZPGRoom* room = &rooms[i];
+		for (i32 j = 0; j < room->numPoints; ++j)
+		{
+			ZPGPoint p = room->points[j];
+			u8 roomFlags = ZPG_GRID_GET(roomConnectionFlags, p.x, p.y);
+			u8 doorFlags = ZPG_GRID_GET(doorwayFlags, p.x, p.y);
+			// create a wall if their i no doorway and no room in that direction
+			u8 flags = roomFlags | doorFlags;
+			ZPGPoint dest = {};
+			dest.x = p.x * scale;
+			dest.y = p.y * scale;
+			
+			
+		}
+	}
 }

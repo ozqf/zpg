@@ -37,6 +37,8 @@
 #define ZPG_CELL_CATEGORY_OBJECTIVE 1
 #define ZPG_CELL_CATEGORY_ENEMY 2
 
+#define ZPG_CELL_EMPTY 0
+
 #define ZPG_CELL_TYPE_PATH 0
 #define ZPG_CELL_TYPE_WALL 1
 #define ZPG_CELL_TYPE_VOID 2
@@ -228,7 +230,7 @@ union ZPGCell
 (gridPosX + (gridPosY * gridPtr->width))
 
 #define ZPG_GRID_GET(gridPtr, gridPosX, gridPosY) \
-(gridPtr->cells[ZPG_POS_TO_INDEX(gridPtr->width, gridPosX, gridPosY)])
+(gridPtr->cells[ZPG_POS_TO_INDEX((gridPtr->width), (gridPosX), (gridPosY))])
 
 #define ZPG_GRID_GET_ADDR(gridPtr, gridPosX, gridPosY) \
 (&gridPtr->cells[ZPG_POS_TO_INDEX(gridPtr->width, gridPosX, gridPosY)])

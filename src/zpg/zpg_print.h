@@ -3,6 +3,15 @@
 
 #include "zpg_internal.h"
 
+static void ZPG_PrintPointDirectionFlags(i32 x, i32 y, i32 val, u8 flags)
+{
+    printf("%d, %d: val %d, dir flags %d: ", x, y, val, flags);
+    if (flags & ZPG_FLAG_LEFT) { printf("left, "); }
+    if (flags & ZPG_FLAG_RIGHT) { printf("right, "); }
+    if (flags & ZPG_FLAG_ABOVE) { printf("above, "); }
+    if (flags & ZPG_FLAG_BELOW) { printf("below, "); }
+    printf("\n");
+}
 
 static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes)
 {
