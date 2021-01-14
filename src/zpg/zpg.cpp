@@ -179,6 +179,7 @@ void ZPG_RunPresetCLI(
     ZPGPresetCfg cfg = {};
     // Seed randomly - param may override
     cfg.seed = (i32)time(NULL);
+    cfg.seed ^= (u32)&cfg;
     // read params
     ZPGError err = ZPG_Params_ReadForPreset(&cfg, argc, argv);
 	if (err != 0)

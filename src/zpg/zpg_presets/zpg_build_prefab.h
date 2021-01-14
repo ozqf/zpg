@@ -304,7 +304,7 @@ static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
 
     for (i32 i = 0; i < 5; ++i)
     {
-        ZPG_IterateCaves(
+        ZPG_IterateCaves_defunct(
             grid,
             stencil,
             ZPG_CELL_TYPE_WALL,

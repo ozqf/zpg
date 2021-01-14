@@ -4,18 +4,48 @@
 #include "../zpg_internal.h"
 
 static void ZPG_SeedRooms(ZPGGrid* target, u8 minValue, u8 maxValue,
-    u8 healThreshold, i32 healIterations, i32* seed, i32 bVerbose)
+    u8 healThreshold, i32 healMode, i32 healIterations, i32* seed, i32 bVerbose)
 {
+    i32 numDigits = 3;
+    if (maxValue < 10)
+    {
+        numDigits = 1;
+    }
+    else if (maxValue < 100)
+    {
+        numDigits = 2;
+    }
     
     ZPG_Grid_FillRandom(target, minValue, maxValue, seed);
+    if (bVerbose)
+    {
+        printf("vals %d to %d\n",
+            minValue, maxValue);
+        ZPG_Grid_PrintValues(target, numDigits, YES);
+    }
     for (i32 i = 0; i < healIterations; ++i)
     {
-        ZPG_HealRoomScatter2(target, YES, YES, healThreshold);
+        i32 bFourWay = YES;
+        i32 bCorners = YES;
+        if (healMode == 1)
+        {
+            bFourWay = NO;
+        }
+        else if (bCorners == 2)
+        {
+            bCorners = NO;
+        }
+        //ZPG_HealRoomScatter2(target, YES, YES, healThreshold);
+        //ZPG_HealRoomScatter2(target, NO, YES, healThreshold);
+        ZPG_HealRoomScatter2(target, bFourWay, bCorners, healThreshold);
     }
     ZPG_ZeroOutLoneValues(target);
-    printf("vals %d to %d, heal threshold %d, iterations %d\n",
-        minValue, maxValue, healThreshold, healIterations);
-    ZPG_Grid_PrintValues(target, 3, YES);
+    if (bVerbose)
+    {
+        printf("After heal: threshold %d, mode %d, iterations %d\n",
+            healThreshold, healMode, healIterations);
+        ZPG_Grid_PrintValues(target, numDigits, YES);
+    }
 }
 
 static ZPGGrid* ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
@@ -27,12 +57,15 @@ static ZPGGrid* ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
 
     printf("--- Room Seeding test ---\n");
     ZPGGrid* a = ZPG_CreateGrid(w, h);
-    ZPG_SeedRooms(a, 1, 9, 1, 1, &cfg->seed, bVerbose);
+    ZPG_SeedRooms(a, 1, 9, 1, 0, 1, &cfg->seed, bVerbose);
     ZPGGrid* b = ZPG_CreateGrid(w, h);
-    ZPG_SeedRooms(b, 1, 5, 5, 2, &cfg->seed, bVerbose);
+    ZPG_SeedRooms(b, 1, 3, 5, 0, 2, &cfg->seed, bVerbose);
     ZPGGrid* c = ZPG_CreateGrid(w, h);
-    ZPG_SeedRooms(c, 1, 4, 5, 1, &cfg->seed, bVerbose);
-    
+    ZPG_SeedRooms(c, 1, 4, 5, 0, 1, &cfg->seed, bVerbose);
+    ZPGGrid* d = ZPG_CreateGrid(w, h);
+    ZPG_SeedRooms(d, 1, 50, 5, 0, 1, &cfg->seed, bVerbose);
+    ZPGGrid* e = ZPG_CreateGrid(w, h);
+    ZPG_SeedRooms(e, 1, 10, 100, 0, 2, &cfg->seed, bVerbose);
     return a;
 }
 
@@ -81,7 +114,7 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     #if 1
     // ZPG_SeedRooms(roomVolumes, 1, 5, 5, 1, &cfg->seed); // okayish results.
     //ZPG_SeedRooms(roomVolumes, 1, 5, 5, 2, &cfg->seed, bVerbose);
-    ZPG_SeedRooms(roomVolumes, 1, 4, 5, 1, &cfg->seed, bVerbose);
+    ZPG_SeedRooms(roomVolumes, 1, 4, 5, 1, 1, &cfg->seed, bVerbose);
     #endif
     ZPG_ZeroOutLoneValues(roomVolumes);
 	

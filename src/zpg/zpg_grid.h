@@ -311,6 +311,57 @@ static ZPGNeighbours ZPG_Grid_CountNeighboursAt(
 }
 
 
+static ZPGNeighbours ZPG_Grid_CountNeighboursMatchesAt(
+	ZPGGrid* grid, u8 matchType, i32 x, i32 y)
+{
+	ZPGNeighbours neighbours = {};
+    
+    if (ZPG_Grid_SafeMatch(grid, x - 1, y - 1, matchType))
+    {
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_ABOVE_LEFT;
+    }
+    if (ZPG_Grid_SafeMatch(grid, x, y - 1, matchType))
+    {
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_ABOVE;
+    }
+    if (ZPG_Grid_SafeMatch(grid, x + 1, y - 1, matchType))
+    {
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_ABOVE_RIGHT;
+    }
+
+    if (ZPG_Grid_SafeMatch(grid, x - 1, y, matchType))
+    {
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_LEFT;
+    }
+    if (ZPG_Grid_SafeMatch(grid, x + 1, y, matchType))
+    {
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_RIGHT;
+    }
+
+    if (ZPG_Grid_SafeMatch(grid, x - 1, y + 1, matchType))
+    {
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_BELOW_LEFT;
+    }
+    if (ZPG_Grid_SafeMatch(grid, x, y + 1, matchType))
+    {
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_BELOW;
+    }
+    if (ZPG_Grid_SafeMatch(grid, x + 1, y + 1, matchType))
+    {
+        neighbours.count++;
+		neighbours.flags |= ZPG_FLAG_BELOW_RIGHT;
+    }
+    return neighbours;
+}
+
+
 /*
 eg:
 0   1     2

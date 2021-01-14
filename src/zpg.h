@@ -58,6 +58,7 @@
 #define ZPG_CELL_CHANNEL_B 2
 #define ZPG_CELL_CHANNEL_A 3
 
+#define ZPG_CAVE_GEN_SEED_CHANCE_EVEN_LOWER 0.4f
 #define ZPG_CAVE_GEN_SEED_CHANCE_LOW 0.45f
 #define ZPG_CAVE_GEN_SEED_CHANCE_DEFAULT 0.55f
 #define ZPG_CAVE_GEN_SEED_CHANCE_HIGH 0.6f
@@ -167,6 +168,18 @@ struct ZPGWalkCfg
     u8 typeToPaint;
     u8 bPlaceObjectives;
     u8 bStepThrough;
+};
+
+struct ZPGCellRules
+{
+    f32 seedChance;
+    i32 starveLimit;
+    i32 overpopLimit;
+    i32 birthLimit;
+    i32 iterations;
+
+    u8 emptyValue;
+    u8 filledValue;
 };
 
 #define ZPG_CELL_CHANNEL_0 0

@@ -5,7 +5,11 @@
 
 static ZPGGrid* ZPG_Preset_Perlin(ZPGPresetCfg* presetCfg)
 {
+    i32 bVerbose = ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
     i32 w = 96, h = 48;
+    if (presetCfg->width > 0) { w = presetCfg->width; }
+    if (presetCfg->height > 0) { h = presetCfg->height; }
+
     //i32 w = 1024, h = 1024;
     //i32 w = 8, h = 8;
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
@@ -22,7 +26,7 @@ static ZPGGrid* ZPG_Preset_Perlin(ZPGPresetCfg* presetCfg)
     i32 caveIterations = 0;
     for (i32 i = 0; i < caveIterations; ++i)
     {
-        ZPG_IterateCaves(
+        ZPG_IterateCaves_defunct(
             grid,
             stencil,
             ZPG_CELL_TYPE_WALL,

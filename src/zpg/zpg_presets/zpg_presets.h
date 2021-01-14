@@ -9,8 +9,11 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
     printf("Generate: Drunken walk - start from centre\n");
     i32 bStepThrough = presetCfg->flags & ZPG_API_FLAG_STEP_THROUGH;
 
-    const i32 width = 64;
-    const i32 height = 32;
+    i32 bVerbose = ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
+    i32 width = 72, height = 32;
+    if (presetCfg->width > 0) { width = presetCfg->width; }
+    if (presetCfg->height > 0) { height = presetCfg->height; }
+
     ZPGGrid* grid = ZPG_CreateGrid(width, height);
     ZPG_Grid_SetAll(grid, 1);
     ZPGGrid* stencil = ZPG_CreateBorderStencil(width, height);
@@ -89,7 +92,12 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
 static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(ZPGPresetCfg* presetCfg)
 {
     printf("Generate: Drunken walk - Within borders\n");
-    ZPGGrid* grid = ZPG_CreateGrid(72, 32);
+    i32 bVerbose = ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
+    i32 w = 72, h = 32;
+    if (presetCfg->width > 0) { w = presetCfg->width; }
+    if (presetCfg->height > 0) { h = presetCfg->height; }
+
+    ZPGGrid* grid = ZPG_CreateGrid(w, h);
     i32 halfWidth = grid->width / 2;
     i32 halfHeight = grid->height / 2;
     const i32 numSquares = 4;
@@ -154,7 +162,12 @@ static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(ZPGPresetCfg* presetCfg)
 static ZPGGrid* ZPG_TestDrunkenWalk_Scattered(ZPGPresetCfg* presetCfg)
 {
     printf("Generate: Drunken walk - scattered starting points\n");
-    ZPGGrid* grid = ZPG_CreateGrid(64, 32);
+    i32 bVerbose = ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
+    i32 w = 64, h = 32;
+    if (presetCfg->width > 0) { w = presetCfg->width; }
+    if (presetCfg->height > 0) { h = presetCfg->height; }
+
+    ZPGGrid* grid = ZPG_CreateGrid(w, h);
     ZPG_Grid_SetAll(grid, 1);
     ZPGWalkCfg cfg = {};
     cfg.seed = presetCfg->seed;
@@ -187,35 +200,49 @@ static ZPGGrid* ZPG_TestDrunkenWalk_Scattered(ZPGPresetCfg* presetCfg)
 
 static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
 {
+    i32 bVerbose = ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
+    i32 w = 72, h = 32;
+    if (presetCfg->width > 0) { w = presetCfg->width; }
+    if (presetCfg->height > 0) { h = presetCfg->height; }
+
+    ZPGCellRules rules = ZPG_DefaultCaveRules();
+    rules.overpopLimit = 999;
+    
     // Create canvas
-    ZPGGrid* grid = ZPG_CreateGrid(72, 32);
-    //ZPG_Grid_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
-    ZPG_Grid_SetAll(grid, ZPG_CELL_TYPE_WALL);
+    ZPGGrid* grid = ZPG_CreateGrid(w, h);
+    ZPG_Grid_SetAll(grid, rules.emptyValue);
     // Stencil grid - blocks writing of tiles
-    ZPGGrid* stencil = ZPG_CreateBorderStencil(72, 32);
-    //ZPGGrid* stencil = ZPG_CreateGrid(72, 32);
-    //stencil->SetCellTypeAll(ZPG_CELL_TYPE_NONE);
-    //ZPG_DrawOuterBorder(stencil, ZPG_CELL_TYPE_FLOOR);
+    ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
 
     ZPG_SeedCaves(
         grid,
         stencil,
-        ZPG_CELL_TYPE_PATH,
-        ZPG_CAVE_GEN_SEED_CHANCE_DEFAULT,
+        rules.filledValue,
+        rules.seedChance,
         &presetCfg->seed);
-    if (presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING)
+    
+    if (bVerbose)
     {
+        printf("Cave seed:\n");
         ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0);
     }
-    i32 numIterations = 2;
-    for (i32 i = 0; i < numIterations; ++i)
+    
+    for (i32 i = 0; i < rules.iterations; ++i)
     {
-        ZPG_IterateCaves(
+        /*ZPG_IterateCaves_defunct(
             grid,
             stencil,
             ZPG_CELL_TYPE_WALL,
             ZPG_CELL_TYPE_PATH,
-            ZPG_CAVE_GEN_CRITICAL_NEIGHBOURS_DEFAULT);
+            ZPG_CAVE_GEN_CRITICAL_NEIGHBOURS_DEFAULT);*/
+        
+        ZPG_IterateCaves(
+            grid, stencil, NULL, rules);
+        if (bVerbose)
+        {
+            printf("Cave iteration:\n");
+            ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0);
+        }
     }
     ZPG_FreeGrid(stencil);
     return grid;

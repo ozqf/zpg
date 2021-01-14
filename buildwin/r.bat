@@ -11,6 +11,9 @@ zpg preset
 @rem zpg.exe preset 0 test_grid.txt
 @rem zpg.exe preset 0 -p -a output.txt
 
+@rem -- Caves --
+zpg preset 2 -e -p -v -w 32 -h 32 -s 0
+
 @rem segmented line + wanders
 @rem zpg.exe preset 3 -s 1610068662 -p -a output.txt
 
@@ -21,7 +24,7 @@ zpg preset
 @rem zpg.exe preset 6 -g
 
 @rem -- Room seed test --
-zpg preset 16 -e -v -w 16 -h 16
+@rem zpg preset 16 -e -v -w 20 -h 10 -s 0
 
 @rem prefab walk test
 @rem zpg preset 11 -p -v -s 1610130853

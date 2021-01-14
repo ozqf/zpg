@@ -128,6 +128,13 @@ static void run_test()
 	argv[argc++] = "14";
 	argv[argc++] = "-v";
 	argv[argc++] = "-p";
+	
+	argv[argc++] = "-w";
+	argv[argc++] = "12";
+	argv[argc++] = "-h";
+	argv[argc++] = "12";
+	argv[argc++] = "-s";
+	argv[argc++] = "1610618434";
 	#endif
     run_preset_cli(argc, argv);
 }
