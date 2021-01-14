@@ -20,6 +20,9 @@ zpg preset
 @rem -- Perlin noise --
 @rem zpg.exe preset 6 -g
 
+@rem -- Room seed test --
+zpg preset 16 -e -v -w 16 -h 16
+
 @rem prefab walk test
 @rem zpg preset 11 -p -v -s 1610130853
 

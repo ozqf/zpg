@@ -48,6 +48,21 @@ static i32 ZPG_FillRectWithStencil(
     return numCellsPainted;
 }
 
+static void ZPG_DrawCardinalLine(
+    ZPGGrid* target, ZPGGrid* stencil, ZPGPoint origin, ZPGPoint dir, i32 iterations, u8 paintValue)
+{
+    ZPG_PARAM_NULL(target, )
+    ZPG_PARAM_NULL(stencil, )
+    for (i32 i = 0; i < iterations; ++i)
+    {
+        ZPGPoint p = origin;
+        p.x += i * dir.x;
+        p.x += i * dir.y;
+        if (ZPG_Grid_CheckStencilOccupied(stencil, p.x, p.y)) { continue; }
+        ZPG_GRID_SET(target, p.x, p.y, paintValue);
+    }
+}
+
 /**
  * Draw line algorithm - specific version that makes sure that pixels
  * in the line are always connected horizontally - this is really important!

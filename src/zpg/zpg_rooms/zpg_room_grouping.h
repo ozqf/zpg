@@ -297,7 +297,7 @@ static i32 ZPG_Grid_FindRooms(
         // ZPG_Grid_PrintValues(tagGrid, YES);
 
     ZPG_END_GRID_ITERATE
-    printf("Free points\n");
+    //printf("Free points\n");
     ZPG_Free(points);
     *resultRooms = rooms;
     return numRooms;
@@ -309,8 +309,7 @@ static i32 ZPG_Grid_FindRooms(
  */
 static void ZPG_Room_BuildNeighbourFlags(ZPGGrid* roomVolumes, ZPGGrid* target)
 {
-    printf("Build neighbour flags from volumes:\n");
-    ZPG_Grid_PrintValues(roomVolumes, 1, YES);
+    //ZPG_Grid_PrintValues(roomVolumes, 1, YES);
     ZPG_PARAM_NULL(roomVolumes, )
     ZPG_PARAM_NULL(target, )
     ZPG_PARAM_GRIDS_EQUAL_SIZE(roomVolumes, target, )
@@ -334,10 +333,11 @@ static void ZPG_Room_BuildNeighbourFlags(ZPGGrid* roomVolumes, ZPGGrid* target)
             && ZPG_GRID_GET(roomVolumes, x, y + 1) == val)
         { flags |= ZPG_FLAG_BELOW; }
         
-        i32 i = ZPG_POS_TO_INDEX(roomVolumes->width, x, y);
-        printf("%d: ", i);
-        ZPG_PrintPointDirectionFlags(x, y, val, flags);
         ZPG_GRID_SET(target, x, y, flags);
+        
+        //i32 i = ZPG_POS_TO_INDEX(roomVolumes->width, x, y);
+        //printf("%d: ", i);
+        //ZPG_PrintPointDirectionFlags(x, y, val, flags);
     ZPG_END_GRID_ITERATE
 }
 

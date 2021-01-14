@@ -82,7 +82,7 @@ static void ZPG_InitCellTypes()
     ZPG_AddCellType(ZPG_CELL_TYPE_ENEMY, ZPG_GEOMETRY_TYPE_PATH,
         ZPG_CELL_CATEGORY_ENEMY, 'x', ZPG_RED, "Enemy");
     ZPG_AddCellType(ZPG_CELL_TYPE_DOOR, ZPG_GEOMETRY_TYPE_PATH,
-        ZPG_CELL_CATEGORY_NONE, 'd', ZPG_RED, "Door");
+        ZPG_CELL_CATEGORY_NONE, 'd', ZPG_WHITE, "Door");
 
     //printf("%d Cell Types defined\n", g_numTypes);
 }

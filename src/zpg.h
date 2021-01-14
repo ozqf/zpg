@@ -220,13 +220,13 @@ union ZPGCell
 #endif
 
 #define ZPG_IS_POS_SAFE(gridWidthI32, gridHeightI32, gridPosX, gridPosY) \
-(gridPosX >= 0 && gridPosX < gridWidthI32 && gridPosY >= 0 && gridPosY < gridHeightI32)
+((gridPosX) >= 0 && (gridPosX) < (gridWidthI32) && (gridPosY) >= 0 && (gridPosY) < gridHeightI32)
 
 #define ZPG_POS_TO_INDEX(gridWidthI32, gridPosX, gridPosY) \
-(gridPosX + (gridPosY * gridWidthI32))
+((gridPosX) + ((gridPosY) * (gridWidthI32)))
 
 #define ZPG_GRID_POS_SAFE(gridPtr, gridPosX, gridPosY) \
-(ZPG_IS_POS_SAFE(gridPtr->width, gridPtr->height, gridPosX, gridPosY))
+(ZPG_IS_POS_SAFE(gridPtr->width, gridPtr->height, (gridPosX), (gridPosY)))
 
 #define ZPG_GRID_POS_TO_INDEX(gridPtr, gridPosX, gridPosY) \
 (gridPosX + (gridPosY * gridPtr->width))
@@ -235,17 +235,17 @@ union ZPGCell
 (gridPtr->cells[ZPG_POS_TO_INDEX((gridPtr->width), (gridPosX), (gridPosY))])
 
 #define ZPG_GRID_GET_ADDR(gridPtr, gridPosX, gridPosY) \
-(&gridPtr->cells[ZPG_POS_TO_INDEX(gridPtr->width, gridPosX, gridPosY)])
+(&gridPtr->cells[ZPG_POS_TO_INDEX(gridPtr->width, (gridPosX), (gridPosY))])
 
 #define ZPG_GRID_SET(gridPtr, gridPosX, gridPosY, valToWrite) \
 { if ZPG_IS_POS_SAFE(gridPtr->width, gridPtr->height, gridPosX, gridPosY) \
-{ gridPtr->cells[ZPG_POS_TO_INDEX(gridPtr->width, gridPosX, gridPosY)] = valToWrite; }}
+{ gridPtr->cells[ZPG_POS_TO_INDEX(gridPtr->width, (gridPosX), (gridPosY))] = (valToWrite); }}
 
 #define ZPG_BGRID_GET(byteGridPtr, gridPosX, gridPosY) \
 byteGridPtr->cells[ZPG_POS_TO_INDEX(byteGridPtr->width, gridPosX, gridPosY)]
 
 #define ZPG_BGRID_SET(byteGridPtr, gridPosX, gridPosY, newCellValueU8) \
-byteGridPtr->cells[ZPG_POS_TO_INDEX(byteGridPtr->width, gridPosX, gridPosY)] = newCellValueU8
+byteGridPtr->cells[ZPG_POS_TO_INDEX(byteGridPtr->width, (gridPosX), (gridPosY))] = (newCellValueU8)
 
 struct ZPGGrid
 {

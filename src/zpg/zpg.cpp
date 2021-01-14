@@ -18,7 +18,6 @@ https://www.redblobgames.com/articles/noise/introduction.html
 #include "zpg_random_table.h"
 #include "zpg_cell_types.h"
 #include "zpg_alloc.h"
-#include "zpg_byte_grid.h"
 #include "zpg_grid.h"
 #include "zpg_utils.h"
 #include "zpg_file.h"
@@ -127,6 +126,7 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
     ZPG_AddPresetFunction(ZPG_Preset_TestConnectRooms, "Test room volume connections");
     // 15
     ZPG_AddPresetFunction(ZPG_TestCaveLayers, "Test Cave Layering");
+    ZPG_AddPresetFunction(ZPG_Preset_TestRoomSeeding, "Test Room Seeding");
 
     //printf("Init complete - %d allocs\n", ZPG_GetNumAllocs());
     return 0;

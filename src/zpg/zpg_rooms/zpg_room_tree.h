@@ -3,15 +3,45 @@
 
 #include "../zpg_internal.h"
 
+static void ZPG_SeedRooms(ZPGGrid* target, u8 minValue, u8 maxValue,
+    u8 healThreshold, i32 healIterations, i32* seed, i32 bVerbose)
+{
+    
+    ZPG_Grid_FillRandom(target, minValue, maxValue, seed);
+    for (i32 i = 0; i < healIterations; ++i)
+    {
+        ZPG_HealRoomScatter2(target, YES, YES, healThreshold);
+    }
+    ZPG_ZeroOutLoneValues(target);
+    printf("vals %d to %d, heal threshold %d, iterations %d\n",
+        minValue, maxValue, healThreshold, healIterations);
+    ZPG_Grid_PrintValues(target, 3, YES);
+}
+
+static ZPGGrid* ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
+{
+    i32 bVerbose = ((cfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
+    i32 w = 10, h = 10;
+    if (cfg->width > 0) { w = cfg->width; }
+    if (cfg->height > 0) { h = cfg->height; }
+
+    printf("--- Room Seeding test ---\n");
+    ZPGGrid* a = ZPG_CreateGrid(w, h);
+    ZPG_SeedRooms(a, 1, 9, 1, 1, &cfg->seed, bVerbose);
+    ZPGGrid* b = ZPG_CreateGrid(w, h);
+    ZPG_SeedRooms(b, 1, 5, 5, 2, &cfg->seed, bVerbose);
+    ZPGGrid* c = ZPG_CreateGrid(w, h);
+    ZPG_SeedRooms(c, 1, 4, 5, 1, &cfg->seed, bVerbose);
+    
+    return a;
+}
+
 static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
 {
     i32 bVerbose = ((cfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
     i32 w = 10, h = 10;
     if (cfg->width > 0) { w = cfg->width; }
     if (cfg->height > 0) { h = cfg->height; }
-    u8 minType = 1;
-    u8 maxType = 5;
-    u8 healThreshold = 1;
 
     const i32 roomVolumesIndex = 0;
     const i32 tagGridIndex = 1;
@@ -32,6 +62,7 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     ZPG_Grid_SetAll(doorFlags, 0);
     ZPG_Grid_SetAll(roomFlags, 0);
 	
+    // Generate the initial room volumes grid:
     #if 0
     i32 hw = w / 2;
     i32 hh = h / 2;
@@ -40,10 +71,18 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     ZPG_FillRectWithStencil(roomVolumes, NULL, { 0, hh }, { hw - 1, h - 1 }, 3);
     ZPG_FillRectWithStencil(roomVolumes, NULL, { hw, hh }, { w - 1, h - 1 }, 4);
     #endif
-    #if 1
+    #if 0
+    u8 minType = 1;
+    u8 maxType = 5;
+    u8 healThreshold = 5;
     ZPG_Grid_FillRandom(roomVolumes, minType, maxType, &cfg->seed);
+    ZPG_HealRoomScatter2(roomVolumes, YES, YES, healThreshold);
     #endif
-	ZPG_HealRoomScatter2(roomVolumes, YES, YES, 5);
+    #if 1
+    // ZPG_SeedRooms(roomVolumes, 1, 5, 5, 1, &cfg->seed); // okayish results.
+    //ZPG_SeedRooms(roomVolumes, 1, 5, 5, 2, &cfg->seed, bVerbose);
+    ZPG_SeedRooms(roomVolumes, 1, 4, 5, 1, &cfg->seed, bVerbose);
+    #endif
     ZPG_ZeroOutLoneValues(roomVolumes);
 	
     ////////////////////////////////////////////////////////
@@ -105,7 +144,7 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     // ZPG_Grid_SetAllWithStencil(canvas->grids[0], canvas->grids[2], ZPG_CELL_TYPE_PATH);
 
     ZPGGrid* result = ZPG_Grid_CreateClone(canvas);
-    ZPG_Grid_PrintValues(result, 1, YES);
+    //ZPG_Grid_PrintValues(result, 1, YES);
     printf("Cleanup...\n");
     printf("Free rooms\n");
     ZPG_FreeRooms(rooms, numRooms);

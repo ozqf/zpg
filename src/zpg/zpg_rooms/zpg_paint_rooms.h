@@ -261,6 +261,8 @@ static void ZPG_Rooms_PaintGeometry(
 		printf("ABORT - bad canvas height\n");
 		return;
 	}
+
+	ZPG_Grid_SetAll(target, ZPG_CELL_TYPE_VOID);
 	
 	// iterate rooms and their points
 	for (i32 i = 0; i < numRooms; ++i)
@@ -285,6 +287,10 @@ static void ZPG_Rooms_PaintGeometry(
 			u8 val = ZPG_CELL_TYPE_WALL;
 			u8 doorCellType = ZPG_CELL_TYPE_DOOR;
 			
+			// fill floor with path
+			ZPG_FillRectWithStencil(
+				target, NULL, dest, { dest.x + (scale - 1), dest.y + (scale - 1) }, ZPG_CELL_TYPE_PATH);
+
 			///////////////////////////////////////
 			// Draw doors
 			if ((doorFlags & ZPG_FLAG_ABOVE) > 0)

@@ -217,8 +217,8 @@ static ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y)
 
 static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original)
 {
-    printf("Cloning grid %d size %d, %d\n",
-        original->id, original->width, original->height);
+    // printf("Cloning grid %d size %d, %d\n",
+    //     original->id, original->width, original->height);
     ZPGGrid* clone = ZPG_CreateGrid(original->width, original->height);
     i32 totalCells = original->width * original->height;
     memcpy(clone->cells, original->cells, sizeof(u8) * totalCells);
