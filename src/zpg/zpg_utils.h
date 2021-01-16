@@ -3,7 +3,7 @@
 
 #include "zpg_internal.h"
 
-static f32 ZPG_Distance(ZPGPoint a, ZPGPoint b)
+ZPG_EXPORT f32 ZPG_Distance(ZPGPoint a, ZPGPoint b)
 {
     f32 dx = (f32)b.x - (f32)a.x;
     f32 dy = (f32)b.y - (f32)a.y;

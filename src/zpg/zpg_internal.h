@@ -198,7 +198,18 @@ struct ZPGRoom
 //////////////////////////////////////////
 //static void* ZPG_Alloc(i32 numBytes, i32 tag);
 //ZPG_EXPORT i32 ZPG_Free(void* ptr);
-static void ZPG_Fatal(const char* msg);
+ZPG_EXPORT void ZPG_Fatal(const char* msg);
+
+// resources
+ZPG_EXPORT void* ZPG_Alloc(i32 numBytes, i32 tag);
+ZPG_EXPORT i32 ZPG_Free(void* ptr);
+
+// utility
+ZPG_EXPORT f32 ZPG_Distance(ZPGPoint a, ZPGPoint b);
+
+ZPG_EXPORT u8 ZPG_Grid_CountNeighourRingsAt(
+    ZPGGrid* grid, i32 x, i32 y, u32* iterateCount);
+
 
 static void ZPG_Grid_PrintPath(ZPGGrid* grid, ZPGPoint* points, i32 numPoints);
 static void ZPG_Grid_PrintCellDefChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY);
@@ -208,23 +219,30 @@ static void ZPG_DrawOuterBorder(ZPGGrid* grid, ZPGGrid* stencil, u8 typeToPaint)
 
 // Grid manipulation
 static i32 ZPG_Grid_PositionToIndexSafe(ZPGGrid* grid, i32 x, i32 y);
-static void ZPG_Grid_Clear(ZPGGrid* grid);
 static i32 ZPG_Grid_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y);
-static ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y);
 static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original);
-static void ZPG_Grid_CalcStats(ZPGGrid* grid);
+ZPG_EXPORT void ZPG_Grid_CalcStats(ZPGGrid* grid);
 static ZPGNeighbours ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y);
-static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y, u32* iterateCount);
-static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result, i32 ignoreValue, i32 bVerbose);
+
+ZPG_EXPORT void ZPG_Grid_CountNeighourRings(
+    ZPGGrid* grid, ZPGGrid* result, i32 ignoreValue, i32 bVerbose);
+
 static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes);
 static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y);
 static void ZPG_Grid_PrintCellDefChars(ZPGGrid* grid, u8 marker, i32 markerX, i32 markerY);
 static void ZPG_Grid_PerlinToGreyscale(
     ZPGGrid* source, ZPGGrid* destination, u8 sourceChannel, u8 destChannel, i32 bSetAlpha);
-static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);
+ZPG_EXPORT ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);
+ZPG_EXPORT void ZPG_Grid_Clear(ZPGGrid* grid);
 static void ZPG_FreeGrid(ZPGGrid* grid);
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);
 static i32 ZPG_ArePointsEqual(ZPGPoint a, ZPGPoint b);
+
+ZPG_EXPORT void ZPG_Grid_SetValueWithStencil(ZPGGrid* grid, i32 x, i32 y, u8 val, ZPGGrid* stencil);
+
+// Cell Types
+ZPG_EXPORT ZPGCellTypeDef* ZPG_GetType(u8 cellTypeIndex);
+ZPG_EXPORT ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y);
 
 // random numbers...
 // TODO: Tidy this crap up...

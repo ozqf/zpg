@@ -78,7 +78,7 @@ static i32 ZPG_Grid_CheckValueAt(
     return (i32)(grid->cells[ZPG_POS_TO_INDEX(grid->width, x, y)] == queryType);
 }
 
-static void ZPG_Grid_Clear(ZPGGrid* grid)
+ZPG_EXPORT void ZPG_Grid_Clear(ZPGGrid* grid)
 {
     i32 len = grid->width * grid->height;
     for (i32 i = 0; i < len; ++i) { grid->cells[i] = 0; }
@@ -109,7 +109,7 @@ static i32 ZPG_Grid_SetCellTypeByGeometryMatch(ZPGGrid* target, ZPGGrid* queryGr
     return YES;
 }
 
-static void ZPG_Grid_SetValueWithStencil(ZPGGrid* grid, i32 x, i32 y, u8 val, ZPGGrid* stencil)
+ZPG_EXPORT void ZPG_Grid_SetValueWithStencil(ZPGGrid* grid, i32 x, i32 y, u8 val, ZPGGrid* stencil)
 {
     if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES) { return; }
     if (!ZPG_IS_POS_SAFE(grid->width, grid->height, x, y)) { return; }
@@ -209,7 +209,7 @@ static void ZPG_Grid_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel)
 }
 */
 
-static ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y)
+ZPG_EXPORT ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y)
 {
     if (!ZPG_GRID_POS_SAFE(grid, x, y)) { return NULL; }
     return ZPG_GetType(ZPG_GRID_GET(grid, x, y));
@@ -225,7 +225,7 @@ static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original)
     return clone;
 }
 
-static void ZPG_Grid_CalcStats(ZPGGrid* grid)
+ZPG_EXPORT void ZPG_Grid_CalcStats(ZPGGrid* grid)
 {
     grid->stats.numFloorTiles = 0;
     grid->stats.numObjectiveTags = 0;
@@ -373,7 +373,8 @@ eg:
           #.....#
           #######
 */
-static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y, i32* iterationCount)
+ZPG_EXPORT u8 ZPG_Grid_CountNeighourRingsAt(
+    ZPGGrid* grid, i32 x, i32 y, u32* iterationCount)
 {
     if (!ZPG_IS_POS_SAFE(grid->width, grid->height, x, y))
     {
@@ -436,12 +437,13 @@ static u8 ZPG_Grid_CountNeighourRingsAt(ZPGGrid* grid, i32 x, i32 y, i32* iterat
 /**
  * result must be the same size as grid!
  */
-static void ZPG_Grid_CountNeighourRings(ZPGGrid* grid, ZPGGrid* result, i32 ignoreValue, i32 bVerbose)
+ZPG_EXPORT void ZPG_Grid_CountNeighourRings(
+    ZPGGrid* grid, ZPGGrid* result, i32 ignoreValue, i32 bVerbose)
 {
     ZPG_PARAM_NULL(grid, );
     ZPG_PARAM_NULL(result, );
     ZPG_PARAM_GRIDS_EQUAL_SIZE(grid, result, )
-    i32 count = 0;
+    u32 count = 0;
     if (bVerbose)
     {
         printf("Calc rings\n");
@@ -501,7 +503,7 @@ static void ZPG_Grid_PerlinToGreyscale(
 /////////////////////////////////////////////////////////////
 // Grid Allocation/Deallocation
 /////////////////////////////////////////////////////////////
-static ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
+ZPG_EXPORT ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
 {
     i32 totalCells = width * height;
     i32 memForGrid = (sizeof(u8) * totalCells);

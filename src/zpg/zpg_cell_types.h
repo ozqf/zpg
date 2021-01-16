@@ -23,7 +23,7 @@ static ZPGCellTypeDef* ZPG_GetDefaultType()
     return &g_types[0];
 }
 
-static ZPGCellTypeDef* ZPG_GetType(u8 cellTypeIndex)
+ZPG_EXPORT ZPGCellTypeDef* ZPG_GetType(u8 cellTypeIndex)
 {
     if (cellTypeIndex < 0 || cellTypeIndex >= 256)
     { return &g_types[0]; }

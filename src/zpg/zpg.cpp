@@ -69,7 +69,7 @@ static void ZPG_AddPresetFunction(zpg_preset_fn funcPtr, char* label)
     g_nextPreset++;
 }
 
-static void ZPG_Fatal(const char* msg)
+ZPG_EXPORT void ZPG_Fatal(const char* msg)
 {
     g_ptrFatal(msg);
 }

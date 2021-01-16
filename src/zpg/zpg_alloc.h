@@ -23,7 +23,7 @@ static i32 ZPG_GetNumAllocs()
     return g_numAllocs;
 }
 
-static void* ZPG_Alloc(i32 numBytes, i32 tag)
+ZPG_EXPORT void* ZPG_Alloc(i32 numBytes, i32 tag)
 {
     #ifdef ZPG_DEBUG
     printf("Alloc tag %d num bytes %d at index %d of %d from fn 0X%X\n",
