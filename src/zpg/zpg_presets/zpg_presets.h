@@ -206,7 +206,6 @@ static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
     if (presetCfg->height > 0) { h = presetCfg->height; }
 
     ZPGCellRules rules = ZPG_DefaultCaveRules();
-    rules.overpopLimit = 999;
     
     // Create canvas
     ZPGGrid* grid = ZPG_CreateGrid(w, h);

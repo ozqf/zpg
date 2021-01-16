@@ -3,18 +3,53 @@
 
 #include "zpg_internal.h"
 
-static ZPGCellRules ZPG_DefaultCaveRules()
+static ZPGCellRules ZPG_BalancedCaveRules()
 {
     ZPGCellRules rules = {};
     rules.seedChance = 0.3f;
     rules.starveLimit = 2;
-    rules.overpopLimit = 4;
+	rules.overpopLimit = 999;
     rules.birthLimit = 3;
     rules.iterations = 2;
 
     rules.emptyValue = ZPG_CELL_TYPE_PATH;
     rules.filledValue = ZPG_CELL_TYPE_WALL;
     return rules;
+}
+
+static ZPGCellRules ZPG_SparseCaveRules()
+{
+    ZPGCellRules rules = {};
+    rules.seedChance = 0.2f;
+    rules.starveLimit = 2;
+    rules.overpopLimit = 5;
+    rules.birthLimit = 3;
+    rules.iterations = 2;
+
+    rules.emptyValue = ZPG_CELL_TYPE_PATH;
+    rules.filledValue = ZPG_CELL_TYPE_WALL;
+    return rules;
+}
+
+static ZPGCellRules ZPG_DenseCaveRules()
+{
+    ZPGCellRules rules = {};
+    rules.seedChance = 0.4f;
+    rules.starveLimit = 2;
+    rules.overpopLimit = 999;
+    rules.birthLimit = 3;
+    rules.iterations = 2;
+
+    rules.emptyValue = ZPG_CELL_TYPE_PATH;
+    rules.filledValue = ZPG_CELL_TYPE_WALL;
+    return rules;
+}
+
+static ZPGCellRules ZPG_DefaultCaveRules()
+{
+	//return ZPG_BalancedCaveRules();
+	return ZPG_DenseCaveRules();
+	//return ZPG_SparseCaveRules();
 }
 
 // 0.45 very little paint chance. 0.55 much higher.
