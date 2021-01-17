@@ -617,14 +617,6 @@ static ZPGPoint* ZPG_AllocAndCopyPoints(ZPGPoint* source, i32 numPoints)
     return points;
 }
 
-static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height)
-{
-    ZPGGrid* stencil = ZPG_CreateGrid(width, height);
-    ZPG_Grid_SetAll(stencil, ZPG_STENCIL_TYPE_EMPTY);
-    ZPG_DrawOuterBorder(stencil, NULL, ZPG_STENCIL_TYPE_FULL);
-    return stencil;
-}
-
 static void ZPG_Grid_SetAllWithStencil(ZPGGrid* target, ZPGGrid* stencil, u8 valToSet)
 {
     ZPG_PARAM_NULL(target, )

@@ -26,6 +26,7 @@ https://www.redblobgames.com/articles/noise/introduction.html
 
 // grid painting and individual generation functions
 #include "zpg_paint/zpg_draw_grid_primitives.h"
+#include "zpg_paint/zpg_paint_stencil.h"
 #include "zpg_paint/zpg_perlin_draw.h"
 #include "zpg_paint/zpg_drunken_walk.h"
 #include "zpg_paint/zpg_grid_walk_and_fill.h"
