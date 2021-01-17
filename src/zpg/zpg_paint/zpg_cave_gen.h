@@ -47,8 +47,8 @@ static ZPGCellRules ZPG_DenseCaveRules()
 
 static ZPGCellRules ZPG_DefaultCaveRules()
 {
-	//return ZPG_BalancedCaveRules();
-	return ZPG_DenseCaveRules();
+	return ZPG_BalancedCaveRules();
+	//return ZPG_DenseCaveRules();
 	//return ZPG_SparseCaveRules();
 }
 
@@ -151,6 +151,7 @@ static void ZPG_IterateCaves(
     else
     {
         ZPG_PARAM_GRIDS_EQUAL_SIZE(grid, working, )
+        ZPG_Grid_Copy(grid, working);
     }
     
     ZPG_BEGIN_GRID_ITERATE(grid)
@@ -188,6 +189,18 @@ static void ZPG_IterateCaves(
     {
         ZPG_FreeGrid(working);
     }
+}
+
+extern "C" void ZPG_FillCaves(
+    ZPGGrid* grid, ZPGGrid* stencil, ZPGCellRules rules, i32* seed)
+{
+    ZPG_SeedCaves(grid, stencil, rules.filledValue, rules.seedChance, seed);
+    ZPGGrid* working = ZPG_CreateGrid(grid->width, grid->height);
+    for (i32 i = 0; i < rules.iterations; ++i)
+    {
+        ZPG_IterateCaves(grid, stencil, working, rules);
+    }
+    ZPG_FreeGrid(working);
 }
 
 #endif // ZPG_CAVE_GEN_H

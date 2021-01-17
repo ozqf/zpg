@@ -3,8 +3,16 @@
 
 #include "../zpg_internal.h"
 
-static void ZPG_SeedRooms(ZPGGrid* target, u8 minValue, u8 maxValue,
-    u8 healThreshold, i32 healMode, i32 healIterations, i32* seed, i32 bVerbose)
+static void ZPG_SeedRooms(
+    ZPGGrid* target,
+    ZPGGrid* stencil,
+    u8 minValue,
+    u8 maxValue,
+    u8 healThreshold,
+    i32 healMode,
+    i32 healIterations,
+    i32* seed,
+    i32 bVerbose)
 {
     i32 numDigits = 3;
     if (maxValue < 10)
@@ -16,7 +24,7 @@ static void ZPG_SeedRooms(ZPGGrid* target, u8 minValue, u8 maxValue,
         numDigits = 2;
     }
     
-    ZPG_Grid_FillRandom(target, minValue, maxValue, seed);
+    ZPG_Grid_FillRandom(target, stencil, minValue, maxValue, seed);
     if (bVerbose)
     {
         printf("vals %d to %d\n",
@@ -48,6 +56,9 @@ static void ZPG_SeedRooms(ZPGGrid* target, u8 minValue, u8 maxValue,
     }
 }
 
+/**
+ * Test settings for randomly laying out groups of numbers
+ */
 static ZPGGrid* ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
 {
     i32 bVerbose = ((cfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
@@ -57,15 +68,22 @@ static ZPGGrid* ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
 
     printf("--- Room Seeding test ---\n");
     ZPGGrid* a = ZPG_CreateGrid(w, h);
-    ZPG_SeedRooms(a, 1, 9, 1, 0, 1, &cfg->seed, bVerbose);
+    ZPG_SeedRooms(a, NULL, 1, 9, 1, 0, 1, &cfg->seed, YES);
     ZPGGrid* b = ZPG_CreateGrid(w, h);
-    ZPG_SeedRooms(b, 1, 3, 5, 0, 2, &cfg->seed, bVerbose);
+    ZPG_SeedRooms(b, NULL, 1, 3, 5, 0, 2, &cfg->seed, YES);
     ZPGGrid* c = ZPG_CreateGrid(w, h);
-    ZPG_SeedRooms(c, 1, 4, 5, 0, 1, &cfg->seed, bVerbose);
+    ZPG_SeedRooms(c, NULL, 1, 4, 5, 0, 1, &cfg->seed, YES);
     ZPGGrid* d = ZPG_CreateGrid(w, h);
-    ZPG_SeedRooms(d, 1, 50, 5, 0, 1, &cfg->seed, bVerbose);
+    ZPG_SeedRooms(d, NULL, 1, 50, 5, 0, 1, &cfg->seed, YES);
     ZPGGrid* e = ZPG_CreateGrid(w, h);
-    ZPG_SeedRooms(e, 1, 10, 100, 0, 2, &cfg->seed, bVerbose);
+    ZPG_SeedRooms(e, NULL, 1, 10, 100, 0, 2, &cfg->seed, YES);
+
+    ZPGGrid* perlinA = ZPG_CreateGrid(w, h);
+    zpg_perlin_cfg perlin = {};
+    ZPG_Perlin_SetCfgPreset(&perlin, 1);
+    ZPG_DrawPerlinGrid(perlinA, NULL, &cfg->seed, &perlin);
+    ZPG_Grid_PrintValues(perlinA, 2, YES);
+
     return a;
 }
 
@@ -114,7 +132,10 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     #if 1
     // ZPG_SeedRooms(roomVolumes, 1, 5, 5, 1, &cfg->seed); // okayish results.
     //ZPG_SeedRooms(roomVolumes, 1, 5, 5, 2, &cfg->seed, bVerbose);
-    ZPG_SeedRooms(roomVolumes, 1, 4, 5, 1, 1, &cfg->seed, bVerbose);
+    ZPG_FillCaves(roomVolumes, NULL, ZPG_DefaultCaveRules(), &cfg->seed);
+    ZPG_Grid_PrintValues(roomVolumes, 1, YES);
+    // pass volumes as stencil so it doesn't overwrite itself
+    ZPG_SeedRooms(roomVolumes, roomVolumes, 1, 4, 5, 1, 1, &cfg->seed, bVerbose);
     #endif
     ZPG_ZeroOutLoneValues(roomVolumes);
 	
@@ -230,7 +251,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     ZPGGrid* grid = stack->grids[mainGrid];
     //ZPG_FillRectWithStencil(grid, NULL, { 0, 0 }, { (w / 2) - 1, h }, 1);
     //ZPG_FillRectWithStencil(grid, NULL, { (w / 2), 0 }, { w - 1, h }, 2);
-    ZPG_Grid_FillRandom(stack->grids[0], minType, maxType, &cfg->seed);
+    ZPG_Grid_FillRandom(stack->grids[0], NULL, minType, maxType, &cfg->seed);
     
     if (bVerbose)
     {

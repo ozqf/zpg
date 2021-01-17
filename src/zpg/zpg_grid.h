@@ -539,6 +539,7 @@ ZPG_EXPORT ZPGGrid* ZPG_CreateGrid(i32 width, i32 height)
 
 static void ZPG_FreeGrid(ZPGGrid* grid)
 {
+    ZPG_PARAM_NULL(grid, )
     ZPG_Free(grid->cells);
 }
 
