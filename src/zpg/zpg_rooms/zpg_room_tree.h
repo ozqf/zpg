@@ -98,6 +98,7 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     const i32 tagGridIndex = 1;
     const i32 doorwayFlagsIndex = 2;
     const i32 roomFlagsIndex = 3;
+    const i32 caveStencilIndex = 4;
     //const i32 originalGrid = 4;
     const i32 stackSize = 24;
 
@@ -108,6 +109,7 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     ZPGGrid* tagGrid = stack->grids[tagGridIndex];
     ZPGGrid* doorFlags = stack->grids[doorwayFlagsIndex];
     ZPGGrid* roomFlags = stack->grids[roomFlagsIndex];
+    ZPGGrid* caveStencil = stack->grids[caveStencilIndex];
     ZPG_Grid_SetAll(roomVolumes, 0);
     ZPG_Grid_SetAll(tagGrid, 0);
     ZPG_Grid_SetAll(doorFlags, 0);
@@ -132,7 +134,10 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     #if 1
     // ZPG_SeedRooms(roomVolumes, 1, 5, 5, 1, &cfg->seed); // okayish results.
     //ZPG_SeedRooms(roomVolumes, 1, 5, 5, 2, &cfg->seed, bVerbose);
-    ZPG_FillCaves(roomVolumes, NULL, ZPG_DefaultCaveRules(), &cfg->seed);
+    //ZPG_CreateHorizontalBisectStencil(caveStencil);
+    ZPG_CreateVerticalBisectStencil(caveStencil);
+    ZPG_Grid_PrintValues(caveStencil, 1, YES);
+    ZPG_FillCaves(roomVolumes, caveStencil, ZPG_DefaultCaveRules(), &cfg->seed);
     ZPG_Grid_PrintValues(roomVolumes, 1, YES);
     // pass volumes as stencil so it doesn't overwrite itself
     ZPG_SeedRooms(roomVolumes, roomVolumes, 1, 4, 5, 1, 1, &cfg->seed, bVerbose);
