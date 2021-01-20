@@ -148,6 +148,10 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     // find rooms by flood fill
     ZPGRoom* rooms = NULL;
     i32 numRooms = ZPG_Grid_FindRooms(roomVolumes, tagGrid, &rooms);
+
+    //ZPG_ListRooms(rooms, numRooms);
+    ZPG_Rooms_MergeOneDimensionalRooms(roomVolumes, roomFlags, rooms, numRooms);
+
     ZPG_Room_BuildNeighbourFlags(roomVolumes, roomFlags);
     if (bVerbose)
     {

@@ -135,7 +135,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(ZPGPresetCfg* presetCfg)
         printf("Draw in rect %d/%d to %d/%d\n", rect.min.x, rect.min.y, rect.max.x, rect.max.y);
         ZPG_DrawRect(grid, NULL, rect.min, rect.max, ZPG_CELL_TYPE_VOID);
         ZPGPoint dir = ZPG_RandomFourWayDir(&cfg.seed);
-        ZPGPoint centre = rect.Centre();
+        ZPGPoint centre = ZPG_Rect_Centre(rect);
         cfg.startX = centre.x;
         cfg.startY = centre.y;
         ZPG_GridRandomWalk(grid, NULL, &rect, &cfg, dir);

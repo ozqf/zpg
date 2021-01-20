@@ -184,6 +184,7 @@ struct ZPGRoom
     i32 id;
     i32 tileType;
     i32 weight;
+    ZPGRect extents;
     // If is stored as a set of points
     ZPGPoint* points;
     i32 numPoints;

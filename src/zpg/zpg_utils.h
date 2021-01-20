@@ -10,6 +10,32 @@ ZPG_EXPORT f32 ZPG_Distance(ZPGPoint a, ZPGPoint b)
     return sqrtf((dx * dx) + (dy * dy));
 }
 
+static ZPGPoint ZPG_Rect_Centre(ZPGRect r)
+{
+    ZPGPoint p;
+    p.x = r.min.x + ((r.max.x - r.min.x) / 2);
+    p.y = r.min.y + ((r.max.y - r.min.y) / 2);
+    return p;
+}
+
+static ZPGPoint ZPG_Rect_Size(ZPGRect r)
+{
+    ZPGPoint p;
+    p.x = r.max.x - r.min.x;
+    p.y = r.max.y - r.min.y;
+    return p;
+}
+
+static void ZPG_Rect_UpdateExtents(ZPGRect* r, ZPGPoint p)
+{
+    ZPG_PARAM_NULL(r, )
+    if (p.x < r->min.x) { r->min.x = p.x; }
+    if (p.x > r->max.x) { r->max.x = p.x; }
+
+    if (p.y < r->min.y) { r->min.y = p.y; }
+    if (p.y > r->max.y) { r->max.y = p.y; }
+}
+
 static i32 ZPG_PairMatches(ZPGPoint a, ZPGPoint b)
 {
     return ((a.x == b.x && a.y == b.y)

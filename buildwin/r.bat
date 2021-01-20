@@ -24,7 +24,7 @@ zpg preset
 @rem zpg.exe preset 6 -g
 
 @rem -- Room connection test --
-zpg.exe preset 14 -p -w 16 -h 10
+zpg.exe preset 14 -p -v -e -w 16 -h 10 -s 0
 
 @rem -- Room seed test --
 @rem zpg preset 16 -e -v -w 20 -h 10 -s 0

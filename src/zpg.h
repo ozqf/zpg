@@ -91,14 +91,6 @@ struct ZPGRect
 {
     ZPGPoint min;
     ZPGPoint max;
-
-    ZPGPoint Centre()
-    {
-        ZPGPoint p;
-        p.x = min.x + ((max.x - min.x) / 2);
-        p.y = min.y + ((max.y - min.y) / 2);
-        return p;
-    }
 };
 
 struct ZPGNeighbours

@@ -67,8 +67,10 @@ static void ZPG_ListRooms(ZPGRoom* rooms, i32 numRooms)
 	{
 		ZPGRoom* room = &rooms[i];
 		if (room->tileType == ZPG_CELL_EMPTY) { continue; }
-		printf("Room %d. type: %d. cells: %d connections (%d):",
-			room->id, room->tileType, room->numPoints, room->numConnections);
+		i32 w = room->extents.max.x - room->extents.min.x;
+		i32 h = room->extents.max.y - room->extents.min.y;
+		printf("Room %d (%d by %d). type: %d. cells: %d connections (%d):",
+			room->id, w, h, room->tileType, room->numPoints, room->numConnections);
 		if (room->numConnections == 0) { printf("\n"); continue; }
         else { printf("\n\t"); }
 		for (i32 j = 0; j < room->numConnections; ++j)

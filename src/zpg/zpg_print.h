@@ -234,7 +234,8 @@ static void ZPG_Grid_PrintCellDefChars(ZPGGrid* grid, u8 marker, i32 markerX, i3
             {
                 c = marker;
             }
-            printf("%c", c);
+            // double up to make a 8x16 pixel character square in the console!
+            printf("%c%c", c, c);
         }
         printf("\n");
     }

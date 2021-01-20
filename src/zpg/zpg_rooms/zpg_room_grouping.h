@@ -277,9 +277,12 @@ static i32 ZPG_Grid_FindRooms(
         // flood search for attached cells
         i32 numPoints = ZPG_Grid_FloodSearch(roomsSeed, tagGrid, x, y, points, maxPoints);
         // tag flood searched cells to avoid overwriting
+        // also record extents of points
+        ZPGRect extents = {};
         for (i32 j = 0; j < numPoints; ++j)
         {
             ZPG_GRID_SET(tagGrid, points[j].x, points[j].y, 1);
+            ZPG_Rect_UpdateExtents(&extents, points[j]);
             // ZPGCell* pointCell = ZPG_Grid_GetCellAt(grid, points[j].x, points[j].y);
             // pointCell->tile.tag = 1;
         }
@@ -293,6 +296,7 @@ static i32 ZPG_Grid_FindRooms(
         //room->tileType = cell->tile.type;
         room->points = ZPG_AllocAndCopyPoints(points, numPoints);
         room->numPoints = numPoints;
+        room->extents = extents;
         // printf("Did room %d, %d tiles, tag grid:\n", nextRoom, numPoints);
         // ZPG_Grid_PrintValues(tagGrid, YES);
 
@@ -518,5 +522,36 @@ static void ZPG_Rooms_AssignDoorways(
 	*/
 }
 
+static void ZPG_Rooms_MergeOneDimensionalRooms(
+    ZPGGrid* roomVolumes,
+    ZPGGrid* roomFlags,
+    ZPGRoom* rooms,
+    i32 numRooms)
+{
+    for (i32 i = 0; i < numRooms; ++i)
+    {
+        ZPGRoom* room = &rooms[i];
+        ZPGPoint size = ZPG_Rect_Size(room->extents);
+        if (size.x > 1 && size.y > 1) { continue; }
+
+        printf("Room %d is 1D\n", i);
+    }
+    
+    // ignore outer edge, these cells will have no
+    // neighbours on both sides
+    for (i32 y = 1; y < (roomVolumes->height - 1); ++y)
+    {
+        for (i32 x = 1; x < (roomVolumes->width - 1); ++x)
+        {
+            u8 val = ZPG_GRID_GET(roomVolumes, x, y);
+            if (val != ZPG_CELL_TYPE_WALL) { continue; }
+            u8 left = ZPG_GRID_GET(roomVolumes, x - 1, y);
+            u8 right = ZPG_GRID_GET(roomVolumes, x + 1, y);
+
+            u8 above = ZPG_GRID_GET(roomVolumes, x, y - 1);
+            u8 below = ZPG_GRID_GET(roomVolumes, x, y + 1);
+        }
+    }
+}
 
 #endif // ZPG_ROOM_GROUPING_H
