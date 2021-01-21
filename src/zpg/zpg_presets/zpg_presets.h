@@ -156,7 +156,7 @@ static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(ZPGPresetCfg* presetCfg)
     cfg.startY = centre.y;
     ZPG_GridRandomWalk(grid, &rect, &cfg, dir);
     */
-   return grid;
+    return grid;
 }
 
 static ZPGGrid* ZPG_TestDrunkenWalk_Scattered(ZPGPresetCfg* presetCfg)
@@ -209,15 +209,38 @@ static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
     
     // Create canvas
     ZPGGrid* grid = ZPG_CreateGrid(w, h);
-    ZPG_Grid_SetAll(grid, rules.emptyValue);
-    // Stencil grid - blocks writing of tiles
-    ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
+    ZPGGrid* stencil = ZPG_CreateGrid(w, h);
+    if (presetCfg->flags & ZPG_API_FLAG_SOLID_BORDER)
+    {
+        ZPG_DrawOuterBorder(stencil, NULL, ZPG_STENCIL_TYPE_FULL);
+    }
+    // ZPG_Draw_HorizontalBisectStencil(stencil);
+    // ZPG_Draw_VerticalBisectStencil(stencil);
 
+    ZPG_Draw_RandomVerticalBisectStencil(stencil, 0.8f, &presetCfg->seed);
+    ZPG_Draw_RandomHorizontalBisectStencil(stencil, 0.8f, &presetCfg->seed);
+    //ZPG_Grid_SetAll(grid, rules.emptyValue);
+    
+    // Stencil grid - blocks writing of tiles
+    // ZPGGrid* stencil = ZPG_CreateBorderStencil(w, h);
+	ZPG_Grid_Copy(stencil, grid);
+
+    if (bVerbose)
+    {
+        printf("Stencil\n");
+        ZPG_Grid_PrintValues(stencil, 1, YES);
+    }
+	
+	#if 1
+	ZPG_FillCaves(grid, stencil, rules, &presetCfg->seed, bVerbose);
+	#endif // use fill caves function
+	
+	#if 0
     ZPG_SeedCaves(
         grid,
         stencil,
-        rules.filledValue,
-        rules.seedChance,
+        ZPG_CELL_TYPE_WALL,
+        ZPG_CAVE_GEN_SEED_CHANCE_DEFAULT,
         &presetCfg->seed);
     
     if (bVerbose)
@@ -225,24 +248,19 @@ static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
         printf("Cave seed:\n");
         ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0);
     }
-    
-    for (i32 i = 0; i < rules.iterations; ++i)
+    for (i32 i = 0; i < 2; ++i)
     {
-        /*ZPG_IterateCaves_defunct(
+        ZPG_IterateCaves_defunct(
             grid,
             stencil,
             ZPG_CELL_TYPE_WALL,
             ZPG_CELL_TYPE_PATH,
-            ZPG_CAVE_GEN_CRITICAL_NEIGHBOURS_DEFAULT);*/
-        
-        ZPG_IterateCaves(
-            grid, stencil, NULL, rules);
-        if (bVerbose)
-        {
-            printf("Cave iteration:\n");
-            ZPG_Grid_PrintCellDefChars(grid, '\0', 0, 0);
-        }
+            ZPG_CAVE_GEN_CRITICAL_NEIGHBOURS_DEFAULT);
     }
+	
+	ZPG_Grid_FlipBinary(grid);
+	#endif
+	
     ZPG_FreeGrid(stencil);
     return grid;
 }

@@ -75,9 +75,9 @@ static ZPGPoint ZPG_RandomGridCellOutsideStencil(ZPGGrid* stencil, i32* seed)
     while (bBadPos)
     {
         p.x = (i32)ZPG_Randf32InRange(*seed, 0, (f32)stencil->width - 1);
-        *seed++;
+		ZPG_INC_SEED_PTR(seed);
         p.y = (i32)ZPG_Randf32InRange(*seed, 0, (f32)stencil->height - 1);
-        *seed++;
+        ZPG_INC_SEED_PTR(seed);
         if (ZPG_Grid_CheckStencilOccupied(stencil, p.x, p.y) == NO)
         {
             bBadPos = NO;
@@ -90,9 +90,9 @@ static ZPGPoint ZPG_RandomGridCellOutsideStencil(ZPGGrid* stencil, i32* seed)
 static ZPGPoint ZPG_RandomGridCell(ZPGGrid* grid, i32* seed)
 {
     ZPGPoint p;
-    p.x = (i32)ZPG_Randf32InRange(*seed, 0, (f32)grid->width - 1);
+    p.x = (i32)ZPG_Randf32InRange(ZPG_INC_SEED_PTR(seed), 0, (f32)grid->width - 1);
     *seed++;
-    p.y = (i32)ZPG_Randf32InRange(*seed, 0, (f32)grid->height - 1);
+    p.y = (i32)ZPG_Randf32InRange(ZPG_INC_SEED_PTR(seed), 0, (f32)grid->height - 1);
     *seed++;
     return p;
 }

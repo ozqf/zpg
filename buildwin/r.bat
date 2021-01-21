@@ -12,7 +12,8 @@ zpg preset
 @rem zpg.exe preset 0 -p -a output.txt
 
 @rem -- Caves --
-@rem zpg preset 2 -e -p -v -w 32 -h 32 -s 0
+zpg preset 2 -e -p -v -w 72 -h 32 -b
+@rem zpg preset 2 -e -p -v -w 72 -h 32 -s 0
 
 @rem segmented line + wanders
 @rem zpg.exe preset 3 -s 1610068662 -p -a output.txt
@@ -24,7 +25,7 @@ zpg preset
 @rem zpg.exe preset 6 -g
 
 @rem -- Room connection test --
-zpg.exe preset 14 -p -v -e -w 16 -h 10 -s 0
+@rem zpg.exe preset 14 -p -v -e -w 16 -h 10 -s 0
 
 @rem -- Room seed test --
 @rem zpg preset 16 -e -v -w 20 -h 10 -s 0

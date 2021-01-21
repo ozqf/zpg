@@ -76,7 +76,7 @@ static void ZPG_SeedCaves(
             if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES)
             { continue; }
             f32 rand = ZPG_Randf32(*seed);
-            *seed += 1;
+            (*seed) += 1;
             if (rand < seedChance)
             {
                 ZPG_GRID_SET(grid, x, y, paintType);
@@ -192,13 +192,23 @@ static void ZPG_IterateCaves(
 }
 
 extern "C" void ZPG_FillCaves(
-    ZPGGrid* grid, ZPGGrid* stencil, ZPGCellRules rules, i32* seed)
+    ZPGGrid* grid, ZPGGrid* stencil, ZPGCellRules rules, i32* seed, i32 bVerbose)
 {
     ZPG_SeedCaves(grid, stencil, rules.filledValue, rules.seedChance, seed);
+    if (bVerbose)
+    {
+        printf("--- Cave Seeding ---\n");
+        ZPG_Grid_PrintValues(grid, 1, YES);
+    }
     ZPGGrid* working = ZPG_CreateGrid(grid->width, grid->height);
     for (i32 i = 0; i < rules.iterations; ++i)
     {
         ZPG_IterateCaves(grid, stencil, working, rules);
+        if (bVerbose)
+        {
+            printf("--- Cave iteration %d ---\n", i + 1);
+            ZPG_Grid_PrintValues(grid, 1, YES);
+        }
     }
     ZPG_FreeGrid(working);
 }

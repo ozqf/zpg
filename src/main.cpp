@@ -122,7 +122,7 @@ static void run_test()
     argv[argc++] = "-s";
     argv[argc++] = "1610110326";
     #endif
-	#if 1
+	#if 0
 	argv[argc++] = "zpg.exe";
 	argv[argc++] = "preset";
 	argv[argc++] = "14";
@@ -135,6 +135,18 @@ static void run_test()
 	argv[argc++] = "12";
 	argv[argc++] = "-s";
 	argv[argc++] = "1610618434";
+	#endif
+	#if 1
+	argv[argc++] = "zpg.exe";
+	argv[argc++] = "preset";
+	argv[argc++] = "14";
+	argv[argc++] = "-v";
+	argv[argc++] = "-p";
+	argv[argc++] = "-w";
+	argv[argc++] = "18";
+	// argv[argc++] = "-s";
+	// argv[argc++] = "1627897578";
+
 	#endif
     run_preset_cli(argc, argv);
 }

@@ -8,14 +8,14 @@ static void ZPG_Grid_FillRandom(ZPGGrid* grid, ZPGGrid* stencil, u8 min, u8 max,
 		i32 len = grid->width * grid->height;
 		ZPG_BEGIN_GRID_ITERATE(grid)
 			if (ZPG_GRID_GET(stencil, x, y) != 0) { continue; }
-			ZPG_GRID_SET(grid, x, y, ZPG_RandU8InRange(*seed++, min, max));
+			ZPG_GRID_SET(grid, x, y, ZPG_RandU8InRange(ZPG_INC_SEED_PTR(seed), min, max));
 		ZPG_END_GRID_ITERATE
 		return;
 	}
 	i32 len = grid->width * grid->height;
 	for (i32 i = 0; i < len; ++i)
 	{
-		grid->cells[i] = ZPG_RandU8InRange(*seed++, min, max);
+		grid->cells[i] = ZPG_RandU8InRange(ZPG_INC_SEED_PTR(seed), min, max);
 	}
 }
 

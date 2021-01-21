@@ -137,7 +137,7 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     //ZPG_CreateHorizontalBisectStencil(caveStencil);
     ZPG_CreateVerticalBisectStencil(caveStencil);
     ZPG_Grid_PrintValues(caveStencil, 1, YES);
-    ZPG_FillCaves(roomVolumes, caveStencil, ZPG_DefaultCaveRules(), &cfg->seed);
+    ZPG_FillCaves(roomVolumes, caveStencil, ZPG_DefaultCaveRules(), &cfg->seed, bVerbose);
     ZPG_Grid_PrintValues(roomVolumes, 1, YES);
     // pass volumes as stencil so it doesn't overwrite itself
     ZPG_SeedRooms(roomVolumes, roomVolumes, 1, 4, 5, 1, 1, &cfg->seed, bVerbose);

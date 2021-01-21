@@ -462,7 +462,7 @@ static void ZPG_Rooms_AssignDoorways(
         // }
         // choose a door
         if (numPotentialDoors == 0) { continue; }
-        i32 doorIndex = ZPG_RandArrIndex(numPotentialDoors, *seed++);
+        i32 doorIndex = ZPG_RandArrIndex(numPotentialDoors, ZPG_INC_SEED_PTR(seed));
         ZPGDoorway newDoor = potentialDoors[doorIndex];
         // figure out direction each point is facing
         ZPGPoint dir;

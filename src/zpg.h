@@ -16,6 +16,7 @@
 #define ZPG_API_FLAG_NO_ENTITIES (1 << 3)
 #define ZPG_API_FLAG_PRINT_GREYSCALE (1 << 4)
 #define ZPG_API_FLAG_PRINT_FINAL_ALLOCS (1 << 5)
+#define ZPG_API_FLAG_SOLID_BORDER (1 << 6)
 
 #define ZPG_FLAG_ABOVE_LEFT (1 << 0)
 #define ZPG_FLAG_ABOVE (1 << 1)

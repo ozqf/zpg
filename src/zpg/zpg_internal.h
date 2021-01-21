@@ -12,6 +12,8 @@
 #define ZPG_MIN(x, y) ((x) < (y) ? (x) : (y))
 #define ZPG_MAX(x, y) ((x) > (y) ? (x) : (y))
 
+#define ZPG_INC_SEED_PTR(ptrToSeedInt) ((*ptrToSeedInt)++)
+
 #define ZPG_MEM_TAG_NONE 0
 #define ZPG_MEM_TAG_GRID 1
 #define ZPG_MEM_TAG_POINTS 2

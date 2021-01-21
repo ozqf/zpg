@@ -21,7 +21,7 @@ static i32 ZPG_ParamReadInt(i32 argc, char** argv, ZPGPresetCfg* cfg, i32 offset
     i32 val = atoi(argv[1]);
     i32* target = (i32*)((u8*)cfg + offsetBytes);
     *target = val;
-    printf("Set int at %d to %d\n\n", offsetBytes, *target);
+    //printf("Set int at %d to %d\n\n", offsetBytes, *target);
     return 1;
 }
 
@@ -61,6 +61,10 @@ static i32 ZPG_ParamPictureOutputFile(i32 argc, char** argv, ZPGPresetCfg* cfg)
 static void ZPG_InitParams()
 {
     ZPGParam* param;
+
+    ////////////////////////////////////////////////////
+    // bit flag params
+    
     param = &g_paramTypes[g_numParamTypes++];
     param->asciChar = 'v';
     param->type = ZPG_PARAM_TYPE_FLAG;
@@ -90,6 +94,15 @@ static void ZPG_InitParams()
     param->asciChar = 'm';
     param->data.flag = ZPG_API_FLAG_PRINT_FINAL_ALLOCS;
     param->helpText = "-m (debugging) print remaining allocs after run\n";
+
+    param = &g_paramTypes[g_numParamTypes++];
+    param->type = ZPG_PARAM_TYPE_FLAG;
+    param->asciChar = 'b';
+    param->data.flag = ZPG_API_FLAG_SOLID_BORDER;
+    param->helpText = "-b Create a solid border around the generated map\n";
+	
+    ////////////////////////////////////////////////////
+	// Integer params
 
     // param = &g_paramTypes[g_numParamTypes++];
     // param->type = ZPG_PARAM_TYPE_FLAG;
@@ -122,8 +135,7 @@ static void ZPG_InitParams()
     end = (u8*)&cfg.height;
     param->data.integerOffsetBytes = (i32)(end - start);
     param->helpText = "-h Result height in pixels/characters. If not specified a default is used\n";
-	//
-
+    
 	param = &g_paramTypes[g_numParamTypes++];
     param->type = ZPG_PARAM_TYPE_INTEGER;
     param->asciChar = 'r';
@@ -131,7 +143,9 @@ static void ZPG_InitParams()
     end = (u8*)&cfg.roomCount;
     param->data.integerOffsetBytes = (i32)(end - start);
     param->helpText = "-r Intended room count\n";
-	
+
+    ////////////////////////////////////////////////////
+	// Function params
     param = &g_paramTypes[g_numParamTypes++];
     param->type = ZPG_PARAM_TYPE_FUNCTION;
     param->asciChar = 'a';

@@ -39,6 +39,17 @@ static void ZPG_Grid_Copy(ZPGGrid* src, ZPGGrid* dest)
     }
 }
 
+static void ZPG_Grid_FlipBinary(ZPGGrid* grid)
+{
+	i32 len = grid->width * grid->height;
+	for (i32 i = 0; i < len; ++i)
+	{
+		u8 val = grid->cells[i];
+		val = !(val > 0);
+		grid->cells[i] = val;
+	}
+}
+
 /*
 static ZPGCell* ZPG_Grid_GetCellAt(ZPGGrid* grid, i32 x, i32 y)
 {
