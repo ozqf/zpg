@@ -5,7 +5,7 @@
 #include "zpg.h"
 
 static i32 g_numAllocs = 0;
-static u32 g_totalAllocated = 0;
+static zpgSize g_totalAllocated = 0;
 
 //#define HEAP_ALLOC_TEST
 

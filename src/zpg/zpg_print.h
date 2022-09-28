@@ -311,7 +311,7 @@ static void ZPG_Grid_PrintTexture(ZPGGrid* grid, i32 bColourIndices)
 
     u8 divider = (u8)(255 / (numColours - 1));
     //divider -= 1;
-    printf("Sizeof(colours): %d divider %d\n", sizeof(colours), divider);
+    printf("Sizeof(colours): %lld divider %d\n", sizeof(colours), divider);
     printf("------ Grayscale texture %d/%d ------\n", grid->width, grid->height);
     for (i32 y = 0; y < grid->height; ++y)
     {

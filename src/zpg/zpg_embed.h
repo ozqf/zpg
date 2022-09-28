@@ -189,7 +189,7 @@ static i32 ZPG_Prefab_GetExitIndexByDirection(ZPGGridPrefab* prefab, ZPGPoint di
 static void ZPG_SetupPrefab(ZPGGridPrefab* prefab, char* label, const char* asci)
 {
     prefab->label = label;
-    i32 len = ZPG_STRLEN(asci);
+    zpgSize len = ZPG_STRLEN(asci);
     //printf("Allocate prefab \"%s\" - ", label);
     prefab->grid = ZPG_ReadGridAsci((u8*)asci, len);
     ZPG_ScanPrefabForExits(prefab, YES);

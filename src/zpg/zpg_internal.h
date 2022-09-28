@@ -204,7 +204,7 @@ struct ZPGRoom
 ZPG_EXPORT void ZPG_Fatal(const char* msg);
 
 // resources
-ZPG_EXPORT void* ZPG_Alloc(i32 numBytes, i32 tag);
+ZPG_EXPORT void* ZPG_Alloc(zpgSize numBytes, i32 tag);
 ZPG_EXPORT i32 ZPG_Free(void* ptr);
 
 // utility

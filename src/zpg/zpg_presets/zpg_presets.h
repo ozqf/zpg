@@ -371,9 +371,9 @@ static ZPGGrid* ZPG_TestLoadAsciFile(ZPGPresetCfg* presetCfg)
     char* fileName = "test_grid.txt";
     ZPGGrid* grid = NULL;
     #if 1
-    i32 len;
+    zpgSize len;
     u8* chars = ZPG_StageFile(fileName, &len);
-    printf("Read %d bytes from %s\n", len, fileName);
+    printf("Read %lld bytes from %s\n", len, fileName);
     //ZPG_MeasureGridInString(chars, &size, len);
     grid = ZPG_ReadGridAsci(chars, len);
     #endif
@@ -387,7 +387,7 @@ static ZPGGrid* ZPG_TestEmbed(ZPGPresetCfg* presetCfg)
 {
     ZPGGrid* grid = NULL;
     const char* str = embed_8x8_grid_pillars;
-    i32 len = ZPG_STRLEN(str);
+    zpgSize len = ZPG_STRLEN(str);
     grid = ZPG_ReadGridAsci((u8*)str, len);
 
     return grid;
@@ -400,7 +400,7 @@ static ZPGGrid* ZPG_TestBlit(ZPGPresetCfg* presetCfg)
     ZPGGrid* source = NULL;
     ZPGGrid* stencil = NULL;
     const char* str = embed_8x8_grid_pillars;
-    i32 len = ZPG_STRLEN(str);
+    zpgSize len = ZPG_STRLEN(str);
     source = ZPG_ReadGridAsci((u8*)str, len);
  
     grid = ZPG_CreateGrid(source->width * 2, source->height * 2);

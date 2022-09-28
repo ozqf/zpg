@@ -94,7 +94,7 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
 
     g_ptrAlloc = ptrAlloc;
     g_ptrFree = ptrFree;
-    printf("Allocate/Free set at 0X%X and 0X%X\n", (u32)g_ptrAlloc, (u32)g_ptrFree);
+    //printf("Allocate/Free set at 0X%X and 0X%X\n", (u64)g_ptrAlloc, (u64)g_ptrFree);
 
     g_directions[ZPG_DIR_RIGHT] = { 1, 0 };
     g_directions[ZPG_DIR_UP] = { 0, -1 };
@@ -180,7 +180,7 @@ void ZPG_RunPresetCLI(
     ZPGPresetCfg cfg = {};
     // Seed randomly - param may override
     cfg.seed = (i32)time(NULL);
-    cfg.seed ^= (u32)&cfg;
+    cfg.seed ^= (u64)&cfg;
     // read params
     ZPGError err = ZPG_Params_ReadForPreset(&cfg, argc, argv);
 	if (err != 0)
@@ -236,8 +236,6 @@ void ZPG_RunPresetCLI(
         *resultHeight = grid->height;
     }
 
-    printf("Initial seed was %d\n", originalSeed);
-
     if (cfg.flags & ZPG_API_FLAG_PRINT_FINAL_ALLOCS)
     {
         ZPG_PrintAllocations();
@@ -248,6 +246,16 @@ void ZPG_RunPresetCLI(
     {
         ZPG_PrintAllocations();
     }
+	
+    printf("Initial seed was %d\n", originalSeed);
+	printf("Cmdline: ");
+	i32 i = 0;
+	while (++i < argc)
+	{
+		printf("%s ", argv[i]);
+	}
+	printf("\n");
+
     // TODO: Assumes caller will free grid memory
     // (and that they passed in malloc/free functions)
 }

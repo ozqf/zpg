@@ -10,7 +10,7 @@
 struct ZPGAlloc
 {
     void* ptr;
-    i32 size;
+    zpgSize size;
     i32 tag;
 };
 
@@ -23,7 +23,7 @@ static i32 ZPG_GetNumAllocs()
     return g_numAllocs;
 }
 
-ZPG_EXPORT void* ZPG_Alloc(i32 numBytes, i32 tag)
+ZPG_EXPORT void* ZPG_Alloc(zpgSize numBytes, i32 tag)
 {
     #ifdef ZPG_DEBUG
     printf("Alloc tag %d num bytes %d at index %d of %d from fn 0X%X\n",
@@ -110,7 +110,12 @@ static void ZPG_PrintAllocations()
     for (i32 i = 0; i < g_numAllocs; ++i)
     {
         f32 kb = (f32)g_allocs[i].size / 1024.f;
-        printf("%d: tag %d, addr %d, %.3fKB\n", i, g_allocs[i].tag, (u32)g_allocs[i].ptr, kb);
+        printf(
+			"%d: tag %d, addr %lld, %.3fKB\n",
+			i,
+			g_allocs[i].tag,
+			(u64)g_allocs[i].ptr,
+			kb);
     }
 }
 

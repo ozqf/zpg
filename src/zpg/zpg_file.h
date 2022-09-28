@@ -78,7 +78,7 @@ static void ZPG_WriteGridAsPNG(ZPGGrid* grid, char* fileName, i32 bUseCellTypeCo
     printf("ERROR %d saving to png \"%s\"\n", err, fileName);
 }
 
-static void ZPG_MeasureGridInString(u8* str, ZPGPoint* size, i32 numChars)
+static void ZPG_MeasureGridInString(u8* str, ZPGPoint* size, zpgSize numChars)
 {
     i32 width = 0, height = 0, currentWidth = 0;
     char c = '\0';
@@ -117,7 +117,7 @@ static void ZPG_MeasureGridInString(u8* str, ZPGPoint* size, i32 numChars)
 }
 
 #if 1
-static u8* ZPG_StageFile(char* fileName, i32* bytesRead)
+static u8* ZPG_StageFile(char* fileName, zpgSize* bytesRead)
 {
     FILE* f;
     i32 err = fopen_s(&f, fileName, "rb");
@@ -133,7 +133,7 @@ static u8* ZPG_StageFile(char* fileName, i32* bytesRead)
     if (mem == NULL)
     {
         fclose(f);
-        printf("Failed to allocate %d bytes for file\n", *bytesRead);
+        printf("Failed to allocate %lld bytes for file\n", *bytesRead);
         return NULL;
     }
 
@@ -148,7 +148,7 @@ static void ZPG_CloseFile(FILE* f)
     fclose(f);
 }
 
-static ZPGGrid* ZPG_ReadGridAsci(u8* chars, i32 len)
+static ZPGGrid* ZPG_ReadGridAsci(u8* chars, zpgSize len)
 {
     ZPGGrid* grid = NULL;
     ZPGPoint size;

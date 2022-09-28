@@ -10,6 +10,8 @@ PRIMITIVE TYPES
 #define f32 float
 #define f64 double
 
+#define zpgSize size_t
+
 #define i8 int8_t
 #define i16 int16_t
 #define i32 int32_t

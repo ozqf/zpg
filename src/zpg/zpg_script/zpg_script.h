@@ -16,7 +16,7 @@ static i32 ZPG_ExecuteCommand(char** tokens, i32 numTokens)
 static i32 ZPG_ReadTokens(
     char* source, char* destination, char** tokens)
 {
-    i32 len = ZPG_STRLEN(source);
+    zpgSize len = ZPG_STRLEN(source);
     i32 tokensCount = 0;
 
     i32 readPos = 0;
@@ -97,7 +97,7 @@ char* ZPG_RunToNewLine(char* buffer)
 static i32 ZPG_ExecuteLine(u8* cursor, u8* end, i32 lineNumber)
 {
     const int tempBufferSize = 256;
-    i32 lineLength = end - cursor;
+    zpgSize lineLength = end - cursor;
     u8 tokensBuf[tempBufferSize];
     ZPG_MEMSET(tokensBuf, 0, tempBufferSize);
 
@@ -106,7 +106,7 @@ static i32 ZPG_ExecuteLine(u8* cursor, u8* end, i32 lineNumber)
     workBuf[lineLength] = '\0';
     workBuf[lineLength + 1] = '\0';
 
-    printf("Read line %d (%d chars): \"%s\"\t",
+    printf("Read line %d (%lld chars): \"%s\"\t",
         lineNumber, lineLength + 1, workBuf);
 
     const i32 maxTokens = 24;
@@ -149,7 +149,7 @@ ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags)
     {
         i32 lineEndSize;
         cursorEnd = ZPG_ScanForLineEnd(cursor, end, &lineEndSize);
-        i32 len = cursorEnd - cursor;
+        zpgSize len = cursorEnd - cursor;
         if (len >= 2)
         {
             i32 err = ZPG_ExecuteLine(cursor, cursorEnd, line);
