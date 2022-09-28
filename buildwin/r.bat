@@ -12,7 +12,7 @@ zpg preset
 @rem zpg.exe preset 0 -p -a output.txt
 
 @rem -- Caves --
-zpg preset 2 -e -p -v -w 72 -h 32 -b
+zpg preset walk_from_centre -e -p -v -w 72 -h 32 -b
 @rem zpg preset 2 -e -p -v -w 72 -h 32 -s 0
 
 @rem segmented line + wanders

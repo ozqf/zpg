@@ -58,16 +58,23 @@ ZPG_EXPORT void ZPG_SetMemoryFunctions(
     
 }
 
-static void ZPG_AddPresetFunction(zpg_preset_fn funcPtr, char* label)
+static void ZPG_AddPresetFunction(
+	zpg_preset_fn funcPtr,
+	char* selector,
+	char* description)
 {
     if (g_nextPreset == ZPG_MAX_PRESETS)
     {
-        printf("ERROR - no preset slot left for \"%s\"\n", label);
+        printf("ERROR - no preset slot left for \"%s\"\n", selector);
         return;
     }
-    g_presets[g_nextPreset] = funcPtr;
-    g_presetLabels[g_nextPreset] = label;
-    g_nextPreset++;
+	ZPGPreset* p = &g_presets[g_nextPreset++];
+	p->selector = selector;
+	p->description = description;
+	p->funcPtr = funcPtr;
+    // g_presets[g_nextPreset] = funcPtr;
+    // g_presetLabels[g_nextPreset] = label;
+    // g_nextPreset++;
 }
 
 ZPG_EXPORT void ZPG_Fatal(const char* msg)
@@ -108,29 +115,42 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
     //////////////////////////////////////////////////
     // Build preset list
     // 0
-    ZPG_AddPresetFunction(ZPG_TestDrunkenWalk_FromCentre, "Drunken Walk From Centre");
-    ZPG_AddPresetFunction(ZPG_TestDrunkenWalk_Scattered, "Scattered drunken walks");
-    ZPG_AddPresetFunction(ZPG_TestCaveGen, "Test Cellular Caves");
-    ZPG_AddPresetFunction(ZPG_TestDrawOffsetLines, "Test Draw Offset Lines");
-    ZPG_AddPresetFunction(ZPG_TestDrawLines, "Test Draw Lines");
+    ZPG_AddPresetFunction(ZPG_TestDrunkenWalk_FromCentre, "walk_from_centre", "Drunken Walk From Centre");
+    ZPG_AddPresetFunction(ZPG_TestDrunkenWalk_Scattered, "scattered_walks", "Scattered drunken walks");
+    ZPG_AddPresetFunction(ZPG_TestCaveGen, "test_caves", "Test Cellular Caves");
+    ZPG_AddPresetFunction(ZPG_TestDrawOffsetLines, "test_offset_lines", "Test Draw Offset Lines");
+    ZPG_AddPresetFunction(ZPG_TestDrawLines, "test_lines", "Test Draw Lines");
     // 5
-    ZPG_AddPresetFunction(ZPG_TestDrunkenWalk_WithinSpace, "Test Drunken walk within space");
-    ZPG_AddPresetFunction(ZPG_Preset_Perlin, "Test Perlin noise");
-    ZPG_AddPresetFunction(ZPG_TestLoadAsciFile, "Test asci file load");
-    ZPG_AddPresetFunction(ZPG_TestEmbed, "Test Embed");
-    ZPG_AddPresetFunction(ZPG_TestBlit, "Test blit");
+    ZPG_AddPresetFunction(ZPG_TestDrunkenWalk_WithinSpace, "test_walk_in_space", "Test Drunken walk within space");
+    ZPG_AddPresetFunction(ZPG_Preset_Perlin, "test_perlin_noise", "Test Perlin noise");
+    ZPG_AddPresetFunction(ZPG_TestLoadAsciFile, "test_asci_load", "Test asci file load");
+    ZPG_AddPresetFunction(ZPG_TestEmbed, "test_embed", "Test Embed");
+    ZPG_AddPresetFunction(ZPG_TestBlit, "test_blit", "Test blit");
     // 10
-    ZPG_AddPresetFunction(ZPG_Test_PrefabBuildA, "Prefab Build A");
-    ZPG_AddPresetFunction(ZPG_Test_WalkBetweenPrefabs, "Offset path between two prefabs");
-    ZPG_AddPresetFunction(ZPG_Preset_PrefabsLinesCaves, "Offset path around four prefabs");
-    ZPG_AddPresetFunction(ZPG_Preset_RoomTreeTest, "Test room tree generate");
-    ZPG_AddPresetFunction(ZPG_Preset_TestConnectRooms, "Test room volume connections");
+    ZPG_AddPresetFunction(ZPG_Test_PrefabBuildA, "prefab_build_a", "Prefab Build A");
+    ZPG_AddPresetFunction(ZPG_Test_WalkBetweenPrefabs, "offset_between_2_prefabs", "Offset path between two prefabs");
+    ZPG_AddPresetFunction(ZPG_Preset_PrefabsLinesCaves, "offset_around_4_prefabs", "Offset path around four prefabs");
+    ZPG_AddPresetFunction(ZPG_Preset_RoomTreeTest, "test_room_generate", "Test room tree generate");
+    ZPG_AddPresetFunction(ZPG_Preset_TestConnectRooms, "test_room_connections", "Test room volume connections");
     // 15
-    ZPG_AddPresetFunction(ZPG_TestCaveLayers, "Test Cave Layering");
-    ZPG_AddPresetFunction(ZPG_Preset_TestRoomSeeding, "Test Room Seeding");
+    ZPG_AddPresetFunction(ZPG_TestCaveLayers, "test_cave_layering", "Test Cave Layering");
+    ZPG_AddPresetFunction(ZPG_Preset_TestRoomSeeding, "test_room_seeding", "Test Room Seeding");
 
     //printf("Init complete - %d allocs\n", ZPG_GetNumAllocs());
     return 0;
+}
+
+static ZPGPreset* ZPG_GetPreset(const char* selector)
+{
+	for (i32 i = 0; i < g_nextPreset; ++i)
+	{
+		ZPGPreset* p = &g_presets[i];
+		if (ZPG_STRCMP(selector, p->selector) == 0)
+		{
+			return p;
+		}
+	}
+	return NULL;
 }
 
 static void ZPG_PrintPresetsList()
@@ -138,7 +158,7 @@ static void ZPG_PrintPresetsList()
     printf("--- PRESET MODES ---\n");
     for (i32 i = 0; i < g_nextPreset; ++i)
     {
-        printf("%d: \"%s\"\n", i, g_presetLabels[i]);
+        printf("%d: %s: \"%s\"\n", i, g_presets[i].selector, g_presets[i].description);
     }
 }
 
@@ -149,7 +169,7 @@ static void ZPG_PrintPresetHelp(char* exeName)
     printf("------------------------\n");
 	printf("Run a preset generator function with given settings.\n");
 	printf("preset <preset_mode> <options>\n");
-    printf("eg: %s preset 12 -p -i output.txt\n\n", exeName);
+    printf("eg: %s preset walk_from_centre -p -i output.txt\n\n", exeName);
     ZPG_PrintPresetsList();
     ZPG_Params_PrintHelp();
 }
@@ -188,20 +208,27 @@ void ZPG_RunPresetCLI(
 		printf("ABORT with error code %d\n", err);
         return;
 	}
-    if (cfg.preset < 0 || cfg.preset >= g_nextPreset)
-    {
-        printf("ABORT Unrecognised preset type %d\n", cfg.preset);
-        return;
-    }
+	ZPGPreset* preset = ZPG_GetPreset(cfg.preset);
+	if (preset == NULL)
+	{
+		printf("ABORT no preset \"%s\" found\n", cfg.preset);
+		return;
+	}
+    // if (cfg.preset < 0 || cfg.preset >= g_nextPreset)
+    // {
+    //     printf("ABORT Unrecognised preset type %d\n", cfg.preset);
+    //     return;
+    // }
     if (g_bInitialised == false) { return; }
     
     /////////////////////////////////////////////
     // Run
-    printf("=== Preset %s ===\n", g_presetLabels[cfg.preset]);
+	
+    printf("=== Preset %s ===\n", preset->description);
     printf("Seed: %d\n", cfg.seed);
 	i32 originalSeed = cfg.seed;
     srand(cfg.seed);
-    ZPGGrid* grid = g_presets[cfg.preset](&cfg);
+    ZPGGrid* grid = preset->funcPtr(&cfg);// g_presets[cfg.preset](&cfg);
     if (grid == NULL)
     {
         printf("ERROR - no grid was returned...\n");

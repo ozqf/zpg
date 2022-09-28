@@ -110,7 +110,7 @@ static zpg_fatal_fn g_ptrFatal = NULL;
 struct ZPGPresetCfg
 {
     i32 seed;
-    i32 preset;
+    char* preset;
     i32 flags;
     i32 width;
     i32 height;
@@ -124,9 +124,19 @@ typedef ZPGGrid* (*zpg_preset_fn)(ZPGPresetCfg* cfg);
 
 typedef i32 (*zpg_param_fn)(i32 argc, char** argv, ZPGPresetCfg* cfg);
 
+struct ZPGPreset
+{
+	char* selector;
+	char* description;
+	zpg_preset_fn funcPtr;
+	u32 outputFormatFlags;
+	u32 defaultOutputFormat;
+};
+
 #define ZPG_MAX_PRESETS 64
-static zpg_preset_fn g_presets[ZPG_MAX_PRESETS];
-static char* g_presetLabels[ZPG_MAX_PRESETS];
+static ZPGPreset g_presets[ZPG_MAX_PRESETS];
+// static zpg_preset_fn g_presets[ZPG_MAX_PRESETS];
+// static char* g_presetLabels[ZPG_MAX_PRESETS];
 static i32 g_nextPreset = 0;
 
 //////////////////////////////////////////

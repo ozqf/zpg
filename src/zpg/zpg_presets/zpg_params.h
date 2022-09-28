@@ -184,7 +184,8 @@ static ZPGError ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** arg
     // skip first two args.
     // Read third arg as preset number
     
-    cfg->preset = atoi(argv[2]);
+    // cfg->preset = atoi(argv[2]);
+    cfg->preset = argv[2];
     
     i32 i = 3;
     while (i < argc)
@@ -238,7 +239,7 @@ static ZPGError ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** arg
 			return ZPG_ERROR_UNRECOGNISED_OPTION;
         }
     }
-    printf("Run preset %d\n", cfg->preset);
+    printf("Run preset \"%s\"\n", cfg->preset);
     printf("Read flags %d\n", cfg->flags);
     if (cfg->asciOutput != NULL)
     {

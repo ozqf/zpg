@@ -139,11 +139,13 @@ static void run_test()
 	#if 1
 	argv[argc++] = "zpg.exe";
 	argv[argc++] = "preset";
-	argv[argc++] = "14";
+	argv[argc++] = "test_room_connections";
 	argv[argc++] = "-v";
 	argv[argc++] = "-p";
 	argv[argc++] = "-w";
-	argv[argc++] = "18";
+	argv[argc++] = "16";
+	argv[argc++] = "-h";
+	argv[argc++] = "8";
 	// argv[argc++] = "-s";
 	// argv[argc++] = "1627897578";
 
