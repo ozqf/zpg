@@ -101,6 +101,19 @@ static void ZPG_Grid_SetAll(ZPGGrid* grid, u8 val)
     for (i32 i = 0; i < len; ++i) { grid->cells[i] = val; }
 }
 
+static void ZPG_Grid_CopySpecificValue(
+    ZPGGrid* source, ZPGGrid* target, u8 sourceValue, u8 paintValue)
+{
+    i32 total = source->width * source->height;
+    for (i32 i = 0; i < total; ++i)
+    {
+        if (source->cells[i] == sourceValue)
+        {
+            target->cells[i] = paintValue;
+        }
+    }
+}
+
 /**
  * Checks QueryGrid for a match. If true, target is painted with
  * the given value

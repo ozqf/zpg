@@ -209,14 +209,14 @@ static void ZPG_Grid_PrintCellDefChars(ZPGGrid* grid, u8 marker, i32 markerX, i3
     printf(" ");
     for (i32 x = 0; x < grid->width; ++x)
     {
-        printf("%d", xNum++);
+        printf("%d_", xNum++);
         if (xNum >= 10) { xNum = 0; }
     }
     printf("\n");
     for (i32 y = 0; y < grid->height; ++y)
     {
-        printf("%d", yNum++);
-        if (yNum >= 10) { yNum = 0; }
+        printf("%d|", yNum);
+        
         for (i32 x = 0; x < grid->width; ++x)
         {
             ZPGCellTypeDef* def = ZPG_Grid_GetTypeDefAt(grid, x, y);
@@ -237,6 +237,8 @@ static void ZPG_Grid_PrintCellDefChars(ZPGGrid* grid, u8 marker, i32 markerX, i3
             // double up to make a 8x16 pixel character square in the console!
             printf("%c%c", c, c);
         }
+        printf("|%d", yNum++);
+        if (yNum >= 10) { yNum = 0; }
         printf("\n");
     }
     printf("------------------\n");

@@ -27,6 +27,7 @@ static void ZPG_FillRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPai
     }
 }
 #endif
+
 static i32 ZPG_FillRectWithStencil(
     ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint min, ZPGPoint max, u8 typeToPaint)
 {

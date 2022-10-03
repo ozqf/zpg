@@ -21,8 +21,31 @@ static char* GetParamAsString(i32 index, char** tokens, i32 numTokens, char* fai
 	return tokens[index];
 }
 
+static ZPGGrid* GetParamAsGrid(
+    ZPGContext* ctx, i32 index, char** tokens, i32 numTokens)
+{
+    i32 i = GetParamAsInt(index, tokens, numTokens, -1);
+    if (i < 0 || i >= ctx->gridStack->numGrids)
+    {
+        return NULL;
+    }
+    return ctx->gridStack->grids[i];
+}
+
 static i32 ZPG_ExecSet(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
+    return 0;
+}
+
+static i32 ZPG_ExecGridPrint(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
+    if (grid == NULL)
+    {
+        printf("Grid specified not found in stack\n");
+        return 1;
+    }
+    ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
     return 0;
 }
 
@@ -74,6 +97,18 @@ static i32 ZPG_ExecGridSetAll(ZPGContext* ctx, char** tokens, i32 numTokens)
     return 0;
 }
 
+static i32 ZPG_ExecGridCopyValue(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    ZPGGrid* source = GetParamAsGrid(ctx, 0, tokens, numTokens);
+    if (source == NULL) { return 1; }
+    ZPGGrid* target = GetParamAsGrid(ctx, 1, tokens, numTokens);
+    if (target == NULL) { return 1; }
+    u8 sourceValue = (u8)GetParamAsInt(2, tokens, numTokens, 1);
+    u8 targetValue = (u8)GetParamAsInt(3, tokens, numTokens, 0);
+    ZPG_Grid_CopySpecificValue(source, target, sourceValue, targetValue);
+    ZPG_Grid_PrintCellDefChars(target, 0, 0, 0);
+}
+
 static i32 ZPG_ExecRandomWalk(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
     // i32 gridIndex = -1;
@@ -111,29 +146,37 @@ static i32 ZPG_ExecRandomWalk(ZPGContext* ctx, char** tokens, i32 numTokens)
 
 static i32 ZPG_ExecCaves(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
-    ZPGGrid* grid = ctx->gridStack->grids[0];
+    ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
+    if (grid == NULL) { return 1; }
+    ZPGGrid* stencil = GetParamAsGrid(ctx, 1, tokens, numTokens);
+    u8 solid = (u8)GetParamAsInt(2, tokens, numTokens, 1);
+    u8 empty = (u8)GetParamAsInt(3, tokens, numTokens, 0);
     ZPGCellRules rules = ZPG_DefaultCaveRules();
-    ZPG_FillCaves(grid, NULL, rules, &ctx->seed, NO);
+    rules.filledValue = solid;
+    rules.emptyValue = empty;
+    ZPG_FillCaves(grid, stencil, rules, &ctx->seed, NO);
     ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
     return 0;
 }
 
 static i32 ZPG_ExecStencil(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
-    if (!ZPG_CheckSignature("it", tokens, numTokens))
-	{
-		return 1;
-	}
-    i32 gridIndex = GetParamAsInt(0, tokens, numTokens, 0);
-    char* type = GetParamAsString(1, tokens, numTokens, "border");
-    ZPGGrid* grid = ctx->gridStack->grids[gridIndex];
+    // if (!ZPG_CheckSignature("it", tokens, numTokens))
+	// {
+	// 	return 1;
+	// }
+    ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
+    if (grid == NULL) { return 1; }
+    ZPGGrid* stencil = GetParamAsGrid(ctx, 1, tokens, numTokens);
+
+    char* type = GetParamAsString(2, tokens, numTokens, "border");
     if (ZPG_STRCMP(type, "bisect") == 0)
     {
         ZPG_Draw_HorizontalBisectStencil(grid);
     }
     else
     {
-        ZPG_DrawOuterBorder(grid, NULL, 1);
+        ZPG_DrawOuterBorder(grid, stencil, 1);
     }
     ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
     return 0;
