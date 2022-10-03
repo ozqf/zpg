@@ -2,26 +2,19 @@
 
 Library to hold various routines for procedural level generation I plan to use in various computer game projects.
 
-Output is purely grid based so far. Currently features random walk for creating paths and cellular automata/perlin noise for creating random caves.
+Output is purely grid based so far. Currently features random walk for creating paths and cellular automata/perlin noise for creating random caves, and some experiments on creating rooms by joining randomly scattered numbers.
 
-Example command lines:
+## Example command lines:
 
-zpg preset 12 -p -s 1610013895
+```zpg preset offset_around_4_prefabs -p -w 96 -h 48```
 
+```zpg preset test_room_connections -p -w 20 -h 20 -v```
 
+Also has a REPL mode that allows sequential commands to be entered manually
 
-Plan to replace the current grid data structure with a grid 'stack' instead,
-where each grid cell has a single byte data value and extra grid layers are
-added when new fields are necessary.
+```zpg repl```
 
-An example grid stack might be something like this:
-0 Seed value - initial random number (could be overwritten)
-1 Adjusted seed value (eg after some iteration process)
-2 object rooms stencil (stencil prevents other processes from overwriting)
-3 Room Id
-4 Room neighbour flags (1 bit for eight neighbours)
-5 Room to room flags (1 bit for eight neighbours)
-6 height map value
-7 cave backdrop
-8 styling flags
-... etc
+## Example output
+
+![Drunken walks](https://pbs.twimg.com/media/FeA1h6JWQAABrAz?format=png&name=large)
+![Room seeding](https://pbs.twimg.com/media/FeA1h6LXoAECfrV?format=png&name=large)
