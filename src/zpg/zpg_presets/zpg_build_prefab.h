@@ -3,7 +3,7 @@
 
 #include "zpg_internal.h"
 
-static ZPGGrid* ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
 {
     //i32 w = 48, h = 48;
     i32 w = presetCfg->width;
@@ -84,10 +84,10 @@ static ZPGGrid* ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
     #endif
 
     ZPG_FreeGrid(stencil);
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
-static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
 {
     i32 w = presetCfg->width;
     i32 h = presetCfg->height;
@@ -112,7 +112,11 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
     ZPG_BlitGrids(grid, leftRoom->grid, blitPosA, stencil);
     // TODO Choose exit - assuming prefab has one (and only one)
     i32 leftExitIndex = ZPG_Prefab_GetExitIndexByDirection(leftRoom, { 1, 0 });
-    if (leftExitIndex == -1) { printf("ABORT: No right exit on prefab\n"); return grid; }
+    if (leftExitIndex == -1)
+    {
+        printf("ABORT: No right exit on prefab\n");
+        return ZPG_OutputFromAsciiGrid(grid);
+    }
     ZPGPoint leftExit = leftRoom->exits[leftExitIndex];
     ZPGPoint leftExitDir = leftRoom->exitDirs[leftExitIndex];
 
@@ -124,7 +128,11 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
     ZPG_BlitGrids(grid, rightRoom->grid, blitPosB, stencil);
     // TODO Choose exit - assuming prefab has one (and only one)
     i32 rightExitIndex = ZPG_Prefab_GetExitIndexByDirection(rightRoom, { -1, 0 });
-    if (rightExitIndex == -1) { printf("ABORT: No right exit on prefab\n"); return grid; }
+    if (rightExitIndex == -1)
+    {
+        printf("ABORT: No right exit on prefab\n");
+        return ZPG_OutputFromAsciiGrid(grid);
+    }
     ZPGPoint rightExit = rightRoom->exits[rightExitIndex];
     ZPGPoint rightExitDir = rightRoom->exitDirs[rightExitIndex];
 
@@ -195,7 +203,7 @@ static ZPGGrid* ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
         }
     }
     #endif
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
 static void ZPG_PlotAndDrawSegmentedPath(ZPGGrid* grid, ZPGGrid* tagGrid, ZPGGrid* stencil, ZPGPoint a, ZPGPoint b)
@@ -281,7 +289,7 @@ static i32 ZPG_FindRoomConnectionPoints(
     return 0;
 }
 
-static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
 {
     i32 w = presetCfg->width;
     i32 h = presetCfg->height;
@@ -344,7 +352,7 @@ static ZPGGrid* ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
         room, room, blitSouthWest, blitNorthWest, &a, &b);
     ZPG_PlotAndDrawSegmentedPath(grid, tagGrid, stencil, a, b);
 
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
 #endif // ZPG_BUILD_PREFAB_H

@@ -4,7 +4,7 @@
 #include "zpg_internal.h"
 
 
-static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
 {
     printf("Generate: Drunken walk - start from centre\n");
     i32 bStepThrough = presetCfg->flags & ZPG_API_FLAG_STEP_THROUGH;
@@ -83,13 +83,13 @@ static ZPGGrid* ZPG_TestDrunkenWalk_FromCentre(ZPGPresetCfg* presetCfg)
     ZPG_FreeGrid(stencil);
     ZPGGrid* style = ZPG_CreateStylingGrid(grid);
     ZPG_FreeGrid(style);
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
 /**
  * Define some rects within a grid and random walk within
  */
-static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_TestDrunkenWalk_WithinSpace(ZPGPresetCfg* presetCfg)
 {
     printf("Generate: Drunken walk - Within borders\n");
     i32 bVerbose = ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
@@ -156,10 +156,10 @@ static ZPGGrid* ZPG_TestDrunkenWalk_WithinSpace(ZPGPresetCfg* presetCfg)
     cfg.startY = centre.y;
     ZPG_GridRandomWalk(grid, &rect, &cfg, dir);
     */
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
-static ZPGGrid* ZPG_TestDrunkenWalk_Scattered(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_TestDrunkenWalk_Scattered(ZPGPresetCfg* presetCfg)
 {
     printf("Generate: Drunken walk - scattered starting points\n");
     i32 bVerbose = ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
@@ -195,10 +195,10 @@ static ZPGGrid* ZPG_TestDrunkenWalk_Scattered(ZPGPresetCfg* presetCfg)
         cfg.startY = (i32)ZPG_Randf32InRange(cfg.seed++, 0, 31);
         ZPG_GridRandomWalk(grid, NULL, NULL, &cfg, dir);
     }
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
-static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
 {
     i32 bVerbose = ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
     i32 w = 72, h = 32;
@@ -262,14 +262,15 @@ static ZPGGrid* ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
 	#endif
 	
     ZPG_FreeGrid(stencil);
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
-static ZPGGrid* ZPG_TestCaveLayers(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_TestCaveLayers(ZPGPresetCfg* presetCfg)
 {
-    ZPGGrid* grid = ZPG_TestCaveGen(presetCfg);
+    // TODO: output leaks here, no cleanup!
+    ZPGGrid* grid = ZPG_TestCaveGen(presetCfg).asciiGrid;
     ZPG_Grid_PrintValues(grid, 0, YES);
-    ZPGGrid* gridB = ZPG_TestCaveGen(presetCfg);
+    ZPGGrid* gridB = ZPG_TestCaveGen(presetCfg).asciiGrid;
     ZPG_Grid_PrintValues(gridB, 0, YES);
     ZPG_AddGridsOfSameSize(grid, gridB);
     ZPG_AddGridsOfSameSize(grid, gridB);
@@ -285,10 +286,10 @@ static ZPGGrid* ZPG_TestCaveLayers(ZPGPresetCfg* presetCfg)
         ZPG_Grid_PrintTexture(grid, NO);
     }
 
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
-static ZPGGrid* ZPG_TestDrawOffsetLines(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_TestDrawOffsetLines(ZPGPresetCfg* presetCfg)
 {
     const i32 width = 72;
     const i32 height = 32;
@@ -352,10 +353,10 @@ static ZPGGrid* ZPG_TestDrawOffsetLines(ZPGPresetCfg* presetCfg)
 
     // cleanup
     ZPG_Free(points);
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
-static ZPGGrid* ZPG_TestDrawLines(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_TestDrawLines(ZPGPresetCfg* presetCfg)
 {
     ZPGGrid* grid = ZPG_CreateGrid(72, 32);
     //ZPG_Grid_SetCellTypeAll(grid, ZPG_CELL_TYPE_WALL);
@@ -363,10 +364,10 @@ static ZPGGrid* ZPG_TestDrawLines(ZPGPresetCfg* presetCfg)
 
     ZPG_DrawOuterBorder(grid, NULL, ZPG_CELL_TYPE_PATH);
     ZPG_DrawLine(grid, NULL, 0, 0, 71, 31, ZPG_CELL_TYPE_PATH, 0);
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
-static ZPGGrid* ZPG_TestLoadAsciFile(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_TestLoadAsciFile(ZPGPresetCfg* presetCfg)
 {
     char* fileName = "test_grid.txt";
     ZPGGrid* grid = NULL;
@@ -380,20 +381,20 @@ static ZPGGrid* ZPG_TestLoadAsciFile(ZPGPresetCfg* presetCfg)
 
     // clean up
     ZPG_Free(chars);
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
-static ZPGGrid* ZPG_TestEmbed(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_TestEmbed(ZPGPresetCfg* presetCfg)
 {
     ZPGGrid* grid = NULL;
     const char* str = embed_8x8_grid_pillars;
     zpgSize len = ZPG_STRLEN(str);
     grid = ZPG_ReadGridAsci((u8*)str, len);
 
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
-static ZPGGrid* ZPG_TestBlit(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_TestBlit(ZPGPresetCfg* presetCfg)
 {
     printf("*** TEST GRID BLIT ***\n");
     ZPGGrid* grid = NULL;
@@ -416,7 +417,7 @@ static ZPGGrid* ZPG_TestBlit(ZPGPresetCfg* presetCfg)
     ZPG_FreeGrid(stencil);
     ZPG_FreeGrid(source);
 
-    return grid;
+    return ZPG_OutputFromAsciiGrid(grid);
 }
 
 

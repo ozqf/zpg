@@ -27,6 +27,13 @@ static void ZPG_CreateVerticalBisectStencil(ZPGGrid* target)
     ZPG_DrawLine(target, NULL, x, 0, x, target->height, 1, 0);
 }
 
+static void ZPG_Draw_BorderStencil(ZPGGrid* target)
+{
+    ZPG_PARAM_NULL(target, )
+    ZPG_Grid_SetAll(target, ZPG_STENCIL_TYPE_EMPTY);
+    ZPG_DrawOuterBorder(target, NULL, ZPG_STENCIL_TYPE_FULL);
+}
+
 static void ZPG_Draw_HorizontalBisectStencil(ZPGGrid* target)
 {
     ZPG_PARAM_NULL(target, )

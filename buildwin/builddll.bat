@@ -18,6 +18,7 @@ set compilerFlags=-nologo -Gm -MT -WX -W4 -wd4100 -wd4201 -wd4189 -wd4505 /Zi
 @rem No elevated warnings
 @rem set compilerFlags=-nologo -Gm -MT -W4 -wd4100 -wd4201 -wd4189 /Zi
 set compilerDefines=/DPARANOID=1
+@REM set compilerDefines=/DZPG_WINDOWS_DLL
 @rem /DVERBOSE=1
 
 @rem === Compile Win32 Window application
@@ -26,8 +27,8 @@ set compilerDefines=/DPARANOID=1
 @rem === Compile Testing Win32 Console application
 @rem Ws2_32.lib == winsock2
 set compInput_0=
-set compInput_1=../src/zpg/zpg_dll.cpp
-set compInput_2=../src/zpg/zpg_perlin.cpp
+set compInput_1=../src/zpg/zpg_dll.cpp ../src/zpg/zpg_entities/zpg_entities.cpp
+set compInput_2=../src/zpg/zpg_paint/zpg_perlin.cpp
 
 @rem === LINK SETTINGS === (disable if running win32 console application test)
 @rem set linkStr=/link

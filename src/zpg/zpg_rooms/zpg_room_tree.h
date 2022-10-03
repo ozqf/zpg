@@ -59,7 +59,7 @@ static void ZPG_SeedRooms(
 /**
  * Test settings for randomly laying out groups of numbers
  */
-static ZPGGrid* ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
+static ZPGOutput ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
 {
     i32 bVerbose = ((cfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
     i32 w = 10, h = 10;
@@ -84,10 +84,10 @@ static ZPGGrid* ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
     ZPG_DrawPerlinGrid(perlinA, NULL, &cfg->seed, &perlin);
     ZPG_Grid_PrintValues(perlinA, 2, YES);
 
-    return a;
+    return ZPG_OutputFromAsciiGrid(a);
 }
 
-static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
+static ZPGOutput ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
 {
     i32 bVerbose = ((cfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
     i32 w = 10, h = 10;
@@ -215,10 +215,10 @@ static ZPGGrid* ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
 	ZPG_Free(doors.doors);
     printf("Free grid stack\n");
 	ZPG_FreeGridStack(stack);    
-    return result;
+    return ZPG_OutputFromAsciiGrid(result);
 }
 
-static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
+static ZPGOutput ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 {
     ///////////////////////////////////////////////////////////
     // Stage 1
@@ -514,7 +514,7 @@ static ZPGGrid* ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
     //ZPG_PrintAllocations();
     ZPG_FreeRooms(rooms, numRooms);
     printf("Room tree test finished\n");
-    return result;
+    return ZPG_OutputFromAsciiGrid(result);
 }
 
 #endif // ZPG_ROOM_TREE_H

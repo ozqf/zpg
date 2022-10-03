@@ -10,6 +10,9 @@
 #include "zpg/zpg_common.h"
 #include <stdlib.h>
 
+#define ZPG_OUTPUT_TYPE_ASCI_GRID (1 << 0)
+#define ZPG_OUTPUT_TYPE_GREYSCALE (1 << 1)
+
 #define ZPG_API_FLAG_PRINT_RESULT (1 << 0)
 #define ZPG_API_FLAG_PRINT_WORKING (1 << 1)
 #define ZPG_API_FLAG_STEP_THROUGH (1 << 2)
@@ -322,6 +325,7 @@ ZPG_EXPORT void ZPG_RunPresetCLI(
     i32 argc, char** argv,
     u8** resultPtr, i32* resultWidth, i32* resultHeight);
 ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags);
+ZPG_EXPORT i32 ZPG_BeginREPL();
 ZPG_EXPORT void ZPG_PrintPrefabs();
 ZPG_EXPORT void ZPG_PrintTileTypes();
 

@@ -52,12 +52,6 @@ https://www.redblobgames.com/articles/noise/introduction.html
 #include "zpg_script/zpg_command.h"
 #include "zpg_script/zpg_script.h"
 
-ZPG_EXPORT void ZPG_SetMemoryFunctions(
-    zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree)
-{
-    
-}
-
 static void ZPG_AddPresetFunction(
 	zpg_preset_fn funcPtr,
 	char* selector,
@@ -84,7 +78,7 @@ ZPG_EXPORT void ZPG_Fatal(const char* msg)
 
 extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree, zpg_fatal_fn ptrFatal)
 {
-    if (g_bInitialised == YES) { return 0; }
+    if (g_bZPGInitialised == YES) { return 0; }
     
     if (ptrAlloc == NULL || ptrFree == NULL)
     {
@@ -97,7 +91,7 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
         ptrFree = free;
         #endif
     }
-    g_bInitialised = YES;
+    g_bZPGInitialised = YES;
 
     g_ptrAlloc = ptrAlloc;
     g_ptrFree = ptrFree;
@@ -138,6 +132,22 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
 
     //printf("Init complete - %d allocs\n", ZPG_GetNumAllocs());
     return 0;
+}
+
+static ZPGOutput ZPG_OutputFromAsciiGrid(ZPGGrid* grid)
+{
+    ZPGOutput output = {};
+    output.typeFlags |= ZPG_OUTPUT_TYPE_ASCI_GRID;
+    output.asciiGrid = grid;
+    return output;
+}
+
+static ZPGOutput ZPG_OutputFromGreyscaleGrid(ZPGGrid* grid)
+{
+    ZPGOutput output = {};
+    output.typeFlags |= ZPG_OUTPUT_TYPE_GREYSCALE;
+    output.greyGrid = grid;
+    return output;
 }
 
 static ZPGPreset* ZPG_GetPreset(const char* selector)
@@ -219,7 +229,7 @@ void ZPG_RunPresetCLI(
     //     printf("ABORT Unrecognised preset type %d\n", cfg.preset);
     //     return;
     // }
-    if (g_bInitialised == false) { return; }
+    if (g_bZPGInitialised == false) { return; }
     
     /////////////////////////////////////////////
     // Run
@@ -228,7 +238,8 @@ void ZPG_RunPresetCLI(
     printf("Seed: %d\n", cfg.seed);
 	i32 originalSeed = cfg.seed;
     srand(cfg.seed);
-    ZPGGrid* grid = preset->funcPtr(&cfg);// g_presets[cfg.preset](&cfg);
+    ZPGOutput output = preset->funcPtr(&cfg);
+    ZPGGrid* grid = output.asciiGrid;
     if (grid == NULL)
     {
         printf("ERROR - no grid was returned...\n");

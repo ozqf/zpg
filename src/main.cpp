@@ -182,11 +182,17 @@ int main(int argc, char** argv)
 	{
 		run_preset_cli(argc, argv);
 	}
+	else if (strcmp(argv[1], "repl") == 0)
+	{
+		printf("Begin REPL\n");
+		ZPG_BeginREPL();
+	}
 	else if (strcmp(argv[1], "script") == 0)
 	{
-		printf("Sorry, script mode disabled\n");
 		#if 0
-		ZPG_Init(NULL, NULL);
+		printf("Sorry, script mode disabled\n");
+		#endif
+		#if 1
 		run_script(argv[2], argv[3]);
 		#endif
 	}

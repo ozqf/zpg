@@ -85,7 +85,7 @@ for (i32 y = 0; y < ptrToGrid##->height; ++y) \
 // Grid type is 1 byte so hard limit on types
 #define ZPG_TYPES_LIST_SIZE 255
 #define ZPG_NUM_TYPES 256
-static u8 g_bInitialised = NO;
+static u8 g_bZPGInitialised = NO;
 static ZPGCellTypeDef g_types[ZPG_TYPES_LIST_SIZE];
 static u8 g_numTypes = 0;
 
@@ -120,9 +120,30 @@ struct ZPGPresetCfg
     char* pictureOutput;
 };
 
-typedef ZPGGrid* (*zpg_preset_fn)(ZPGPresetCfg* cfg);
+struct ZPGOutput
+{
+    i32 typeFlags;
+    ZPGGrid* asciiGrid;
+    ZPGGrid* greyGrid;
+};
+
+struct ZPGContext
+{
+    i32 seed;
+    ZPGGridStack* gridStack;
+};
+
+typedef ZPGOutput (*zpg_preset_fn)(ZPGPresetCfg* cfg);
 
 typedef i32 (*zpg_param_fn)(i32 argc, char** argv, ZPGPresetCfg* cfg);
+
+typedef i32 (*zpg_command_fn)(ZPGContext* ctx, char** tokens, i32 numTokens);
+
+struct ZPGCommand
+{
+    char* name;
+    zpg_command_fn function;
+};
 
 struct ZPGPreset
 {
@@ -248,10 +269,14 @@ static void ZPG_Grid_PerlinToGreyscale(
 ZPG_EXPORT ZPGGrid* ZPG_CreateGrid(i32 width, i32 height);
 ZPG_EXPORT void ZPG_Grid_Clear(ZPGGrid* grid);
 static void ZPG_FreeGrid(ZPGGrid* grid);
+static void ZPG_Draw_BorderStencil(ZPGGrid* target);
 static ZPGGrid* ZPG_CreateBorderStencil(i32 width, i32 height);
 static i32 ZPG_ArePointsEqual(ZPGPoint a, ZPGPoint b);
 
 ZPG_EXPORT void ZPG_Grid_SetValueWithStencil(ZPGGrid* grid, i32 x, i32 y, u8 val, ZPGGrid* stencil);
+
+static ZPGOutput ZPG_OutputFromAsciiGrid(ZPGGrid* grid);
+static ZPGOutput ZPG_OutputFromGreyscaleGrid(ZPGGrid* grid);
 
 // Cell Types
 ZPG_EXPORT ZPGCellTypeDef* ZPG_GetType(u8 cellTypeIndex);
@@ -268,7 +293,14 @@ static u8 ZPG_STDRandU8();
 static f32 ZPG_STDRandf32();
 static f32 ZPG_STDRandomInRange(f32 min, f32 max);
 
+static i32 ZPG_CheckSignature(char* sig, char** tokens, i32 numTokens);
 // misc
-static i32 ZPG_ExecSet(char** tokens, i32 numTokens);
+// TODO: create via pointers like presets are.
+static i32 ZPG_ExecSet(ZPGContext* ctx, char** tokens, i32 numTokens);
+static i32 ZPG_ExecInitStack(ZPGContext* ctx, char** tokens, i32 numTokens);
+
+static i32 ZPG_ExecStencil(ZPGContext* ctx, char** tokens, i32 numTokens);
+static i32 ZPG_ExecRandomWalk(ZPGContext* ctx, char** tokens, i32 numTokens);
+static i32 ZPG_ExecCaves(ZPGContext* ctx, char** tokens, i32 numTokens);
 
 #endif // ZPG_INTERNAL_H

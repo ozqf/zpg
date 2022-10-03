@@ -3,7 +3,7 @@
 
 #include "zpg_internal.h"
 
-static ZPGGrid* ZPG_Preset_Perlin(ZPGPresetCfg* presetCfg)
+static ZPGOutput ZPG_Preset_Perlin(ZPGPresetCfg* presetCfg)
 {
     i32 bVerbose = ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
     i32 w = 96, h = 48;
@@ -41,7 +41,7 @@ static ZPGGrid* ZPG_Preset_Perlin(ZPGPresetCfg* presetCfg)
     {
         ZPG_Grid_PrintTexture(grid, NO);
     }
-    return grid;
+    return ZPG_OutputFromGreyscaleGrid(grid);
 }
 
 #endif // ZPG_BUILD_PERLIN_H
