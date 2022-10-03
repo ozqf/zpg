@@ -43,6 +43,9 @@ static void ZPG_InitScripts()
     ZPG_RegisterCommand("init_stack", ZPG_ExecInitStack);
     ZPG_RegisterCommand("grid_set_all", ZPG_ExecGridSetAll);
 
+    ZPG_RegisterCommand("grid_print", ZPG_ExecGridPrint);
+    ZPG_RegisterCommand("grid_copy_specific", ZPG_ExecGridCopyValue);
+
     ZPG_RegisterCommand("stencil", ZPG_ExecStencil);
     ZPG_RegisterCommand("drunk", ZPG_ExecRandomWalk);
     ZPG_RegisterCommand("caves", ZPG_ExecCaves);
