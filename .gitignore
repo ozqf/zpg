@@ -9,6 +9,9 @@
 /buildwintemp/
 /buildwin_dlltemp/
 
+# Test output
+/buildwin/output.txt
+
 # IDEs
 *.db
 /xercise.VC.VC.opendb
