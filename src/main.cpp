@@ -56,7 +56,7 @@ static void run_preset_cli(i32 argc, char** argv)
 	ZPG_RunPresetCLI(argc, argv, NULL, NULL, NULL);
 }
 
-static void run_script(char* inputFileName, char* outputFileName)
+static void run_script(char* inputFileName)
 {
 	i32 dashes = 80;
 	while (dashes-- > 0) { printf("-"); }
@@ -175,8 +175,9 @@ int main(int argc, char** argv)
 	if (argc == 1)
 	{
 		printf("No command specified\n");
-		run_test();
+		// run_test();
 		print_help(argv[0]);
+		ZPG_BeginREPL();
 	}
 	else if (strcmp(argv[1], "preset") == 0)
 	{
@@ -193,7 +194,14 @@ int main(int argc, char** argv)
 		printf("Sorry, script mode disabled\n");
 		#endif
 		#if 1
-		run_script(argv[2], argv[3]);
+		if (argc < 3)
+		{
+			printf("Must specify a script file to run!\n");
+		}
+		else
+		{
+			run_script(argv[2]);
+		}
 		#endif
 	}
 	else if (strcmp(argv[1], "data") == 0)

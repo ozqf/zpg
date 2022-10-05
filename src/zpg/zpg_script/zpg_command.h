@@ -34,6 +34,39 @@ static ZPGGrid* GetParamAsGrid(
 
 static i32 ZPG_ExecSet(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
+    if (numTokens < 2)
+    {
+        printf("Set needs name of what to set and a value!\n");
+        return 1;
+    }
+    char* name = GetParamAsString(0, tokens, numTokens, "");
+    i32 value = GetParamAsInt(1, tokens, numTokens, 0);
+    if (ZPG_STRCMP(name, "verbosity") == 0)
+    {
+        ctx->verbosity = value;
+        printf("Set %s to %d\n", name, value);
+    }
+    return 0;
+}
+
+static i32 ZPG_ExecPrintPrefabs(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    ZPG_PrintPrefabs();
+    return 0;
+}
+
+static i32 ZPG_ExecSetSeed(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+	if (numTokens < 1)
+	{
+        ctx->seed = ZPG_GenerateSeed();
+	}
+    else
+    {
+        ctx->seed = GetParamAsInt(0, tokens, numTokens, 0);
+    }
+    printf("Seed: %d\n", ctx->seed);
+    srand(ctx->seed);
     return 0;
 }
 
@@ -93,7 +126,10 @@ static i32 ZPG_ExecGridSetAll(ZPGContext* ctx, char** tokens, i32 numTokens)
     ZPGGrid* grid = ctx->gridStack->grids[gridIndex];
 	u8 value = (u8)(atoi(tokens[1]) & 0xFF);
 	ZPG_Grid_SetAll(grid, value);
-    ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
+    if (ctx->verbosity > 0)
+	{
+		ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
+	}
     return 0;
 }
 
@@ -106,7 +142,11 @@ static i32 ZPG_ExecGridCopyValue(ZPGContext* ctx, char** tokens, i32 numTokens)
     u8 sourceValue = (u8)GetParamAsInt(2, tokens, numTokens, 1);
     u8 targetValue = (u8)GetParamAsInt(3, tokens, numTokens, 0);
     ZPG_Grid_CopySpecificValue(source, target, sourceValue, targetValue);
-    ZPG_Grid_PrintCellDefChars(target, 0, 0, 0);
+    if (ctx->verbosity > 0)
+	{
+		ZPG_Grid_PrintCellDefChars(target, 0, 0, 0);
+	}
+	return 0;
 }
 
 static i32 ZPG_ExecRandomWalk(ZPGContext* ctx, char** tokens, i32 numTokens)
@@ -123,24 +163,30 @@ static i32 ZPG_ExecRandomWalk(ZPGContext* ctx, char** tokens, i32 numTokens)
 		// return 1;
 	// }
 	
-    i32 gridIndex = GetParamAsInt(0, tokens, numTokens, 0);
-    ZPGGrid* grid = ctx->gridStack->grids[gridIndex];
+    ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
+	if (grid == NULL)
+	{ return 1; }
+	ZPGGrid* stencil = GetParamAsGrid(ctx, 1, tokens, numTokens);
     ZPGWalkCfg cfg {};
-	cfg.typeToPaint = GetParamAsInt(1, tokens, numTokens, ZPG_CELL_TYPE_VOID) & 0xFF;
-	cfg.startX = GetParamAsInt(2, tokens, numTokens, grid->width / 2);
-    cfg.startY = GetParamAsInt(3, tokens, numTokens,  grid->height / 2);
-	cfg.tilesToPlace = GetParamAsInt(4, tokens, numTokens,  40);
+	cfg.typeToPaint = GetParamAsInt(2, tokens, numTokens, 0) & 0xFF;
+	cfg.startX = GetParamAsInt(3, tokens, numTokens, grid->width / 2);
+    cfg.startY = GetParamAsInt(4, tokens, numTokens,  grid->height / 2);
+	cfg.tilesToPlace = GetParamAsInt(5, tokens, numTokens,  40);
 	ZPGPoint dir = {
-		GetParamAsInt(5, tokens, numTokens, 1),
-		GetParamAsInt(6, tokens, numTokens, 0)
+		GetParamAsInt(6, tokens, numTokens, 1),
+		GetParamAsInt(7, tokens, numTokens, 0)
 	};
-    cfg.seed = 1;
+    cfg.seed = ctx->seed;
     cfg.bPlaceObjectives = YES;
     cfg.bigRoomChance = 0.3f;
     cfg.bStepThrough = NO;
-    ZPG_GridRandomWalk(grid, NULL, NULL, &cfg, dir);
-
-    ZPG_Grid_PrintCellDefChars(grid, '*', cfg.startX, cfg.startY);
+    ctx->lastStop = ZPG_GridRandomWalk(grid, NULL, NULL, &cfg, dir);
+    ctx->seed = cfg.seed;
+    if (ctx->verbosity > 0)
+	{
+		ZPG_Grid_PrintCellDefChars(grid, '*', cfg.startX, cfg.startY);
+	}
+    printf("Stopped at %d, %d\n", ctx->lastStop.x, ctx->lastStop.y);
     return 0;
 }
 
@@ -154,8 +200,26 @@ static i32 ZPG_ExecCaves(ZPGContext* ctx, char** tokens, i32 numTokens)
     ZPGCellRules rules = ZPG_DefaultCaveRules();
     rules.filledValue = solid;
     rules.emptyValue = empty;
+    printf("Seed before cave fill: %d\n", ctx->seed);
     ZPG_FillCaves(grid, stencil, rules, &ctx->seed, NO);
-    ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
+    printf("Seed after cave fill: %d\n", ctx->seed);
+    if (ctx->verbosity > 0)
+	{
+		ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
+	}
+    return 0;
+}
+
+static i32 ZPG_ExecVoronoi(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
+    if (grid == NULL) { return 1; }
+    ZPG_SeedVoronoi(grid, 0.05f, &ctx->seed);
+    if (ctx->verbosity > 0)
+	{
+        ZPG_Grid_PrintChannelValues(grid, YES);
+		ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
+	}
     return 0;
 }
 
@@ -178,7 +242,11 @@ static i32 ZPG_ExecStencil(ZPGContext* ctx, char** tokens, i32 numTokens)
     {
         ZPG_DrawOuterBorder(grid, stencil, 1);
     }
-    ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
+	if (ctx->verbosity > 0)
+	{
+		ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
+	}
+    
     return 0;
 }
 
@@ -187,5 +255,16 @@ static i32 ZPG_ExecPlotSegmentedPath(ZPGContext* ctx, char** tokens, i32 numToke
 	return 0;
 }
 
+static i32 ZPG_ExecSaveGridToTextFile(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+	if (!ZPG_CheckSignature("it", tokens, numTokens))
+	{ return 1; }
+	ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
+	if (grid == NULL)
+	{ return 1; }
+	char* fileName = GetParamAsString(1, tokens, numTokens, "output.txt");
+	ZPG_WriteGridAsAsci(grid, fileName);
+	return 0;
+}
 
 #endif // ZPG_COMMAND_H

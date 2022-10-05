@@ -1,6 +1,13 @@
-set width 64
-set height 64
-
-grid main
-
-fill main 0
+#set verbosity 2
+init_stack 2 64 32
+seed
+grid_set_all 0 2
+stencil 0
+caves 0 -1 1 2
+drunk 0 -1 0 31 15 40 -1 0
+drunk 0 -1 0 31 15 40 0 -1
+drunk 0
+drunk 0
+drunk 0 -1 0 0 0
+grid_save 0 output.txt
+grid_print 0

@@ -126,8 +126,8 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
     printf("------------------\n");
 }
 #endif
-#if 0
-static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 channel, i32 bBlankZeroes)
+#if 1
+static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 bBlankZeroes)
 {
     ZPG_PARAM_NULL(grid, )
 	if (grid->width > 100 || grid->height > 100)
@@ -135,22 +135,22 @@ static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 channel, i32 bBlankZe
 		printf("SKIP: Grid size %d/%d is too big to print\n", grid->width, grid->height);
 		return;
 	}
-    if (channel < 0 || channel > 3) { channel = 0; }
+    // if (channel < 0 || channel > 3) { channel = 0; }
     printf("------ Grid %d/%d ------\n", grid->width, grid->height);
     for (i32 y = 0; y < grid->height; ++y)
     {
         printf("|");
         for (i32 x = 0; x < grid->width; ++x)
         {
-            //ZPGCell *cell = ZPG_Grid_GetCellAt(grid, x, y);
+            // ZPGCell *cell = ZPG_GRID_GET(grid, x, y);
             u8 val = ZPG_GRID_GET(grid, x, y);
-            if (bBlankZeroes && cell->arr[channel] == 0)
+            if (bBlankZeroes && val == 0)
             {
                 printf(" ");
             }
             else
             {
-                printf("%d", cell->arr[channel]);
+                printf("%d", val);
             }
         }
         printf("|\n");

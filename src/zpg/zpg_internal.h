@@ -131,12 +131,12 @@ struct ZPGContext
 {
     i32 seed;
     ZPGGridStack* gridStack;
+    i32 verbosity;
+    ZPGPoint lastStop;
 };
 
 typedef ZPGOutput (*zpg_preset_fn)(ZPGPresetCfg* cfg);
-
 typedef i32 (*zpg_param_fn)(i32 argc, char** argv, ZPGPresetCfg* cfg);
-
 typedef i32 (*zpg_command_fn)(ZPGContext* ctx, char** tokens, i32 numTokens);
 
 struct ZPGCommand
@@ -257,9 +257,11 @@ static i32 ZPG_Grid_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y);
 static ZPGGrid* ZPG_Grid_CreateClone(ZPGGrid* original);
 ZPG_EXPORT void ZPG_Grid_CalcStats(ZPGGrid* grid);
 static ZPGNeighbours ZPG_Grid_CountNeighboursAt(ZPGGrid* grid, i32 x, i32 y);
+static void ZPG_Grid_SetAll(ZPGGrid* grid, u8 val);
 
 ZPG_EXPORT void ZPG_Grid_CountNeighourRings(
     ZPGGrid* grid, ZPGGrid* result, i32 ignoreValue, i32 bVerbose);
+static void ZPG_SeedVoronoi(ZPGGrid* grid, f32 perCellRegionChance, i32* randSeed);
 
 static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes);
 static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y);
@@ -284,6 +286,7 @@ ZPG_EXPORT ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y);
 
 // random numbers...
 // TODO: Tidy this crap up...
+static i32 ZPG_GenerateSeed();
 static f32 ZPG_Randf32(i32 index);
 static i32 ZPG_RandArrIndex(i32 len, i32 seed);
 static u8 ZPG_RandU8InRange(i32 index, u8 min, u8 max);

@@ -33,6 +33,19 @@ static ZPGCommand* ZPG_FindCommand(char* name)
     return NULL;
 }
 
+static void ZPG_PrintCommands()
+{
+	printf("--- Commands Help ---\n");
+    printf("help - list commands\n");
+    printf("exit - end session and quit program\n");
+	for (i32 i = 0; i < g_numCommands; ++i)
+    {
+        ZPGCommand* cmd = &g_commands[i];
+        printf("%s\n", cmd->name);
+    }
+	printf("\n");
+}
+
 static void ZPG_InitScripts()
 {
     if (g_bCommandsInit)
@@ -40,15 +53,21 @@ static void ZPG_InitScripts()
         return;
     }
     g_bCommandsInit = YES;
-    ZPG_RegisterCommand("init_stack", ZPG_ExecInitStack);
     ZPG_RegisterCommand("grid_set_all", ZPG_ExecGridSetAll);
-
     ZPG_RegisterCommand("grid_print", ZPG_ExecGridPrint);
+	ZPG_RegisterCommand("grid_save", ZPG_ExecSaveGridToTextFile);
     ZPG_RegisterCommand("grid_copy_specific", ZPG_ExecGridCopyValue);
 
     ZPG_RegisterCommand("stencil", ZPG_ExecStencil);
     ZPG_RegisterCommand("drunk", ZPG_ExecRandomWalk);
     ZPG_RegisterCommand("caves", ZPG_ExecCaves);
+    ZPG_RegisterCommand("voronoi", ZPG_ExecVoronoi);
+
+    ZPG_RegisterCommand("init_stack", ZPG_ExecInitStack);
+	ZPG_RegisterCommand("seed", ZPG_ExecSetSeed);
+    ZPG_RegisterCommand("set", ZPG_ExecSet);
+	ZPG_RegisterCommand("grid_print_prefabs", ZPG_ExecPrintPrefabs);
+    
 }
 
 static i32 ZPG_ReadTokens(
@@ -70,28 +89,31 @@ static i32 ZPG_ExecuteCommand(ZPGContext* ctx, char** tokens, i32 numTokens)
         return 0;
     }
     return cmd->function(ctx, tokens, numTokens);
-    /*
-    // grid manipulation
-    if (ZPG_STRCMP(key, "init_stack") == 0)
-    { return ZPG_ExecInitStack(ctx, tokens, numTokens); }
-    if (ZPG_STRCMP(key, "grid_set_all") == 0)
-    { return ZPG_ExecGridSetAll(ctx, tokens, numTokens); }
+}
 
-    // painting
+i32 ExecLine(ZPGContext* ctx, char* cmd)
+{
+	const i32 maxTokens = 24;
+	const int tempBufferSize = 256;
+	
+	u8 tokensBuf[tempBufferSize];
+	ZPG_MEMSET(tokensBuf, 0, tempBufferSize);
+	char* tokens[maxTokens];
+	i32 numTokens = ZPG_ReadTokens(
+		(char*)cmd, (char*)tokensBuf, tokens);
+	return ZPG_ExecuteCommand(ctx, tokens, numTokens);
+}
 
-
-    // procedures
-    if (ZPG_STRCMP(key, "drunk") == 0)
-    { return ZPG_ExecRandomWalk(ctx, tokens, numTokens); }
-    if (ZPG_STRCMP(key, "caves_seed") == 0)
-    { return ZPG_ExecCaves(ctx, tokens, numTokens); }
-
-    if (ZPG_STRCMP(key, "set") == 0)
-    { return ZPG_ExecSet(ctx, tokens, numTokens); }
-    if (ZPG_STRCMP(key, "grid") == 0) { return 0; }
-    if (ZPG_STRCMP(key, "fill") == 0) { return 0; }
-    return 1;
-    */
+static ZPGContext CreateContext()
+{
+    ZPGContext ctx = {};
+    // create a default grid stack - running init_stack
+    // again will override it
+    ExecLine(&ctx, "init_stack 8 48 24");
+    // generate a new seed - script can override if it wants.
+    ctx.seed = ZPG_GenerateSeed();
+    printf("Initial seed is %d\n", ctx.seed);
+    return ctx;
 }
 
 /*
@@ -101,9 +123,9 @@ ZPG_EXPORT i32 ZPG_BeginREPL()
 {
     ZPG_InitScripts();
     printf("Enter commands (enter exit to quit program):\n");
-    ZPGContext ctx = {};
+    ZPGContext ctx = CreateContext();
+	ctx.verbosity = 2;
 	char str[256];
-    // ZPGGridStack* stack = NULL;
 	for(;;)
 	{
         printf("> ");
@@ -117,23 +139,18 @@ ZPG_EXPORT i32 ZPG_BeginREPL()
 		{
 			break;
 		}
+		if (strcmp(cmd, "help") == 0)
+		{
+			ZPG_PrintCommands();
+			continue;
+		}
 		// printf("You entered %s\n", cmd);
 		
-		const i32 maxTokens = 24;
-		const int tempBufferSize = 256;
-		
-		u8 tokensBuf[tempBufferSize];
-		ZPG_MEMSET(tokensBuf, 0, tempBufferSize);
-		char* tokens[maxTokens];
-		i32 numTokens = ZPG_ReadTokens(
-			(char*)cmd, (char*)tokensBuf, tokens);
-		// printf("\tTokens:\t");
-		// for (i32 i = 0; i < numTokens; ++i)
-		// {
-		// 	printf("%s, ", tokens[i]);
-		// }
-		// printf("\n");
-		i32 result = ZPG_ExecuteCommand(&ctx, tokens, numTokens);
+		i32 result = ExecLine(&ctx, cmd);
+		if (result != 0)
+		{
+			printf("Error code %d\n", result);
+		}
 	}
 	
 	return 0;
@@ -260,8 +277,8 @@ static i32 ZPG_ExecuteLine(ZPGContext* ctx, u8* cursor, u8* end, i32 lineNumber)
     workBuf[lineLength] = '\0';
     workBuf[lineLength + 1] = '\0';
 
-    printf("Read line %d (%lld chars): \"%s\"\t",
-        lineNumber, lineLength + 1, workBuf);
+    // printf("Read line %d (%lld chars): \"%s\"\t",
+        // lineNumber, lineLength + 1, workBuf);
 
     const i32 maxTokens = 24;
     char* tokens[maxTokens];
@@ -287,7 +304,7 @@ static u8* ZPG_ScanForLineEnd(u8* buf, u8* end, i32* lineEndSize)
         else if (*result == '\0') { break; }
         result++;
     }
-    printf("EoL code %d\n", *result);
+    // printf("EoL code %d\n", *result);
     return result;
 }
 
@@ -300,13 +317,14 @@ ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags)
     u8* cursor = text;
     u8* cursorEnd;
     i32 line = 1;
-    ZPGContext ctx = {};
+    ZPGContext ctx = CreateContext();
     while (cursor < end)
     {
         i32 lineEndSize;
         cursorEnd = ZPG_ScanForLineEnd(cursor, end, &lineEndSize);
+
         zpgSize len = cursorEnd - cursor;
-        if (len >= 2)
+        if ((char)*cursor != '#' && len >= 2)
         {
             i32 err = ZPG_ExecuteLine(&ctx, cursor, cursorEnd, line);
             if (err != 0)

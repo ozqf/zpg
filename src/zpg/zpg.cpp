@@ -31,6 +31,7 @@ https://www.redblobgames.com/articles/noise/introduction.html
 #include "zpg_paint/zpg_drunken_walk.h"
 #include "zpg_paint/zpg_grid_walk_and_fill.h"
 #include "zpg_paint/zpg_cave_gen.h"
+#include "zpg_paint/zpg_voronoi.h"
 #include "zpg_path/zpg_path.h"
 #include "zpg_entities/zpg_entities.h"
 
@@ -192,6 +193,13 @@ static void ZPG_PrintArgvs(i32 argc, char** argv)
 		printf("%s ", argv[i]);
 	}
 	printf("\n");
+}
+
+static i32 ZPG_GenerateSeed()
+{
+    i32 seed = (i32)time(NULL);
+    seed ^= (u64)(&seed);
+    return seed;
 }
 
 ZPG_EXPORT
