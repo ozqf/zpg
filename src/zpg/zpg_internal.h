@@ -41,6 +41,9 @@ strlen(ptrToCharArray)
 #define ZPG_STRCMP(stringA, stringB) \
 strcmp(##stringA##, stringB##)
 
+#define ZPG_STREQL(stringA, stringB) \
+(strcmp(##stringA##, stringB##) == 0)
+
 #define ZPG_MEMSET(ptrToMemory, valueToSet, numBytesToSet) \
 memset(##ptrToMemory##, valueToSet##, numBytesToSet##)
 
@@ -142,6 +145,14 @@ struct ZPGContext
     char* history;
     zpgSize maxHistory;
     zpgSize historyCursor;
+
+    // configurations
+    ZPGWalkCfg walkCfg;
+    ZPGCellRules cellCfg;
+
+    // target objects
+    ZPGGrid* grid;
+    ZPGGrid* stencil;
 };
 
 typedef ZPGOutput (*zpg_preset_fn)(ZPGPresetCfg* cfg);

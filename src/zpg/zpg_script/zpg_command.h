@@ -12,6 +12,15 @@ static i32 GetParamAsInt(i32 index, char** tokens, i32 numTokens, i32 fail)
 	return atoi(tokens[index]);
 }
 
+static f32 GetParamAsFloat(i32 index, char** tokens, i32 numTokens, f32 fail)
+{
+	if (index < 0 || index >= numTokens)
+	{
+		return fail;
+	}
+	return (f32)atof(tokens[index]);
+}
+
 static char* GetParamAsString(i32 index, char** tokens, i32 numTokens, char* fail)
 {
 	if (index < 0 || index >= numTokens)
@@ -41,10 +50,63 @@ static i32 ZPG_ExecSet(ZPGContext* ctx, char** tokens, i32 numTokens)
     }
     char* name = GetParamAsString(0, tokens, numTokens, "");
     i32 value = GetParamAsInt(1, tokens, numTokens, 0);
-    if (ZPG_STRCMP(name, "verbosity") == 0)
+    if (ZPG_STREQL(name, "verbosity"))
     {
         ctx->verbosity = value;
         printf("Set %s to %d\n", name, value);
+    }
+    else if (ZPG_STREQL(name, "walk_start_x"))
+    {
+        ctx->walkCfg.startX = value;
+    }
+    else if (ZPG_STREQL(name, "walk_start_y"))
+    {
+        ctx->walkCfg.startY = value;
+    }
+    else if (ZPG_STREQL(name, "walk_start_y"))
+    {
+        ctx->walkCfg.startY = value;
+    }
+    else if (ZPG_STREQL(name, "walk_dir_x"))
+    {
+        ctx->walkCfg.dirX = value;
+    }
+    else if (ZPG_STREQL(name, "walk_dir_y"))
+    {
+        ctx->walkCfg.dirY = value;
+    }
+    else if (ZPG_STREQL(name, "walk_paint_value"))
+    {
+        ctx->walkCfg.typeToPaint = value & 0xFF;
+    }
+    else if (ZPG_STREQL(name, "walk_count"))
+    {
+        ctx->walkCfg.tilesToPlace = value;
+    }
+    else if (ZPG_STREQL(name, "walk_big_chance"))
+    {
+        ctx->walkCfg.bigRoomChance = GetParamAsFloat(1, tokens, numTokens, 0);
+    }
+    else if (ZPG_STREQL(name, "grid"))
+    {
+        ctx->grid = GetParamAsGrid(ctx, value, tokens, numTokens);
+        if (ctx->verbosity > 0)
+        {
+            if (ctx->grid != NULL)
+            { printf("Set target grid to index %d\n", value); }
+            else
+            { printf("Grid index %d out of bounds\n", value); }
+        }
+    }
+    else if (ZPG_STREQL(name, "stencil"))
+    {
+        ctx->stencil = GetParamAsGrid(ctx, value, tokens, numTokens);
+        if (ctx->verbosity > 0)
+        { printf("Set stencil grid to index %d\n", value); }
+    }
+    else
+    {
+        printf("Unknown set target '%s'\n", name);
     }
     return 0;
 }
@@ -149,42 +211,48 @@ static i32 ZPG_ExecGridCopyValue(ZPGContext* ctx, char** tokens, i32 numTokens)
 	return 0;
 }
 
+static i32 ZPG_ExecGridToBinary(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    if (ctx->grid == NULL)
+    {
+        return 1;
+    }
+    ZPG_Grid_CollapseToBinary(ctx->grid, ctx->stencil, 1);
+    return 0;
+}
+
+static i32 ZPG_ExecGridFlipBinary(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    if (ctx->grid == NULL) { return 1; }
+    ZPG_Grid_FlipBinary(ctx->grid, ctx->stencil);
+    return 0;
+}
+
 static i32 ZPG_ExecRandomWalk(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
-    // i32 gridIndex = -1;
-    // i32 
     if (ctx->gridStack == NULL)
     {
         printf("Grid stack has not been initialised\n");
         return 1;
     }
-	// if (!ZPG_CheckSignature("iii", tokens, numTokens))
-	// {
-		// return 1;
-	// }
+    if (ctx->grid == NULL)
+    {
+        if (ctx->verbosity > 0)
+        {
+            printf("No working grid set! use set grid <index>\n");
+        }
+        return 1;
+    }
 	
-    ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
-	if (grid == NULL)
-	{ return 1; }
-	ZPGGrid* stencil = GetParamAsGrid(ctx, 1, tokens, numTokens);
-    ZPGWalkCfg cfg {};
-	cfg.typeToPaint = GetParamAsInt(2, tokens, numTokens, 0) & 0xFF;
-	cfg.startX = GetParamAsInt(3, tokens, numTokens, grid->width / 2);
-    cfg.startY = GetParamAsInt(4, tokens, numTokens,  grid->height / 2);
-	cfg.tilesToPlace = GetParamAsInt(5, tokens, numTokens,  40);
-	ZPGPoint dir = {
-		GetParamAsInt(6, tokens, numTokens, 1),
-		GetParamAsInt(7, tokens, numTokens, 0)
-	};
-    cfg.seed = ctx->seed;
-    cfg.bPlaceObjectives = YES;
-    cfg.bigRoomChance = 0.3f;
-    cfg.bStepThrough = NO;
-    ctx->lastStop = ZPG_GridRandomWalk(grid, NULL, NULL, &cfg, dir);
-    ctx->seed = cfg.seed;
+    ZPGWalkCfg* cfg = &ctx->walkCfg;
+    cfg->seed = ctx->seed;
+    ZPGPoint dir = { cfg->dirX, cfg->dirY };
+    ctx->lastStop = ZPG_GridRandomWalk(ctx->grid, NULL, NULL, cfg, dir);
+    ctx->seed = ctx->walkCfg.seed;
+    // ctx->seed = cfg.seed;
     if (ctx->verbosity > 0)
 	{
-		ZPG_Grid_PrintCellDefChars(grid, '*', cfg.startX, cfg.startY);
+		ZPG_Grid_PrintCellDefChars(ctx->grid, '*', cfg->startX, cfg->startY);
 	}
     printf("Stopped at %d, %d\n", ctx->lastStop.x, ctx->lastStop.y);
     return 0;
@@ -212,14 +280,14 @@ static i32 ZPG_ExecCaves(ZPGContext* ctx, char** tokens, i32 numTokens)
 
 static i32 ZPG_ExecVoronoi(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
-    ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
-    i32 numPoints = GetParamAsInt(1, tokens, numTokens, 24);
-    if (grid == NULL) { return 1; }
-    ZPG_SeedVoronoi(grid, numPoints, &ctx->seed);
+    // ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
+    if (ctx->grid == NULL) { return 1; }
+    i32 numPoints = GetParamAsInt(0, tokens, numTokens, 24);
+    ZPG_SeedVoronoi(ctx->grid, ctx->stencil, numPoints, &ctx->seed);
     if (ctx->verbosity > 0)
 	{
-        ZPG_Grid_PrintChannelValues(grid, YES);
-        ZPG_Grid_PrintRegionEdges(grid);
+        ZPG_Grid_PrintChannelValues(ctx->grid, YES);
+        ZPG_Grid_PrintRegionEdges(ctx->grid);
 	}
     return 0;
 }

@@ -3,7 +3,7 @@
 
 #include "zpg_internal.h"
 
-static void ZPG_SeedVoronoi(ZPGGrid* grid, i32 regionTotal, i32* randSeed)
+static void ZPG_SeedVoronoi(ZPGGrid* grid, ZPGGrid* stencil, i32 regionTotal, i32* randSeed)
 {
     if (grid == NULL) { return; }
     ZPG_Grid_SetAll(grid, 0);
@@ -17,18 +17,18 @@ static void ZPG_SeedVoronoi(ZPGGrid* grid, i32 regionTotal, i32* randSeed)
         *randSeed += 1;
         i32 y = ZPG_RandArrIndex(grid->height, *randSeed);
         *randSeed += 1;
-        if (ZPG_GRID_GET(grid, x, y) == 1)
-        {
-            continue;
-        }
-        numPoints += 1;
+
+        if (ZPG_Grid_CheckStencilOccupied(stencil, x, y)) { continue; }
+        if (ZPG_GRID_GET(grid, x, y) == 1) { continue; }
         ZPG_GRID_SET(grid, x, y, 1);
+        // printf("Set point %d: %d, %d\n", numPoints, x, y);
         points[numPoints++] = { x, y };
     }
     
     ZPG_PrintPointsAsGrid(points, numPoints, grid->width, grid->height);
     ZPG_Grid_SetAll(grid, 0);
     ZPG_BEGIN_GRID_ITERATE(grid)
+        if (ZPG_Grid_CheckStencilOccupied(stencil, x, y)) { continue; }
         // find the nearest point
         f32 bestDist = 9999999;
         i32 nearest = -1;

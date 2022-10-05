@@ -39,11 +39,33 @@ static void ZPG_Grid_Copy(ZPGGrid* src, ZPGGrid* dest)
     }
 }
 
-static void ZPG_Grid_FlipBinary(ZPGGrid* grid)
+/*
+set any value on the grid to 0 if below cutoff, 1 otherwise.
+*/
+static void ZPG_Grid_CollapseToBinary(ZPGGrid* grid, ZPGGrid* stencil, u8 cutoff)
+{
+    if (grid == NULL) { return; }
+    i32 len = grid->width * grid->height;
+    for (i32 i = 0; i < len; ++i)
+    {
+        if (stencil != NULL && stencil->cells[i] > 0) { continue; }
+        if (grid->cells[i] < cutoff)
+        {
+            grid->cells[i] = 0;
+        }
+        else
+        {
+            grid->cells[i] = 1;
+        }
+    }
+}
+
+static void ZPG_Grid_FlipBinary(ZPGGrid* grid, ZPGGrid* stencil)
 {
 	i32 len = grid->width * grid->height;
 	for (i32 i = 0; i < len; ++i)
 	{
+        if (stencil != NULL && stencil->cells[i] > 0) { continue; }
 		u8 val = grid->cells[i];
 		val = !(val > 0);
 		grid->cells[i] = val;
@@ -333,7 +355,6 @@ static ZPGNeighbours ZPG_Grid_CountNeighboursAt(
     }
     return neighbours;
 }
-
 
 static ZPGNeighbours ZPG_Grid_CountNeighboursMatchesAt(
 	ZPGGrid* grid, u8 matchType, i32 x, i32 y)

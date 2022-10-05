@@ -258,7 +258,7 @@ static ZPGOutput ZPG_TestCaveGen(ZPGPresetCfg* presetCfg)
             ZPG_CAVE_GEN_CRITICAL_NEIGHBOURS_DEFAULT);
     }
 	
-	ZPG_Grid_FlipBinary(grid);
+	ZPG_Grid_FlipBinary(grid, NULL);
 	#endif
 	
     ZPG_FreeGrid(stencil);

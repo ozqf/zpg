@@ -107,6 +107,14 @@ i32 ExecLine(ZPGContext* ctx, char* cmd)
 static ZPGContext CreateContext()
 {
     ZPGContext ctx = {};
+    // apply some default properties
+    ctx.walkCfg.bigRoomChance = 0.01f;
+    ctx.walkCfg.tilesToPlace = 40;
+    ctx.walkCfg.typeToPaint = 0;
+    ctx.walkCfg.bPlaceObjectives = YES;
+    ctx.walkCfg.bStepThrough = NO;
+
+    ctx.cellCfg = ZPG_DefaultCaveRules();
     // create a default grid stack - running init_stack
     // again will override it
     ExecLine(&ctx, "init_stack 8 48 24");
@@ -283,12 +291,12 @@ static i32 ZPG_ExecuteLine(ZPGContext* ctx, u8* cursor, u8* end, i32 lineNumber)
     char* tokens[maxTokens];
     i32 numTokens = ZPG_ReadTokens(
         (char*)workBuf, (char*)tokensBuf, tokens);
-    printf("\tTokens:\t");
-    for (i32 i = 0; i < numTokens; ++i)
-    {
-        printf("%s, ", tokens[i]);
-    }
-    printf("\n");
+    // printf("\tTokens:\t");
+    // for (i32 i = 0; i < numTokens; ++i)
+    // {
+    //     printf("%s, ", tokens[i]);
+    // }
+    // printf("\n");
     i32 result = ZPG_ExecuteCommand(ctx, tokens, numTokens);
     return result;
 }
@@ -339,7 +347,7 @@ ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags)
         cursor = cursorEnd + lineEndSize;
         line++;
     }
-    ZPG_PrintAllocations();
+    // ZPG_PrintAllocations();
     return 0;
 }
 

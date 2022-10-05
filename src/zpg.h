@@ -160,6 +160,8 @@ struct ZPGWalkCfg
     f32 bigRoomChance;
     i32 startX;
     i32 startY;
+    i32 dirX;
+    i32 dirY;
     i32 tilesToPlace;
     u8 typeToPaint;
     u8 bPlaceObjectives;
