@@ -28,6 +28,12 @@
 #define ZPG_MEM_TAG_BYTE_GRID 11
 #define ZPG_MEM_TAG_INDEX_PAIRS 12
 
+#define ZPG_CHAR_WHITE 219
+#define ZPG_CHAR_LIGHTGREY 178
+#define ZPG_CHAR_MIDDLEGREY 177
+#define ZPG_CHAR_DARKGREY 176
+#define ZPG_CHAR_EMPTY ' '
+
 // Standard lib calls
 #define ZPG_STRLEN(ptrToCharArray) \
 strlen(ptrToCharArray)
@@ -133,6 +139,9 @@ struct ZPGContext
     ZPGGridStack* gridStack;
     i32 verbosity;
     ZPGPoint lastStop;
+    char* history;
+    zpgSize maxHistory;
+    zpgSize historyCursor;
 };
 
 typedef ZPGOutput (*zpg_preset_fn)(ZPGPresetCfg* cfg);
@@ -261,7 +270,7 @@ static void ZPG_Grid_SetAll(ZPGGrid* grid, u8 val);
 
 ZPG_EXPORT void ZPG_Grid_CountNeighourRings(
     ZPGGrid* grid, ZPGGrid* result, i32 ignoreValue, i32 bVerbose);
-static void ZPG_SeedVoronoi(ZPGGrid* grid, f32 perCellRegionChance, i32* randSeed);
+static void ZPG_SeedVoronoi(ZPGGrid* grid, i32 pointCount, i32* randSeed);
 
 static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes);
 static i32 ZPG_Grid_IsPositionSafe(ZPGGrid* grid, i32 x, i32 y);

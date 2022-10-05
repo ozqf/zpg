@@ -3,16 +3,15 @@
 
 #include "zpg_internal.h"
 
-static void ZPG_SeedVoronoi(ZPGGrid* grid, f32 perCellRegionChance, i32* randSeed)
+static void ZPG_SeedVoronoi(ZPGGrid* grid, i32 regionTotal, i32* randSeed)
 {
     if (grid == NULL) { return; }
     ZPG_Grid_SetAll(grid, 0);
     
-    i32 totalRegions = 0;
-    i32 targetRegions = 24;
-    ZPGPoint points[24];
     i32 numPoints = 0;
-    while (totalRegions < targetRegions)
+    ZPGPoint* points = (ZPGPoint*)ZPG_Alloc(sizeof(ZPGPoint) * regionTotal, 0);
+    
+    while (numPoints < regionTotal)
     {
         i32 x = ZPG_RandArrIndex(grid->width, *randSeed);
         *randSeed += 1;
@@ -22,10 +21,11 @@ static void ZPG_SeedVoronoi(ZPGGrid* grid, f32 perCellRegionChance, i32* randSee
         {
             continue;
         }
-        totalRegions += 1;
+        numPoints += 1;
         ZPG_GRID_SET(grid, x, y, 1);
         points[numPoints++] = { x, y };
     }
+    
     ZPG_PrintPointsAsGrid(points, numPoints, grid->width, grid->height);
     ZPG_Grid_SetAll(grid, 0);
     ZPG_BEGIN_GRID_ITERATE(grid)
@@ -47,7 +47,7 @@ static void ZPG_SeedVoronoi(ZPGGrid* grid, f32 perCellRegionChance, i32* randSee
                 bestDist = queryDist;
                 nearest = i;
             }
-            ZPG_GRID_SET(grid, x, y, 1);
+            ZPG_GRID_SET(grid, x, y, nearest & 0xFF);
         }
     ZPG_END_GRID_ITERATE
 
@@ -67,8 +67,8 @@ static void ZPG_SeedVoronoi(ZPGGrid* grid, f32 perCellRegionChance, i32* randSee
         }
     }
     #endif
-    printf("Seeded %d regons\n", totalRegions);
-
+    printf("Seeded %d regons\n", numPoints);
+    ZPG_Free(points);
 }
 
 #endif // ZPG_VORONOI_H

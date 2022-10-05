@@ -3,6 +3,19 @@
 
 #include "zpg_internal.h"
 
+static u8 SpecialCaseChars(char c)
+{
+    if (c == '#')
+    {
+        return 219;
+    }
+    if (c == '.')
+    {
+        return 176;
+    }
+    return c;
+}
+
 static void ZPG_PrintPointDirectionFlags(i32 x, i32 y, i32 val, u8 flags)
 {
     printf("%d, %d: val %d, dir flags %d: ", x, y, val, flags);
@@ -91,6 +104,26 @@ static void ZPG_Grid_PrintPath(ZPGGrid* grid, ZPGPoint* points, i32 numPoints)
     ZPG_FreeGrid(temp);
 }
 
+static void ZPG_Grid_PrintRegionEdges(ZPGGrid* grid)
+{
+    for (i32 y = 0; y < grid->height; ++y)
+    {
+        for (i32 x = 0; x < grid->width; ++x)
+        {
+            u8 val = ZPG_GRID_GET(grid, x, y);
+            ZPGNeighbours neighbours = ZPG_Grid_CountNeighboursMatchesAt(grid, val, x, y);
+            u8 c = ZPG_CHAR_EMPTY;
+            if (neighbours.count != 8)
+            {
+                c = ZPG_CHAR_WHITE;
+            }
+            printf("%c%c", c, c);
+        }
+        printf("\n");
+    }
+        
+}
+
 /////////////////////////////////////////////
 // Grid printing
 /////////////////////////////////////////////
@@ -127,7 +160,7 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 bBlankZeroes)
 }
 #endif
 #if 1
-static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 bBlankZeroes)
+static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 bBlankZeroes)//, i32 numChars)
 {
     ZPG_PARAM_NULL(grid, )
 	if (grid->width > 100 || grid->height > 100)
@@ -146,11 +179,34 @@ static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 bBlankZeroes)
             u8 val = ZPG_GRID_GET(grid, x, y);
             if (bBlankZeroes && val == 0)
             {
-                printf(" ");
+                printf("   ");
+                // switch (numChars)
+                // {
+                //     case 3:
+                //     printf("   ");
+                //     break;
+                //     case 1:
+                //     printf("  ");
+                //     break;
+                //     default:
+                //     printf(" ");
+                //     break;
+                // }
             }
             else
             {
-                printf("%d", val);
+                if (val < 10)
+                {
+                    printf("  %d", val);
+                }
+                else if (val < 100)
+                {
+                    printf(" %d", val);
+                }
+                else
+                {
+                    printf("%d", val);
+                }
             }
         }
         printf("|\n");
@@ -222,14 +278,15 @@ static void ZPG_Grid_PrintCellDefChars(ZPGGrid* grid, u8 marker, i32 markerX, i3
             ZPGCellTypeDef* def = ZPG_Grid_GetTypeDefAt(grid, x, y);
             u8 c = def->asciChar;
             // Special case
-            if (c == '#')
-            {
-                c = 219;
-            }
-            if (c == '.')
-            {
-                c = 176;
-            }
+            c = SpecialCaseChars(c);
+            // if (c == '#')
+            // {
+            //     c = 219;
+            // }
+            // if (c == '.')
+            // {
+            //     c = 176;
+            // }
             if (marker != '\0' && x == markerX && y == markerY)
             {
                 c = marker;

@@ -165,7 +165,6 @@ static void ZPG_PrintTokens(char** tokens, i32 numTokens)
 	}
 	printf("\n");
 }
-	
 
 static i32 ZPG_CheckSignature(char* sig, char** tokens, i32 numTokens)
 {

@@ -51,6 +51,7 @@ https://www.redblobgames.com/articles/noise/introduction.html
 
 // scripted building
 #include "zpg_script/zpg_command.h"
+#include "zpg_script/zpg_command_history.h"
 #include "zpg_script/zpg_script.h"
 
 static void ZPG_AddPresetFunction(

@@ -213,22 +213,19 @@ static i32 ZPG_ExecCaves(ZPGContext* ctx, char** tokens, i32 numTokens)
 static i32 ZPG_ExecVoronoi(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
     ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
+    i32 numPoints = GetParamAsInt(1, tokens, numTokens, 24);
     if (grid == NULL) { return 1; }
-    ZPG_SeedVoronoi(grid, 0.05f, &ctx->seed);
+    ZPG_SeedVoronoi(grid, numPoints, &ctx->seed);
     if (ctx->verbosity > 0)
 	{
         ZPG_Grid_PrintChannelValues(grid, YES);
-		ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
+        ZPG_Grid_PrintRegionEdges(grid);
 	}
     return 0;
 }
 
 static i32 ZPG_ExecStencil(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
-    // if (!ZPG_CheckSignature("it", tokens, numTokens))
-	// {
-	// 	return 1;
-	// }
     ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
     if (grid == NULL) { return 1; }
     ZPGGrid* stencil = GetParamAsGrid(ctx, 1, tokens, numTokens);
