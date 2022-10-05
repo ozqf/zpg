@@ -82,6 +82,11 @@ static void run_script(char* inputFileName)
 	i32 flags = ZPG_API_FLAG_PRINT_WORKING | ZPG_API_FLAG_PRINT_RESULT;
 	ZPG_RunScript(buf, size, flags);
 	free(buf);
+    printf("Run script found %d outputs\n", ZPG_GetOutputsCount());
+	i32 format = ZPG_GetOutputFormat(0, 0);
+	zpgSize outputSize = ZPG_GetOutputSize(0, 0);
+	u8* str = (u8*)ZPG_GetOutputData(0, 0);
+
 }
 
 static void run_test()

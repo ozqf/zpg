@@ -59,7 +59,7 @@ static void ZPG_SeedRooms(
 /**
  * Test settings for randomly laying out groups of numbers
  */
-static ZPGOutput ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
+static ZPGPresetOutput ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
 {
     i32 bVerbose = ((cfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
     i32 w = 10, h = 10;
@@ -87,7 +87,7 @@ static ZPGOutput ZPG_Preset_TestRoomSeeding(ZPGPresetCfg* cfg)
     return ZPG_OutputFromAsciiGrid(a);
 }
 
-static ZPGOutput ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
+static ZPGPresetOutput ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
 {
     i32 bVerbose = ((cfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
     i32 w = 10, h = 10;
@@ -218,7 +218,7 @@ static ZPGOutput ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     return ZPG_OutputFromAsciiGrid(result);
 }
 
-static ZPGOutput ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
+static ZPGPresetOutput ZPG_Preset_RoomTreeTest(ZPGPresetCfg* cfg)
 {
     ///////////////////////////////////////////////////////////
     // Stage 1

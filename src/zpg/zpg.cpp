@@ -136,17 +136,17 @@ extern "C" ZPG_EXPORT i32 ZPG_Init(zpg_allocate_fn ptrAlloc, zpg_free_fn ptrFree
     return 0;
 }
 
-static ZPGOutput ZPG_OutputFromAsciiGrid(ZPGGrid* grid)
+static ZPGPresetOutput ZPG_OutputFromAsciiGrid(ZPGGrid* grid)
 {
-    ZPGOutput output = {};
+    ZPGPresetOutput output = {};
     output.typeFlags |= ZPG_OUTPUT_TYPE_ASCI_GRID;
     output.asciiGrid = grid;
     return output;
 }
 
-static ZPGOutput ZPG_OutputFromGreyscaleGrid(ZPGGrid* grid)
+static ZPGPresetOutput ZPG_OutputFromGreyscaleGrid(ZPGGrid* grid)
 {
-    ZPGOutput output = {};
+    ZPGPresetOutput output = {};
     output.typeFlags |= ZPG_OUTPUT_TYPE_GREYSCALE;
     output.greyGrid = grid;
     return output;
@@ -247,7 +247,7 @@ void ZPG_RunPresetCLI(
     printf("Seed: %d\n", cfg.seed);
 	i32 originalSeed = cfg.seed;
     srand(cfg.seed);
-    ZPGOutput output = preset->funcPtr(&cfg);
+    ZPGPresetOutput output = preset->funcPtr(&cfg);
     ZPGGrid* grid = output.asciiGrid;
     if (grid == NULL)
     {
@@ -263,7 +263,7 @@ void ZPG_RunPresetCLI(
     }
     if (cfg.asciOutput != NULL)
     {
-        ZPG_WriteGridAsAsci(grid, cfg.asciOutput);
+        ZPG_WriteGridAciiToFile(grid, cfg.asciOutput);
     }
     if (cfg.imageOutput != NULL)
     {

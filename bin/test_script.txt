@@ -34,3 +34,4 @@ drunk
 grid_print 0
 # write grid index 0 to a text file
 grid_save 0 output.txt
+grid_output

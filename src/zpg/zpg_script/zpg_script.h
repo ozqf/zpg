@@ -67,7 +67,7 @@ static void ZPG_InitScripts()
 	ZPG_RegisterCommand("seed", ZPG_ExecSetSeed);
     ZPG_RegisterCommand("set", ZPG_ExecSet);
 	ZPG_RegisterCommand("grid_print_prefabs", ZPG_ExecPrintPrefabs);
-    
+    ZPG_RegisterCommand("grid_output", ZPG_ExecAsciiGridToOutput);
 }
 
 static i32 ZPG_ReadTokens(

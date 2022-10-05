@@ -10,7 +10,36 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../../lib/stb_image_write.h"
 
-extern "C" void ZPG_WriteGridAsAsci(ZPGGrid* grid, char* fileName)
+static void ZPG_WriteGridAscii(ZPGGrid* grid, u8** resultPtr, zpgSize* resultLength)
+{
+    // chars are grid + a heights' worth of line endings.
+    i32 totalChars = (grid->width * grid->height) + grid->height;
+    u8* buf = (u8*)ZPG_Alloc(totalChars, 0);
+    
+    u8* cursor = buf;
+    ZPG_MEMSET(buf, 0, totalChars);
+    for (i32 y = 0; y < grid->height; ++y)
+    {
+        for (i32 x = 0; x < grid->width; ++x)
+        {
+            ZPGCellTypeDef* def = ZPG_Grid_GetTypeDefAt(grid, x, y);
+            if (def != NULL)
+            {
+                *cursor = def->asciChar;
+            }
+            else
+            {
+                *cursor = '#';
+            }
+            cursor += sizeof(u8);
+        }
+        *cursor = '\n';
+    }
+    *resultPtr = buf;
+    *resultLength = totalChars;
+}
+
+extern "C" void ZPG_WriteGridAciiToFile(ZPGGrid* grid, char* fileName)
 {
     if (grid == NULL) { return; }
     if (fileName == NULL) { return; }

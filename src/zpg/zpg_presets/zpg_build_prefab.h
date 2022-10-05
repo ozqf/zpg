@@ -3,7 +3,7 @@
 
 #include "zpg_internal.h"
 
-static ZPGOutput ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
+static ZPGPresetOutput ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
 {
     //i32 w = 48, h = 48;
     i32 w = presetCfg->width;
@@ -87,7 +87,7 @@ static ZPGOutput ZPG_Test_PrefabBuildA(ZPGPresetCfg* presetCfg)
     return ZPG_OutputFromAsciiGrid(grid);
 }
 
-static ZPGOutput ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
+static ZPGPresetOutput ZPG_Test_WalkBetweenPrefabs(ZPGPresetCfg* presetCfg)
 {
     i32 w = presetCfg->width;
     i32 h = presetCfg->height;
@@ -289,7 +289,7 @@ static i32 ZPG_FindRoomConnectionPoints(
     return 0;
 }
 
-static ZPGOutput ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
+static ZPGPresetOutput ZPG_Preset_PrefabsLinesCaves(ZPGPresetCfg* presetCfg)
 {
     i32 w = presetCfg->width;
     i32 h = presetCfg->height;

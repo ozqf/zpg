@@ -3,7 +3,7 @@
 
 #include "zpg_internal.h"
 
-static ZPGOutput ZPG_Preset_Perlin(ZPGPresetCfg* presetCfg)
+static ZPGPresetOutput ZPG_Preset_Perlin(ZPGPresetCfg* presetCfg)
 {
     i32 bVerbose = ((presetCfg->flags & ZPG_API_FLAG_PRINT_WORKING) != 0);
     i32 w = 96, h = 48;

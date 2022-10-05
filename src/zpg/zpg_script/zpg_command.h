@@ -144,6 +144,17 @@ static i32 ZPG_ExecGridPrint(ZPGContext* ctx, char** tokens, i32 numTokens)
     return 0;
 }
 
+static i32 ZPG_ExecAsciiGridToOutput(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    if (ctx->grid == NULL) { return 1; }
+    u8* ptr;
+    zpgSize numBytes;
+    ZPG_WriteGridAscii(ctx->grid, &ptr, &numBytes);
+    zpgHandle h = ZPG_AddOutput(ZPG_OUTPUT_FORMAT_ASCI_GRID, ptr, numBytes);
+    printf("Created output %d with %lld bytes\n", h, numBytes);
+    return 0;
+}
+
 static i32 ZPG_ExecInitStack(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
     printf("Init grid stack\n");
@@ -328,7 +339,7 @@ static i32 ZPG_ExecSaveGridToTextFile(ZPGContext* ctx, char** tokens, i32 numTok
 	if (grid == NULL)
 	{ return 1; }
 	char* fileName = GetParamAsString(1, tokens, numTokens, "output.txt");
-	ZPG_WriteGridAsAsci(grid, fileName);
+	ZPG_WriteGridAciiToFile(grid, fileName);
 	return 0;
 }
 
