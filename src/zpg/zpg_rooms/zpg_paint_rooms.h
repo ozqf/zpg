@@ -260,9 +260,10 @@ static void ZPG_Rooms_PaintGeometry(
 	ZPGGrid* doorwayFlags,
 	ZPGRoom* rooms,
 	i32 numRooms,
-	i32 bPaintRoomId)
+	i32 bPaintRoomId,
+	i32 scale)
 {
-	const i32 scale = 4;
+	scale = 4; // TODO Scale doesn't work. always assumes 4
 	if (target->width != (src->width * scale))
 	{
 		printf("ABORT - bad canvas width\n");

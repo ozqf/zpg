@@ -56,19 +56,25 @@ static void ZPG_InitScripts()
     ZPG_RegisterCommand("grid_set_all", ZPG_ExecGridSetAll);
     ZPG_RegisterCommand("grid_ascii", ZPG_ExecGridPrintAscii);
 	ZPG_RegisterCommand("grid_save", ZPG_ExecSaveGridToTextFile);
-    ZPG_RegisterCommand("grid_copy_specific", ZPG_ExecGridCopyValue);
+    ZPG_RegisterCommand("grid_copy_from", ZPG_ExecGridCopy);
+    ZPG_RegisterCommand("grid_copy_value", ZPG_ExecGridCopyValue);
+    ZPG_RegisterCommand("grid_replace_value", ZPG_ExecGridReplaceValue);
+	ZPG_RegisterCommand("grid_print_prefabs", ZPG_ExecPrintPrefabs);
+    ZPG_RegisterCommand("grid_write_to_output", ZPG_ExecAsciiGridToOutput);
+    ZPG_RegisterCommand("grid_scatter", ZPG_ExecGridScatter);
+    ZPG_RegisterCommand("grid_draw_points", ZPG_ExecGridDrawPoints);
+    ZPG_RegisterCommand("grid_to_binary", ZPG_ExecGridToBinary);
+    ZPG_RegisterCommand("grid_flip_binary", ZPG_ExecGridFlipBinary);
 
     ZPG_RegisterCommand("stencil", ZPG_ExecStencil);
     ZPG_RegisterCommand("drunk", ZPG_ExecRandomWalk);
     ZPG_RegisterCommand("caves", ZPG_ExecCaves);
     ZPG_RegisterCommand("voronoi", ZPG_ExecVoronoi);
-    ZPG_RegisterCommand("grid_scatter", ZPG_ExecGridScatter);
+    ZPG_RegisterCommand("rooms", ZPG_ExecBuildRooms);
 
     ZPG_RegisterCommand("init_stack", ZPG_ExecInitStack);
 	ZPG_RegisterCommand("seed", ZPG_ExecSetSeed);
     ZPG_RegisterCommand("set", ZPG_ExecSet);
-	ZPG_RegisterCommand("grid_print_prefabs", ZPG_ExecPrintPrefabs);
-    ZPG_RegisterCommand("grid_write_to_output", ZPG_ExecAsciiGridToOutput);
 }
 
 static i32 ZPG_ReadTokens(
@@ -119,6 +125,11 @@ static ZPGContext CreateContext()
     // generate a new seed - script can override if it wants.
     ctx.seed = ZPG_GenerateSeed();
     return ctx;
+}
+
+static void FreeContext(ZPGContext* ctx)
+{
+
 }
 
 /*
@@ -319,9 +330,19 @@ static u8* ZPG_ScanForLineEnd(u8* buf, u8* end, i32* lineEndSize)
     return result;
 }
 
+static zpgSize ExtractLine(u8* buffer, zpgSize bufferSize, u8* cursor, u8* end)
+{
+    zpgSize lineLength = end - cursor;
+    ZPG_MEMCPY(buffer, cursor, lineLength);
+    buffer[lineLength] = '\0';
+    buffer[lineLength + 1] = '\0';
+    return lineLength;
+}
+
 ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags)
 {
     if (g_bZPGInitialised == false) { return 1; }
+    i32 result = 0;
     ZPG_InitScripts();
     printf("Running script (%d chars)\n", textLength);
     u8* end = text + textLength;
@@ -333,26 +354,29 @@ ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags)
     {
         i32 lineEndSize;
         cursorEnd = ZPG_ScanForLineEnd(cursor, end, &lineEndSize);
-
+        
         zpgSize len = cursorEnd - cursor;
         if ((char)*cursor != '#' && len >= 2)
         {
-            i32 err = ZPG_ExecuteLine(&ctx, cursor, cursorEnd, line);
+            const zpgSize bufSize = 256;
+            u8 buf[bufSize];
+            ExtractLine(buf, bufSize, cursor, cursorEnd);
+            // i32 err = ZPG_ExecuteLine(&ctx, cursor, cursorEnd, line);
+            i32 err = ExecLine(&ctx, (char*)buf);
             if (err != 0)
             {
-                printf("ABORT Error %d executing line\n", err);
+                printf("ABORT Error %d executing line '%s'\n", err, (char*)buf);
+                cursor = end;
+                result = err;
                 break;
             }
         }
-        /*else
-        {
-            printf("Skip line\n");
-        }*/
         cursor = cursorEnd + lineEndSize;
         line++;
     }
+    FreeContext(&ctx);
     // ZPG_PrintAllocations();
-    return 0;
+    return result;
 }
 
 

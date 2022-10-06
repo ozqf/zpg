@@ -85,10 +85,6 @@
 
 #define ZPG_CAVE_GEN_CRITICAL_NEIGHBOURS_DEFAULT 4
 
-#define ZPG_ERROR_NONE 0
-#define ZPG_ERROR_UNKNOWN 1
-#define ZPG_ERROR_UNRECOGNISED_OPTION 2
-
 //////////////////////////////////////////
 // Data types
 //////////////////////////////////////////
@@ -402,7 +398,7 @@ struct ZPGContext
     // additionally allocated items
     ZPGGridStack* gridStack;
     ZPGPointList points;
-    
+
     char* history;
     zpgSize maxHistory;
     zpgSize historyCursor;

@@ -39,6 +39,34 @@ static void ZPG_Grid_Copy(ZPGGrid* src, ZPGGrid* dest)
     }
 }
 
+static void ZPG_Grid_CopyWithStencil(ZPGGrid* src, ZPGGrid* dest, ZPGGrid* stencil)
+{
+    if (src == NULL || dest == NULL)
+    { return; }
+    i32 srcLen = src->width * src->height;
+    i32 destLen = dest->width * dest->height;
+    if (srcLen != destLen) { return; }
+    for (i32 i = 0; i < srcLen; ++i)
+    {
+        if (stencil != NULL && stencil->cells[i] > 0) { continue; }
+        dest->cells[i] = src->cells[i];
+    }
+}
+
+static void ZPG_Grid_ReplaceValue(ZPGGrid* grid, ZPGGrid* stencil, u8 target, u8 replacement)
+{
+    ZPG_PARAM_NULL(grid, )
+    i32 total = grid->width * grid->height;
+    for (i32 i = 0; i < total; ++i)
+    {
+        if (stencil != NULL && stencil->cells[i] > 0) { continue; }
+        if (grid->cells[i] == target)
+        {
+            grid->cells[i] = replacement;
+        }
+    }
+}
+
 /*
 set any value on the grid to 0 if below cutoff, 1 otherwise.
 */
@@ -71,38 +99,6 @@ static void ZPG_Grid_FlipBinary(ZPGGrid* grid, ZPGGrid* stencil)
 		grid->cells[i] = val;
 	}
 }
-
-/*
-static ZPGCell* ZPG_Grid_GetCellAt(ZPGGrid* grid, i32 x, i32 y)
-{
-    i32 i = ZPG_Grid_PositionToIndexSafe(grid, x, y);
-    if (i == -1) { return NULL; }
-    return &grid->cells[i];
-}
-
-static ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y)
-{
-    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    if (cell == NULL) { return ZPG_GetDefaultType(); }
-    return ZPG_GetType(cell->tile.type);
-}
-
-static i32 ZPG_Grid_CheckTypeAt(
-    ZPGGrid* grid, i32 x, i32 y, u8 queryType, i32 bYesIfOutOfBounds)
-{
-    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    if (cell == NULL) { return bYesIfOutOfBounds ? YES : NO; }
-    return (cell->tile.type == queryType);
-}
-
-static i32 ZPG_Grid_CheckTagSetAt(
-    ZPGGrid* grid, i32 x, i32 y, u8 queryType, i32 bYesIfOutOfBounds)
-{
-    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    if (cell == NULL) { return bYesIfOutOfBounds ? YES : NO; }
-    return (cell->tile.tag == queryType);
-}
-*/
 
 static i32 ZPG_Grid_CheckValueAt(
     ZPGGrid* grid, i32 x, i32 y, u8 queryType, i32 bYesIfOutOfBounds)
@@ -182,78 +178,6 @@ static i32 ZPG_Grid_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y)
     // if (cell == NULL) { return NO; }
     // return (cell->tile.type != ZPG_STENCIL_TYPE_EMPTY);
 }
-/*
-static i32 ZPG_Grid_GetTagAt(ZPGGrid* grid, i32 x, i32 y)
-{
-    if (grid == NULL) { return NO; }
-    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    if (cell == NULL) { return NO; }
-    return cell->tile.tag;
-}
-
-static void ZPG_Grid_SetValueWithStencil(ZPGGrid* grid, i32 x, i32 y, u8 type, ZPGGrid* stencil)
-{
-    if (ZPG_Grid_CheckStencilOccupied(stencil, x, y) == YES) { return; }
-    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    if (cell == NULL) { return; }
-    cell->tile.type = type;
-}
-*/
-
-/**
- * Paint the given type on this cell only if the current value
- * has a different geometry type
- * returns true if it performed a change
- */
-/*
-static i32 ZPG_Grid_SetCellTypeGeometry(
-    ZPGGrid* grid, i32 x, i32 y, u8 typeToPaint, u8 geometryType)
-{
-    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    if (cell == NULL) { return NO; }
-    ZPGCellTypeDef* def = ZPG_GetType(cell->tile.type);
-    if (def->geometryType == geometryType) { return NO; }
-    cell->tile.type = typeToPaint;
-    return YES;
-}
-
-static void ZPG_Grid_SetCellTypeAll(ZPGGrid* grid, u8 type)
-{
-    i32 totalCells = grid->width * grid->height;
-    for (i32 i = 0; i < totalCells; ++i)
-    {
-        grid->cells[i].tile.type = type;
-    }
-}
-
-static void ZPG_Grid_ClearAllTags(ZPGGrid* grid)
-{
-    i32 len = grid->width * grid->height;
-    for (i32 i = 0; i < len; ++i)
-    {
-        grid->cells[i].tile.tag = 0;
-    }
-}
-
-static i32 ZPG_Grid_SetChannelAt(
-    ZPGGrid* grid, i32 x, i32 y, i32 channelNum, u8 val)
-{
-    ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    if (cell == NULL) { return NO; }
-    cell->arr[channelNum] = val;
-    return YES;
-}
-
-static void ZPG_Grid_SetCellChannelAll(ZPGGrid* grid, u8 type, i32 channel)
-{
-    if (channel < 0 || channel >= 4) { return; }
-    i32 totalCells = grid->width * grid->height;
-    for (i32 i = 0; i < totalCells; ++i)
-    {
-        grid->cells[i].arr[channel] = type;
-    }
-}
-*/
 
 ZPG_EXPORT ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y)
 {
@@ -291,16 +215,7 @@ ZPG_EXPORT void ZPG_Grid_CalcStats(ZPGGrid* grid)
         }
     }
 }
-/*
-static i32 ZPG_Grid_ValueDiff(ZPGGrid* grid, i32 x, i32 y, u8 queryValue)
-{
-    if (!ZPG_GRID_POS_SAFE(grid, x, y)) { return 0; }
-    u8 val = ZPG_GRID_GET(grid, x, y);
-    i32 diff = val - queryValue;
-    if (diff < 0) { diff = -diff; }
-    return diff;
-}
-*/
+
 static ZPGNeighbours ZPG_Grid_CountNeighboursAt(
 	ZPGGrid* grid, i32 x, i32 y)
 {

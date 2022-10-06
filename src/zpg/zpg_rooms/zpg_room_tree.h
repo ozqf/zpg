@@ -107,14 +107,10 @@ static ZPGPresetOutput ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
 
     ZPGGrid* roomVolumes = stack->grids[roomVolumesIndex];
     ZPGGrid* tagGrid = stack->grids[tagGridIndex];
-    ZPGGrid* doorFlags = stack->grids[doorwayFlagsIndex];
-    ZPGGrid* roomFlags = stack->grids[roomFlagsIndex];
     ZPGGrid* caveStencil = stack->grids[caveStencilIndex];
     ZPG_Grid_SetAll(roomVolumes, 0);
-    ZPG_Grid_SetAll(tagGrid, 0);
-    ZPG_Grid_SetAll(doorFlags, 0);
-    ZPG_Grid_SetAll(roomFlags, 0);
-	
+    ZPG_Grid_SetAll(caveStencil, 0);
+    
     // Generate the initial room volumes grid:
     #if 0
     i32 hw = w / 2;
@@ -145,6 +141,12 @@ static ZPGPresetOutput ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     ZPG_ZeroOutLoneValues(roomVolumes);
 	
     ////////////////////////////////////////////////////////
+    ZPGGrid* doorFlags = stack->grids[doorwayFlagsIndex];
+    ZPGGrid* roomFlags = stack->grids[roomFlagsIndex];
+
+    ZPG_Grid_SetAll(tagGrid, 0);
+    ZPG_Grid_SetAll(doorFlags, 0);
+    ZPG_Grid_SetAll(roomFlags, 0);
     // find rooms by flood fill
     ZPGRoom* rooms = NULL;
     i32 numRooms = ZPG_Grid_FindRooms(roomVolumes, tagGrid, &rooms);
@@ -196,10 +198,11 @@ static ZPGPresetOutput ZPG_Preset_TestConnectRooms(ZPGPresetCfg* cfg)
     ZPGGrid* connectionGrid = ZPG_Rooms_BuildConnectionsGrid(
         roomVolumes, rooms, numRooms, bVerbose);
     
-    ZPGGrid* canvas = ZPG_CreateGrid(roomVolumes->width * 4, roomVolumes->height * 4);
+	const i32 scale = 4;
+    ZPGGrid* canvas = ZPG_CreateGrid(roomVolumes->width * scale, roomVolumes->height * scale);
 
     ZPG_Rooms_PaintGeometry(
-        roomVolumes, canvas, roomFlags, doorFlags, rooms, numRooms, NO);
+        roomVolumes, canvas, roomFlags, doorFlags, rooms, numRooms, NO, scale);
     
     // ZPGGridStack* canvas = ZPG_GenerateRoomBorder(
     //     roomVolumes, connectionGrid, rooms, numRooms, YES);

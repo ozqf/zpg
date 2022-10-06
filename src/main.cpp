@@ -79,13 +79,22 @@ static void run_script(char* inputFileName)
 	fclose(f);
 	printf("Read script:\n%s\n", buf);
 	i32 flags = ZPG_API_FLAG_PRINT_WORKING | ZPG_API_FLAG_PRINT_RESULT;
-	ZPG_RunScript(buf, size, flags);
+	i32 result = ZPG_RunScript(buf, size, flags);
 	free(buf);
+	if (result != 0)
+	{
+		printf("Script failed with code %d\n", result);
+		return;
+	}
     printf("Run script found %d outputs\n", ZPG_GetOutputsCount());
-	i32 format = ZPG_GetOutputFormat(0, 0);
-	zpgSize outputSize = ZPG_GetOutputSize(0, 0);
-	u8* str = (u8*)ZPG_GetOutputData(0, 0);
-
+	zpgHandle id = 0;
+	printf("Found %lld bytes from output %d\n",
+		ZPG_GetOutputSize(0, id),
+		id
+		);
+	printf("%s\n", (char*)ZPG_GetOutputData(0, id));
+	ZPG_FreeAllOutputs(0);
+	printf("%d remaining outputs\n", ZPG_GetOutputsCount());
 }
 
 static void run_test()
@@ -201,14 +210,6 @@ int main(int argc, char** argv)
 		else
 		{
 			run_script(argv[2]);
-			zpgHandle id = 0;
-			printf("Found %lld bytes from output %d\n",
-				ZPG_GetOutputSize(0, id),
-				id
-				);
-			printf("%s\n", (char*)ZPG_GetOutputData(0, id));
-			ZPG_FreeAllOutputs(0);
-			printf("%d remaining outputs\n", ZPG_GetOutputsCount());
 		}
 	}
 	else if (strcmp(argv[1], "data") == 0)

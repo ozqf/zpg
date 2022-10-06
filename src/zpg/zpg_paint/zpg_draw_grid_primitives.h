@@ -28,6 +28,18 @@ static void ZPG_FillRect(ZPGGrid* grid, ZPGPoint min, ZPGPoint max, u8 typeToPai
 }
 #endif
 
+static void ZPG_Grid_DrawPoints(
+    ZPGGrid* grid, ZPGPoint* points, i32 numPoints, u8 valToPaint)
+{
+    if (grid == NULL) { return; }
+    if (points == NULL) { return; }
+    if (numPoints == NULL) { return; }
+    for (i32 i = 0; i < numPoints; ++i)
+    {
+        ZPG_GRID_SET(grid, points[i].x, points[i].y, valToPaint);
+    }
+}
+
 static i32 ZPG_FillRectWithStencil(
     ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint min, ZPGPoint max, u8 typeToPaint)
 {
@@ -71,6 +83,7 @@ static void ZPG_DrawCardinalLine(
 static void ZPG_DrawLine(
     ZPGGrid *grid, ZPGGrid* stencil, i32 aX, i32 aY, i32 bX, i32 bY, u8 typeToPaint, f32 bigRoomChance)
 {
+    ZPG_PARAM_NULL(grid, )
     f32 x0 = (f32)aX, y0 = (f32)aY, x1 = (f32)bX, y1 = (f32)bY;
     float dx = x1 - x0;
     if (dx < 0)
@@ -162,6 +175,8 @@ static void ZPG_DrawLine(
 static void ZPG_DrawSegmentedLine(
     ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint* points, i32 numPoints, u8 typeToPaint, f32 bigRoomChance)
 {
+    ZPG_PARAM_NULL(grid, )
+    ZPG_PARAM_NULL(points, )
     i32 numLines = numPoints - 1;
     if (numLines <= 0) { return; }
     for (i32 i = 0; i < numLines; ++i)
@@ -176,6 +191,7 @@ static void ZPG_DrawSegmentedLine(
 
 static void ZPG_DrawOuterBorder(ZPGGrid* grid, ZPGGrid* stencil, u8 typeToPaint)
 {
+    if (grid == NULL) { return; }
     i32 maxX = grid->width - 1;
     i32 maxY = grid->height - 1;
     // top
@@ -190,6 +206,7 @@ static void ZPG_DrawOuterBorder(ZPGGrid* grid, ZPGGrid* stencil, u8 typeToPaint)
 
 static void ZPG_DrawRect(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint min, ZPGPoint max, u8 typeToPaint)
 {
+    if (grid == NULL) { return; }
     // top
     ZPG_DrawLine(grid, stencil, min.x, min.y, max.x, min.y, typeToPaint, 0);
     // bottom
@@ -202,6 +219,7 @@ static void ZPG_DrawRect(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint min, ZPGPoint
 
 static void ZPG_CapFillBounds(ZPGGrid* grid, ZPGPoint* min, ZPGPoint* max)
 {
+    if (grid == NULL || min == NULL || max == NULL) { return; }
     if (min->x < 0) { min->x = 0; }
     if (max->x >= grid->width) { max->x = grid->width - 1; }
     if (min->y < 0) { min->y = 0; }
@@ -210,6 +228,7 @@ static void ZPG_CapFillBounds(ZPGGrid* grid, ZPGPoint* min, ZPGPoint* max)
 
 static void ZPG_AddGridsOfSameSize(ZPGGrid* target, ZPGGrid* source)
 {
+    if (target == NULL || source == NULL) { return; }
     if (target->width != source->width) { return; }
     if (target->height != source->height) { return; }
 

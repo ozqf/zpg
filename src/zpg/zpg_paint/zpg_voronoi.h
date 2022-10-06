@@ -58,7 +58,6 @@ static zpgError ZPG_Voronoi(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint* points, i
     return 0;
 }
 
-
 static void ZPG_SeedVoronoi(ZPGGrid* grid, ZPGGrid* stencil, i32 regionTotal, i32* randSeed)
 {
     if (grid == NULL) { return; }
