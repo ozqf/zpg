@@ -179,7 +179,7 @@ static void ZPG_Params_PrintHelp()
 Returns 0 if okay
 error code if not
 */
-static ZPGError ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** argv)
+static zpgError ZPG_Params_ReadForPreset(ZPGPresetCfg* cfg, i32 argc, char** argv)
 {
     // skip first two args.
     // Read third arg as preset number

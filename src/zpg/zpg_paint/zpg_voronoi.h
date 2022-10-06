@@ -3,6 +3,62 @@
 
 #include "zpg_internal.h"
 
+static ZPGPointList ZPG_SeedByCount(
+    ZPGGrid* grid, ZPGGrid* stencil, i32 regionTotal, i32* randSeed)
+{
+    ZPGPointList list = {};
+    list.points = (ZPGPoint*)ZPG_Alloc(sizeof(ZPGPoint) * regionTotal, 0);
+    list.max = regionTotal;
+    if (grid == NULL) { return list; }
+
+    while (list.count < regionTotal)
+    {
+        i32 x = ZPG_RandArrIndex(grid->width, *randSeed);
+        *randSeed += 1;
+        i32 y = ZPG_RandArrIndex(grid->height, *randSeed);
+        *randSeed += 1;
+
+        if (ZPG_Grid_CheckStencilOccupied(stencil, x, y)) { continue; }
+        if (ZPG_GRID_GET(grid, x, y) == 1) { continue; }
+        ZPG_GRID_SET(grid, x, y, 1);
+        // printf("Set point %d: %d, %d\n", list.count, x, y);
+        list.points[list.count++] = { x, y };
+    }
+    return list;
+}
+
+static zpgError ZPG_Voronoi(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint* points, i32 numPoints)
+{
+    if (grid == NULL) { return 1; }
+    if (points == NULL) { return 1; }
+    if (numPoints == 0) { return 1; }
+    ZPG_BEGIN_GRID_ITERATE(grid)
+        if (ZPG_Grid_CheckStencilOccupied(stencil, x, y)) { continue; }
+        // find the nearest point
+        f32 bestDist = 9999999;
+        i32 nearest = -1;
+        for (i32 i = 0; i < numPoints; ++i)
+        {
+            ZPGPoint regionPos = points[i];
+            ZPGPoint queryPos = { x, y };
+            f32 queryDist = ZPG_Distance(regionPos, queryPos);
+            if (nearest < 0)
+            {
+                nearest = i;
+                continue;
+            }
+            if (queryDist < bestDist)
+            {
+                bestDist = queryDist;
+                nearest = i;
+            }
+            ZPG_GRID_SET(grid, x, y, nearest & 0xFF);
+        }
+    ZPG_END_GRID_ITERATE
+    return 0;
+}
+
+
 static void ZPG_SeedVoronoi(ZPGGrid* grid, ZPGGrid* stencil, i32 regionTotal, i32* randSeed)
 {
     if (grid == NULL) { return; }

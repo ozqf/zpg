@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <string.h>
 
@@ -195,10 +194,6 @@ int main(int argc, char** argv)
 	}
 	else if (strcmp(argv[1], "script") == 0)
 	{
-		#if 0
-		printf("Sorry, script mode disabled\n");
-		#endif
-		#if 1
 		if (argc < 3)
 		{
 			printf("Must specify a script file to run!\n");
@@ -206,8 +201,15 @@ int main(int argc, char** argv)
 		else
 		{
 			run_script(argv[2]);
+			zpgHandle id = 0;
+			printf("Found %lld bytes from output %d\n",
+				ZPG_GetOutputSize(0, id),
+				id
+				);
+			printf("%s\n", (char*)ZPG_GetOutputData(0, id));
+			ZPG_FreeAllOutputs(0);
+			printf("%d remaining outputs\n", ZPG_GetOutputsCount());
 		}
-		#endif
 	}
 	else if (strcmp(argv[1], "data") == 0)
 	{

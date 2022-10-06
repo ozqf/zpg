@@ -10,6 +10,7 @@
 #include "zpg/zpg_common.h"
 #include <stdlib.h>
 
+#define ZPG_OUTPUT_FORMAT_EMPTY 0
 #define ZPG_OUTPUT_FORMAT_ASCI_GRID 1
 
 #define ZPG_API_FLAG_PRINT_RESULT (1 << 0)
@@ -20,11 +21,13 @@
 #define ZPG_API_FLAG_PRINT_FINAL_ALLOCS (1 << 5)
 #define ZPG_API_FLAG_SOLID_BORDER (1 << 6)
 
+typedef int zpgError;
+typedef i32 zpgHandle;
+
 // void *(__cdecl *)(size_t)
 typedef void* (*zpg_allocate_fn)(size_t size);
 typedef void (*zpg_free_fn)(void* ptr);
 typedef void (*zpg_fatal_fn)(const char* msg);
-typedef i32 zpgHandle;
 
 //////////////////////////////////////////
 // Functions
@@ -46,12 +49,14 @@ ZPG_EXPORT zpgHandle ZPG_CreateContext();
 ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags);
 
 // Reading results from scripts
-ZPG_EXPORT zpgHandle ZPG_AddOutput(i32 format, void* ptr, zpgSize numBytes);
-ZPG_EXPORT i32 ZPG_GetOutputsCount();
-ZPG_EXPORT zpgSize ZPG_GetOutputSize(zpgHandle context, zpgHandle output);
-ZPG_EXPORT i32 ZPG_GetOutputFormat(zpgHandle context, zpgHandle output);
-ZPG_EXPORT void* ZPG_GetOutputData(zpgHandle context, zpgHandle output);
-ZPG_EXPORT void ZPG_PurgeOutputs();
+ZPG_EXPORT zpgHandle ZPG_AddOutput(
+    zpgHandle context, zpgHandle output, i32 format, void* ptr, zpgSize numBytes);
+ZPG_EXPORT i32          ZPG_GetOutputsCount();
+ZPG_EXPORT zpgSize      ZPG_GetOutputSize(zpgHandle context, zpgHandle output);
+ZPG_EXPORT i32          ZPG_GetOutputFormat(zpgHandle context, zpgHandle output);
+ZPG_EXPORT void*        ZPG_GetOutputData(zpgHandle context, zpgHandle output);
+ZPG_EXPORT zpgError     ZPG_FreeOutput(zpgHandle context, zpgHandle index);
+ZPG_EXPORT void         ZPG_FreeAllOutputs(zpgHandle context);
 
 ZPG_EXPORT void ZPG_PrintPrefabs();
 ZPG_EXPORT void ZPG_PrintTileTypes();

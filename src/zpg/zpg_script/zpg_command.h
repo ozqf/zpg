@@ -127,12 +127,35 @@ static i32 ZPG_ExecSetSeed(ZPGContext* ctx, char** tokens, i32 numTokens)
     {
         ctx->seed = GetParamAsInt(0, tokens, numTokens, 0);
     }
-    printf("Seed: %d\n", ctx->seed);
+    if (ctx->verbosity > 0)
+    {
+        printf("Seeding srand: %d\n", ctx->seed);
+    }
     srand(ctx->seed);
     return 0;
 }
 
-static i32 ZPG_ExecGridPrint(ZPGContext* ctx, char** tokens, i32 numTokens)
+static i32 ZPG_ExecGridScatter(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    i32 seedCount = GetParamAsInt(0, tokens, numTokens, 12);
+    ZPGPointList points = ZPG_SeedByCount(ctx->grid, ctx->stencil, seedCount, &ctx->seed);
+    if (ctx->points.points != NULL)
+    {
+        if (ctx->verbosity > 0)
+        {
+            printf("Freeing %d points\n", ctx->points.max);
+        }
+        ZPG_Free(ctx->points.points);
+    }
+    ctx->points = points;
+    if (ctx->verbosity > 0)
+    {
+        ZPG_PrintPointsAsGrid(points.points, points.count, ctx->grid->width, ctx->grid->height);
+    }
+    return 0;
+}
+
+static i32 ZPG_ExecGridPrintAscii(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
     ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
     if (grid == NULL)
@@ -147,11 +170,28 @@ static i32 ZPG_ExecGridPrint(ZPGContext* ctx, char** tokens, i32 numTokens)
 static i32 ZPG_ExecAsciiGridToOutput(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
     if (ctx->grid == NULL) { return 1; }
+    // by default will write to output 0 if none was specified!
+    zpgHandle outputIndex = GetParamAsInt(0, tokens, numTokens, 0);
     u8* ptr;
     zpgSize numBytes;
     ZPG_WriteGridAscii(ctx->grid, &ptr, &numBytes);
-    zpgHandle h = ZPG_AddOutput(ZPG_OUTPUT_FORMAT_ASCI_GRID, ptr, numBytes);
-    printf("Created output %d with %lld bytes\n", h, numBytes);
+    if (ctx->verbosity > 0)
+    {
+        printf("Writing %lld bytes to output %d\n", numBytes, outputIndex);
+    }
+    zpgError err = ZPG_AddOutput(0, outputIndex, ZPG_OUTPUT_FORMAT_ASCI_GRID, ptr, numBytes);
+    if (err != 0)
+    {
+        if (ctx->verbosity > 0)
+        {
+            printf("Failed to write output. Code %d\n", err);
+        }
+        return 1;
+    }
+    if (ctx->verbosity > 0)
+    {
+        printf("Created output %d with %lld bytes\n", outputIndex, numBytes);
+    }
     return 0;
 }
 
@@ -188,8 +228,7 @@ static i32 ZPG_ExecGridSetAll(ZPGContext* ctx, char** tokens, i32 numTokens)
 	if (!ZPG_CheckSignature("ii", tokens, numTokens))
 	{
 		return 1;
-	}
-    printf("Grid Set All\n");
+    }
 	i32 gridIndex = atoi(tokens[0]);
     if (gridIndex < 0 || gridIndex >= ctx->gridStack->numGrids)
     {
@@ -199,7 +238,7 @@ static i32 ZPG_ExecGridSetAll(ZPGContext* ctx, char** tokens, i32 numTokens)
     ZPGGrid* grid = ctx->gridStack->grids[gridIndex];
 	u8 value = (u8)(atoi(tokens[1]) & 0xFF);
 	ZPG_Grid_SetAll(grid, value);
-    if (ctx->verbosity > 0)
+    if (ctx->verbosity > 1)
 	{
 		ZPG_Grid_PrintCellDefChars(grid, 0, 0, 0);
 	}
@@ -264,8 +303,8 @@ static i32 ZPG_ExecRandomWalk(ZPGContext* ctx, char** tokens, i32 numTokens)
     if (ctx->verbosity > 0)
 	{
 		ZPG_Grid_PrintCellDefChars(ctx->grid, '*', cfg->startX, cfg->startY);
+        printf("Stopped at %d, %d\n", ctx->lastStop.x, ctx->lastStop.y);
 	}
-    printf("Stopped at %d, %d\n", ctx->lastStop.x, ctx->lastStop.y);
     return 0;
 }
 
@@ -293,8 +332,10 @@ static i32 ZPG_ExecVoronoi(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
     // ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
     if (ctx->grid == NULL) { return 1; }
-    i32 numPoints = GetParamAsInt(0, tokens, numTokens, 24);
-    ZPG_SeedVoronoi(ctx->grid, ctx->stencil, numPoints, &ctx->seed);
+    // i32 numPoints = GetParamAsInt(0, tokens, numTokens, 24);
+    // ZPG_SeedVoronoi(ctx->grid, ctx->stencil, numPoints, &ctx->seed);
+    if (ctx->points.points == NULL) { return 1; }
+    ZPG_Voronoi(ctx->grid, ctx->stencil, ctx->points.points, ctx->points.count);
     if (ctx->verbosity > 0)
 	{
         ZPG_Grid_PrintChannelValues(ctx->grid, YES);

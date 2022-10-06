@@ -221,7 +221,7 @@ void ZPG_RunPresetCLI(
     cfg.seed = (i32)time(NULL);
     cfg.seed ^= (u64)&cfg;
     // read params
-    ZPGError err = ZPG_Params_ReadForPreset(&cfg, argc, argv);
+    zpgError err = ZPG_Params_ReadForPreset(&cfg, argc, argv);
 	if (err != 0)
 	{
 		printf("ABORT with error code %d\n", err);

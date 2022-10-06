@@ -89,8 +89,6 @@
 #define ZPG_ERROR_UNKNOWN 1
 #define ZPG_ERROR_UNRECOGNISED_OPTION 2
 
-typedef int ZPGError;
-
 //////////////////////////////////////////
 // Data types
 //////////////////////////////////////////
@@ -99,6 +97,13 @@ struct ZPGPoint
 {
     i32 x;
     i32 y;
+};
+
+struct ZPGPointList
+{
+    ZPGPoint* points;
+    i32 count;
+    i32 max;
 };
 
 struct ZPGPointPair
@@ -374,8 +379,8 @@ struct ZPGPresetCfg
 
 struct ZPGOutput
 {
-    // i32 id;
-    i32 format;
+    i32 id;
+    i32 format; // format of zero means nothing is assigned
     void* ptr;
     zpgSize size;
 
@@ -391,9 +396,13 @@ struct ZPGPresetOutput
 struct ZPGContext
 {
     i32 seed;
-    ZPGGridStack* gridStack;
     i32 verbosity;
     ZPGPoint lastStop;
+
+    // additionally allocated items
+    ZPGGridStack* gridStack;
+    ZPGPointList points;
+    
     char* history;
     zpgSize maxHistory;
     zpgSize historyCursor;
@@ -401,7 +410,7 @@ struct ZPGContext
     // configurations
     ZPGWalkCfg walkCfg;
     ZPGCellRules cellCfg;
-
+    
     // target objects
     ZPGGrid* grid;
     ZPGGrid* stencil;

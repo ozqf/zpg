@@ -12,8 +12,8 @@
 
 static void ZPG_WriteGridAscii(ZPGGrid* grid, u8** resultPtr, zpgSize* resultLength)
 {
-    // chars are grid + a heights' worth of line endings.
-    i32 totalChars = (grid->width * grid->height) + grid->height;
+    // chars are grid + a heights' worth of line endings + null terminator
+    i32 totalChars = (grid->width * grid->height) + grid->height + 1;
     u8* buf = (u8*)ZPG_Alloc(totalChars, 0);
     
     u8* cursor = buf;
@@ -34,7 +34,11 @@ static void ZPG_WriteGridAscii(ZPGGrid* grid, u8** resultPtr, zpgSize* resultLen
             cursor += sizeof(u8);
         }
         *cursor = '\n';
+        cursor += sizeof(u8);
     }
+    *cursor = '\0';
+    cursor += sizeof(u8);
+    
     *resultPtr = buf;
     *resultLength = totalChars;
 }

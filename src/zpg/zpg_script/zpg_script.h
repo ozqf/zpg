@@ -54,7 +54,7 @@ static void ZPG_InitScripts()
     }
     g_bCommandsInit = YES;
     ZPG_RegisterCommand("grid_set_all", ZPG_ExecGridSetAll);
-    ZPG_RegisterCommand("grid_print", ZPG_ExecGridPrint);
+    ZPG_RegisterCommand("grid_ascii", ZPG_ExecGridPrintAscii);
 	ZPG_RegisterCommand("grid_save", ZPG_ExecSaveGridToTextFile);
     ZPG_RegisterCommand("grid_copy_specific", ZPG_ExecGridCopyValue);
 
@@ -62,12 +62,13 @@ static void ZPG_InitScripts()
     ZPG_RegisterCommand("drunk", ZPG_ExecRandomWalk);
     ZPG_RegisterCommand("caves", ZPG_ExecCaves);
     ZPG_RegisterCommand("voronoi", ZPG_ExecVoronoi);
+    ZPG_RegisterCommand("grid_scatter", ZPG_ExecGridScatter);
 
     ZPG_RegisterCommand("init_stack", ZPG_ExecInitStack);
 	ZPG_RegisterCommand("seed", ZPG_ExecSetSeed);
     ZPG_RegisterCommand("set", ZPG_ExecSet);
 	ZPG_RegisterCommand("grid_print_prefabs", ZPG_ExecPrintPrefabs);
-    ZPG_RegisterCommand("grid_output", ZPG_ExecAsciiGridToOutput);
+    ZPG_RegisterCommand("grid_write_to_output", ZPG_ExecAsciiGridToOutput);
 }
 
 static i32 ZPG_ReadTokens(
@@ -91,7 +92,7 @@ static i32 ZPG_ExecuteCommand(ZPGContext* ctx, char** tokens, i32 numTokens)
     return cmd->function(ctx, tokens, numTokens);
 }
 
-i32 ExecLine(ZPGContext* ctx, char* cmd)
+static i32 ExecLine(ZPGContext* ctx, char* cmd)
 {
 	const i32 maxTokens = 24;
 	const int tempBufferSize = 256;
@@ -115,12 +116,8 @@ static ZPGContext CreateContext()
     ctx.walkCfg.bStepThrough = NO;
 
     ctx.cellCfg = ZPG_DefaultCaveRules();
-    // create a default grid stack - running init_stack
-    // again will override it
-    ExecLine(&ctx, "init_stack 8 48 24");
     // generate a new seed - script can override if it wants.
     ctx.seed = ZPG_GenerateSeed();
-    printf("Initial seed is %d\n", ctx.seed);
     return ctx;
 }
 
@@ -132,6 +129,13 @@ ZPG_EXPORT i32 ZPG_BeginREPL()
     ZPG_InitScripts();
     printf("Enter commands (enter exit to quit program):\n");
     ZPGContext ctx = CreateContext();
+    ExecLine(&ctx, "set verbosity 2");
+    // create a default grid stack - running init_stack
+    // again will override it if needed
+    ExecLine(&ctx, "init_stack 8 48 24");
+    // set active grids
+    ExecLine(&ctx, "set grid 0");
+    ExecLine(&ctx, "set stencil 1");
 	ctx.verbosity = 2;
 	char str[256];
 	for(;;)

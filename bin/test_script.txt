@@ -31,7 +31,7 @@ set walk_dir_x 0
 set walk_dir_y 1
 drunk
 # display the result
-grid_print 0
+grid_ascii 0
 # write grid index 0 to a text file
 grid_save 0 output.txt
-grid_output
+grid_write_to_output 0
