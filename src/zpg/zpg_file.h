@@ -10,6 +10,78 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../../lib/stb_image_write.h"
 
+static zpgError ZPG_WriteGridBinary(ZPGGrid* grid, u8** resultPtr, zpgSize* resultSize)
+{
+	/*
+	4 bytes magic value
+	4 bytes grid width
+	4 bytes grid height
+	Cells
+	*/
+	// one byte per cell.
+	zpgSize totalCells = grid->width * grid->height;
+	*resultSize = 4 + 4 + 4 + totalCells;
+	*resultPtr = (u8*)ZPG_Alloc(*resultSize, 0);
+	u8* cursor = *resultPtr;
+	
+	*cursor = 'G';
+	cursor++;
+	*cursor = 'R';
+	cursor++;
+	*cursor = 'I';
+	cursor++;
+	*cursor = 'D';
+	cursor++;
+	
+	*(u32*)cursor = grid->width;
+	cursor += 4;
+	*(u32*)cursor = grid->height;
+	cursor += 4;
+	
+	for (i32 i = 0; i < totalCells; ++i)
+	{
+		*cursor = grid->cells[i];
+		cursor += 1;
+	}
+	return ZPG_ERROR_NONE;
+}
+/*
+static void ZPG_WriteGridCSV(ZPGGrid* grid, u8** resultPtr, zpgSize* resultLength)
+{
+    // chars are grid + a heights' worth of line endings + null terminator
+    i32 totalCells = grid->width * grid->height;
+    i32 totalCommas = totalCells - grid->height;
+
+    i32 totalChars = (grid->width * grid->height) + grid->height + 1;
+    u8* buf = (u8*)ZPG_Alloc(totalChars, 0);
+    
+    u8* cursor = buf;
+    ZPG_MEMSET(buf, 0, totalChars);
+    for (i32 y = 0; y < grid->height; ++y)
+    {
+        for (i32 x = 0; x < grid->width; ++x)
+        {
+            ZPGCellTypeDef* def = ZPG_Grid_GetTypeDefAt(grid, x, y);
+            if (def != NULL)
+            {
+                *cursor = def->asciChar;
+            }
+            else
+            {
+                *cursor = '#';
+            }
+            cursor += sizeof(u8);
+        }
+        *cursor = '\n';
+        cursor += sizeof(u8);
+    }
+    *cursor = '\0';
+    cursor += sizeof(u8);
+    
+    *resultPtr = buf;
+    *resultLength = totalChars;
+}
+*/
 static void ZPG_WriteGridAscii(ZPGGrid* grid, u8** resultPtr, zpgSize* resultLength)
 {
     // chars are grid + a heights' worth of line endings + null terminator
@@ -147,6 +219,22 @@ static void ZPG_MeasureGridInString(u8* str, ZPGPoint* size, zpgSize numChars)
     }
     size->x = width;
     size->y = height;
+}
+
+static zpgError ZPG_WriteBlob(char* fileName, u8* data, zpgSize numBytes)
+{
+    if (fileName == NULL) { return ZPG_ERROR_MISSING_PARAMETER; }
+    FILE* f;
+    i32 err = fopen_s(&f, fileName, "wb");
+    if (err != 0)
+    {
+        printf("Err %d opening file %s for writing\n", err, fileName);
+        return ZPG_ERROR_FAILED_TO_OPEN_FILE;
+    }
+    fseek(f, 0, SEEK_SET);
+    fwrite(data, numBytes, 1, f);
+    fclose(f);
+    return ZPG_ERROR_NONE;
 }
 
 #if 1

@@ -55,7 +55,9 @@ static void ZPG_InitScripts()
     g_bCommandsInit = YES;
     ZPG_RegisterCommand("grid_set_all", ZPG_ExecGridSetAll);
     ZPG_RegisterCommand("grid_ascii", ZPG_ExecGridPrintAscii);
-	ZPG_RegisterCommand("grid_save", ZPG_ExecSaveGridToTextFile);
+    ZPG_RegisterCommand("grid_values", ZPG_ExecGridPrintValues);
+	ZPG_RegisterCommand("grid_save_ascii_file", ZPG_ExecSaveGridAsciiToTextFile);
+    ZPG_RegisterCommand("grid_save_bytes", ZPG_ExecSaveGridBytes);
     ZPG_RegisterCommand("grid_copy_from", ZPG_ExecGridCopy);
     ZPG_RegisterCommand("grid_copy_value", ZPG_ExecGridCopyValue);
     ZPG_RegisterCommand("grid_replace_value", ZPG_ExecGridReplaceValue);
@@ -65,6 +67,7 @@ static void ZPG_InitScripts()
     ZPG_RegisterCommand("grid_draw_points", ZPG_ExecGridDrawPoints);
     ZPG_RegisterCommand("grid_to_binary", ZPG_ExecGridToBinary);
     ZPG_RegisterCommand("grid_flip_binary", ZPG_ExecGridFlipBinary);
+    ZPG_RegisterCommand("grid_fill_rect", ZPG_ExecGridDrawRect);
 
     ZPG_RegisterCommand("stencil", ZPG_ExecStencil);
     ZPG_RegisterCommand("drunk", ZPG_ExecRandomWalk);
