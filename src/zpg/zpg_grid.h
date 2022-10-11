@@ -67,6 +67,30 @@ static void ZPG_Grid_ReplaceValue(ZPGGrid* grid, ZPGGrid* stencil, u8 target, u8
     }
 }
 
+static i32 ZPG_Grid_CheckStencilByIndex(ZPGGrid* stencil, i32 i)
+{
+    if (stencil == NULL) { return NO; }
+    i32 total = stencil->width * stencil->height;
+    if (i < 0) { return NO; }
+    if (i >= total) { return NO; }
+    return (stencil->cells[i] > 0);
+}
+
+static u8 ZPG_Grid_FindHighestValue(ZPGGrid* grid, ZPGGrid* stencil)
+{
+    if (grid == NULL) { return 0; }
+    u8 highest = 0;
+    zpgSize total = grid->width * grid->height;
+    for (i32 i = 0; i < total; ++i)
+    {
+        if (ZPG_Grid_CheckStencilByIndex(stencil, i))
+        { continue; }
+        if (grid->cells[i] > highest)
+        { highest = grid->cells[i]; }
+    }
+    return highest;
+}
+
 /*
 set any value on the grid to 0 if below cutoff, 1 otherwise.
 */
@@ -174,9 +198,6 @@ static i32 ZPG_Grid_CheckStencilOccupied(ZPGGrid* grid, i32 x, i32 y)
     if (grid == NULL) { return NO; }
     if (!ZPG_IS_POS_SAFE(grid->width, grid->height, x, y)) { return NO; }
     return (grid->cells[ZPG_POS_TO_INDEX(grid->width, x, y)] != ZPG_STENCIL_TYPE_EMPTY);
-    // ZPGCell* cell = ZPG_Grid_GetCellAt(grid, x, y);
-    // if (cell == NULL) { return NO; }
-    // return (cell->tile.type != ZPG_STENCIL_TYPE_EMPTY);
 }
 
 ZPG_EXPORT ZPGCellTypeDef* ZPG_Grid_GetTypeDefAt(ZPGGrid* grid, i32 x, i32 y)

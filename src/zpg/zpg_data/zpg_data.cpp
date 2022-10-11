@@ -1,6 +1,7 @@
 /*
 TODO: This class should also hold contexts.
-outputs should be assigned to contexts, allowing multiple contexts to be run
+outputs should be assigned to contexts, allowing multiple contexts to be run.
+In fact, all allocations should be assigned to a context.
 */
 #include "../zpg_internal.h"
 
@@ -12,7 +13,7 @@ static ZPGOutput g_outputs[ZPG_MAX_DATA_ITEMS];
 
 
 // Reading results from scripts
-ZPG_EXPORT i32 ZPG_GetOutputsCount()
+ZPG_EXPORT i32 ZPG_GetOutputsCount(zpgHandle context)
 {
     i32 total = 0;
     for (i32 i = 0; i < ZPG_MAX_DATA_ITEMS; ++i)
@@ -27,13 +28,13 @@ ZPG_EXPORT i32 ZPG_GetOutputsCount()
 
 ZPG_EXPORT zpgSize ZPG_GetOutputSize(zpgHandle context, zpgHandle output)
 {
-    if (output < 0 || output > ZPG_MAX_DATA_ITEMS) { return 1; }
+    if (output < 0 || output > ZPG_MAX_DATA_ITEMS) { return 0; }
     return g_outputs[output].size;
 }
 
 ZPG_EXPORT i32 ZPG_GetOutputFormat(zpgHandle context, zpgHandle output)
 {
-    if (output < 0 || output > ZPG_MAX_DATA_ITEMS) { return 1; }
+    if (output < 0 || output > ZPG_MAX_DATA_ITEMS) { return ZPG_OUTPUT_FORMAT_EMPTY; }
     return g_outputs[output].format;
 }
 

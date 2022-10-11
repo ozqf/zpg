@@ -10,6 +10,15 @@ ZPG_EXPORT f32 ZPG_Distance(ZPGPoint a, ZPGPoint b)
     return sqrtf((dx * dx) + (dy * dy));
 }
 
+static f32 ZPG_ManhattenDistance(ZPGPoint a, ZPGPoint b, f32 mulX, f32 mulY)
+{
+    f32 dx = (f32)b.x - (f32)a.x;
+    f32 dy = (f32)b.y - (f32)a.y;
+    if (dx < 0) { dx *= -1; }
+    if (dy < 0) { dy *= -1; }
+    return (dx * mulX) + (dy * mulY);
+}
+
 static ZPGPoint ZPG_Rect_Centre(ZPGRect r)
 {
     ZPGPoint p;
