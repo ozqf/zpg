@@ -15,7 +15,7 @@
 #define ZPG_ERROR_UNRECOGNISED_OPTION 2
 #define ZPG_ERROR_MISSING_PARAMETER 3
 #define ZPG_ERROR_TARGET_IS_NOT_SET 4
-#define ZPG_ERROR_OUT_OF_BOUNDS 4
+#define ZPG_ERROR_OUT_OF_BOUNDS 5
 
 #define ZPG_OUTPUT_FORMAT_EMPTY 0
 #define ZPG_OUTPUT_FORMAT_ASCI_GRID 1
@@ -35,6 +35,23 @@ typedef i32 zpgHandle;
 typedef void* (*zpg_allocate_fn)(size_t size);
 typedef void (*zpg_free_fn)(void* ptr);
 typedef void (*zpg_fatal_fn)(const char* msg);
+
+static const char* Zpg_ErrorDescription(int code)
+{
+    switch (code)
+    {
+        case ZPG_ERROR_UNRECOGNISED_OPTION:
+        return "Unrecognised option";
+        case ZPG_ERROR_MISSING_PARAMETER:
+        return "Missing parameter";
+        case ZPG_ERROR_TARGET_IS_NOT_SET:
+        return "Target is not set";
+        case ZPG_ERROR_OUT_OF_BOUNDS:
+        return "Out of bounds";
+        default:
+        return "Unknown";
+    }
+}
 
 //////////////////////////////////////////
 // Functions

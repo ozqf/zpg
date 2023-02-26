@@ -38,6 +38,7 @@ static void ZPG_PrintCommands()
 	printf("--- Commands Help ---\n");
     printf("help - list commands\n");
     printf("exit - end session and quit program\n");
+    printf("example - print example command sequence\n");
 	for (i32 i = 0; i < g_numCommands; ++i)
     {
         ZPGCommand* cmd = &g_commands[i];
@@ -62,7 +63,7 @@ static void ZPG_InitScripts()
 	ZPG_RegisterCommand("grid_print_prefabs", ZPG_ExecPrintPrefabs);
     ZPG_RegisterCommand("grid_write_to_output", ZPG_ExecAsciiGridToOutput);
     ZPG_RegisterCommand("grid_scatter", ZPG_ExecGridScatter);
-    ZPG_RegisterCommand("grid_draw_points", ZPG_ExecGridDrawPoints);
+    ZPG_RegisterCommand("grid_print_points", ZPG_ExecGridPrintPoints);
     ZPG_RegisterCommand("grid_to_binary", ZPG_ExecGridToBinary);
     ZPG_RegisterCommand("grid_flip_binary", ZPG_ExecGridFlipBinary);
 
@@ -132,6 +133,19 @@ static void FreeContext(ZPGContext* ctx)
 
 }
 
+static void PrintExample()
+{
+    printf("-- Example command sequence --\n");
+    
+    printf("- Voronoi rooms (scales up grid) -\n\n");
+    printf("> init_stack 2 8 8\n");
+    printf("> grid_scatter 8\n");
+    printf("> voronoi\n");
+    printf("> rooms\n");
+
+    printf("\n");
+}
+
 /*
 Read - Eval - Print - Loop
 */
@@ -167,12 +181,17 @@ ZPG_EXPORT i32 ZPG_BeginREPL()
 			ZPG_PrintCommands();
 			continue;
 		}
+        if (strcmp(cmd, "example") == 0)
+        {
+            PrintExample();
+            continue;
+        }
 		// printf("You entered %s\n", cmd);
 		
 		i32 result = ExecLine(&ctx, cmd);
 		if (result != 0)
 		{
-			printf("Error code %d\n", result);
+			printf("Error code %d: %s\n", result, Zpg_ErrorDescription(result));
 		}
 	}
 	

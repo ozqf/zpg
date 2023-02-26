@@ -360,7 +360,7 @@ static i32 ZPG_ExecRandomWalk(ZPGContext* ctx, char** tokens, i32 numTokens)
     return ZPG_ERROR_NONE;
 }
 
-static i32 ZPG_ExecGridDrawPoints(ZPGContext* ctx, char** tokens, i32 numTokens)
+static i32 ZPG_ExecGridPrintPoints(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
     if (ctx->grid == NULL) { return ZPG_ERROR_TARGET_IS_NOT_SET; }
     if (ctx->points.points == NULL) { return ZPG_ERROR_TARGET_IS_NOT_SET; }
