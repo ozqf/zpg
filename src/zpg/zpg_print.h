@@ -34,18 +34,25 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes
 		printf("SKIP: Grid size %d/%d is too big to print\n", grid->width, grid->height);
 		return;
 	}
-    char* valueFormat = "%d";
+
+    u8 highest = ZPG_Grid_FindHighestValue(grid, NULL);
     char* blankFormat = " ";
-    if (digitCount == 2)
+    if (highest > 99)
     {
-        valueFormat = " %02d";
+        digitCount = 3;
         blankFormat = "   ";
     }
-    else if (digitCount == 3)
+    else if (highest > 9)
     {
-        valueFormat = " %03d";
-        blankFormat = "    ";
+        digitCount = 2;
+        blankFormat = "  ";
     }
+    else
+    {
+        digitCount = 1;
+        blankFormat = " ";
+    }
+    
     printf("------ Grid %d/%d ------\n", grid->width, grid->height);
     for (i32 y = 0; y < grid->height; ++y)
     {
@@ -60,8 +67,24 @@ static void ZPG_Grid_PrintValues(ZPGGrid* grid, i32 digitCount, i32 bBlankZeroes
             }
             else
             {
+                char* padding;
                 //printf(" %03d", val);
-                printf(valueFormat, val);
+                if (val > 99)
+                {
+                    padding = "";
+                }
+                else if (val > 9)
+                {
+                    if (digitCount == 3) { padding = " "; }
+                    else { padding = ""; }
+                }
+                else
+                {
+                    if (digitCount == 3) { padding = "  "; }
+                    else if (digitCount == 2) { padding = " "; }
+                    else { padding = ""; }
+                }
+                printf("%s%d", padding, val);
             }
         }
         printf("|\n");
@@ -168,45 +191,59 @@ static void ZPG_Grid_PrintChannelValues(ZPGGrid* grid, i32 bBlankZeroes)//, i32 
 		printf("SKIP: Grid size %d/%d is too big to print\n", grid->width, grid->height);
 		return;
 	}
-    // if (channel < 0 || channel > 3) { channel = 0; }
+
+    i32 digitCount;
+    u8 highest = ZPG_Grid_FindHighestValue(grid, NULL);
+    printf("Found highest value: %d\n", highest);
+    char* blankFormat = " ";
+    if (highest > 99)
+    {
+        digitCount = 3;
+        blankFormat = "   ";
+    }
+    else if (highest > 9)
+    {
+        digitCount = 2;
+        blankFormat = "  ";
+    }
+    else
+    {
+        digitCount = 1;
+        blankFormat = " ";
+    }
+    
     printf("------ Grid %d/%d ------\n", grid->width, grid->height);
     for (i32 y = 0; y < grid->height; ++y)
     {
         printf("|");
         for (i32 x = 0; x < grid->width; ++x)
         {
-            // ZPGCell *cell = ZPG_GRID_GET(grid, x, y);
-            u8 val = ZPG_GRID_GET(grid, x, y);
+            i32 val = ZPG_BGRID_GET(grid, x, y);
             if (bBlankZeroes && val == 0)
             {
-                printf("   ");
-                // switch (numChars)
-                // {
-                //     case 3:
-                //     printf("   ");
-                //     break;
-                //     case 1:
-                //     printf("  ");
-                //     break;
-                //     default:
-                //     printf(" ");
-                //     break;
-                // }
+                //printf(" ");
+                printf(blankFormat);
             }
             else
             {
-                if (val < 10)
+                char* padding;
+                //printf(" %03d", val);
+                if (val > 99)
                 {
-                    printf("  %d", val);
+                    padding = "";
                 }
-                else if (val < 100)
+                else if (val > 9)
                 {
-                    printf(" %d", val);
+                    if (digitCount == 3) { padding = " "; }
+                    else { padding = ""; }
                 }
                 else
                 {
-                    printf("%d", val);
+                    if (digitCount == 3) { padding = "  "; }
+                    else if (digitCount == 2) { padding = " "; }
+                    else { padding = ""; }
                 }
+                printf("%s%d", padding, val);
             }
         }
         printf("|\n");

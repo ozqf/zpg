@@ -408,6 +408,8 @@ struct ZPGContext
     ZPGCellRules cellCfg;
     
     // target objects
+    i32 gridIndex;
+    i32 stencilIndex;
     ZPGGrid* grid;
     ZPGGrid* stencil;
 };

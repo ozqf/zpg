@@ -32,6 +32,7 @@ static zpgError ZPG_Voronoi(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint* points, i
     if (grid == NULL) { return 1; }
     if (points == NULL) { return 1; }
     if (numPoints == 0) { return 1; }
+    i32 heuristic = 0;
     ZPG_BEGIN_GRID_ITERATE(grid)
         if (ZPG_Grid_CheckStencilOccupied(stencil, x, y)) { continue; }
         // find the nearest point
@@ -41,7 +42,18 @@ static zpgError ZPG_Voronoi(ZPGGrid* grid, ZPGGrid* stencil, ZPGPoint* points, i
         {
             ZPGPoint regionPos = points[i];
             ZPGPoint queryPos = { x, y };
-            f32 queryDist = ZPG_Distance(regionPos, queryPos);
+            f32 queryDist;
+            switch (heuristic)
+            {
+                case 1:
+                queryDist = ZPG_ManhattenDistance(regionPos, queryPos, 1, 1.5f);
+                break;
+                default:
+                queryDist = ZPG_Distance(regionPos, queryPos);
+                break;
+            }
+            // f32 queryDist = ZPG_Distance(regionPos, queryPos);
+            // f32 queryDist = ZPG_ManhattenDistance(regionPos, queryPos, 1, 1.5f);
             if (nearest < 0)
             {
                 nearest = i;

@@ -58,7 +58,7 @@ static i32 ZPG_ExecSet(ZPGContext* ctx, char** tokens, i32 numTokens)
     if (numTokens < 2)
     {
         printf("Set needs name of what to set and a value!\n");
-        return 1;
+        return ZPG_ERROR_MISSING_PARAMETER;
     }
     char* name = GetParamAsString(0, tokens, numTokens, "");
     i32 value = GetParamAsInt(1, tokens, numTokens, 0);
@@ -101,13 +101,22 @@ static i32 ZPG_ExecSet(ZPGContext* ctx, char** tokens, i32 numTokens)
     }
     else if (ZPG_STREQL(name, "grid"))
     {
-        ctx->grid = GetParamAsGrid(ctx, value, tokens, numTokens);
+        i32 i = GetParamAsInt(value, tokens, numTokens, -1);
+        if (i == -1) { return ZPG_ERROR_INVALID_PARAMETER; }
+        i32 numGrids = ctx->gridStack->numGrids;
+        if (i < numGrids || i >= numGrids)
+        {
+            if (ctx->verbosity > 0)
+            {
+                printf("Grid index %d out of bounds\n", value);
+                return ZPG_ERROR_INVALID_PARAMETER;
+            }
+        }
+        ctx->gridIndex = i;
+        ctx->grid = ctx->gridStack->grids[ctx->gridIndex];
         if (ctx->verbosity > 0)
         {
-            if (ctx->grid != NULL)
-            { printf("Set target grid to index %d\n", value); }
-            else
-            { printf("Grid index %d out of bounds\n", value); }
+            printf("Set target grid to index %d\n", ctx->gridIndex);
         }
     }
     else if (ZPG_STREQL(name, "stencil"))
@@ -121,6 +130,11 @@ static i32 ZPG_ExecSet(ZPGContext* ctx, char** tokens, i32 numTokens)
         printf("Unknown set target '%s'\n", name);
     }
     return ZPG_ERROR_NONE;
+}
+
+static ZPGGrid* GetGridByIndex(ZPGContext* ctx, i32 i)
+{
+    return NULL;
 }
 
 static i32 ZPG_ExecPrintPrefabs(ZPGContext* ctx, char** tokens, i32 numTokens)
@@ -183,6 +197,18 @@ static i32 ZPG_ExecGridPrintAscii(ZPGContext* ctx, char** tokens, i32 numTokens)
     return ZPG_ERROR_NONE;
 }
 
+static i32 ZPG_ExecGridPrintValues(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    ZPGGrid* grid = GetParamAsGrid(ctx, 0, tokens, numTokens);
+    if (grid == NULL)
+    {
+        printf("Grid specified not found in stack\n");
+        return 1;
+    }
+    ZPG_Grid_PrintChannelValues(grid, YES);
+    return ZPG_ERROR_NONE;
+}
+
 static i32 ZPG_ExecAsciiGridToOutput(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
     if (ctx->grid == NULL) { return 1; }
@@ -231,6 +257,25 @@ static i32 ZPG_ExecInitStack(ZPGContext* ctx, char** tokens, i32 numTokens)
     i32 height = atoi(tokens[2]);
     ctx->gridStack = ZPG_CreateGridStack(width, height, size);
     printf("Created stack size %d, w/h %d/%d\n", size, width, height);
+    return ZPG_ERROR_NONE;
+}
+
+static i32 ZPG_ExecCreateStack(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    if (numTokens < 2)
+    {
+        if (ctx->verbosity > 0)
+        {
+            printf("Must specify width, height, stack name and at least one grid name\n");
+        }
+        return ZPG_ERROR_MISSING_PARAMETER;
+    }
+    if (ctx->verbosity > 0)
+    {
+        printf("Created stack %s with grids: ", tokens[0]);
+        for (i32 i = 1; i < numTokens; ++i) { printf("%s, ", tokens[i]); }
+        printf("\n");
+    }
     return ZPG_ERROR_NONE;
 }
 
@@ -330,6 +375,19 @@ static i32 ZPG_ExecGridFlipBinary(ZPGContext* ctx, char** tokens, i32 numTokens)
     return ZPG_ERROR_NONE;
 }
 
+static i32 ZPG_ExecGridDrawRect(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    ZPGRect r;
+    r.min.x = GetParamAsInt(0, tokens, numTokens, 0);
+    r.min.y = GetParamAsInt(1, tokens, numTokens, 0);
+    r.max.x = GetParamAsInt(2, tokens, numTokens, 4);
+    r.max.y = GetParamAsInt(3, tokens, numTokens, 4);
+    u8 value = GetParamAsInt(4, tokens, numTokens, 1) & 0xff;
+    ZPG_FillRectWithStencil(ctx->grid, ctx->stencil, r.min, r.max, value);
+    VerboseGridValues(ctx);
+    return ZPG_ERROR_NONE;
+}
+
 static i32 ZPG_ExecRandomWalk(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
     if (ctx->gridStack == NULL)
@@ -360,7 +418,7 @@ static i32 ZPG_ExecRandomWalk(ZPGContext* ctx, char** tokens, i32 numTokens)
     return ZPG_ERROR_NONE;
 }
 
-static i32 ZPG_ExecGridPrintPoints(ZPGContext* ctx, char** tokens, i32 numTokens)
+static i32 ZPG_ExecGridDrawPoints(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
     if (ctx->grid == NULL) { return ZPG_ERROR_TARGET_IS_NOT_SET; }
     if (ctx->points.points == NULL) { return ZPG_ERROR_TARGET_IS_NOT_SET; }
@@ -498,7 +556,7 @@ static i32 ZPG_ExecPlotSegmentedPath(ZPGContext* ctx, char** tokens, i32 numToke
 	return ZPG_ERROR_NONE;
 }
 
-static i32 ZPG_ExecSaveGridToTextFile(ZPGContext* ctx, char** tokens, i32 numTokens)
+static i32 ZPG_ExecSaveGridAsciiToTextFile(ZPGContext* ctx, char** tokens, i32 numTokens)
 {
 	if (!ZPG_CheckSignature("it", tokens, numTokens))
 	{ return 1; }
@@ -508,6 +566,29 @@ static i32 ZPG_ExecSaveGridToTextFile(ZPGContext* ctx, char** tokens, i32 numTok
 	char* fileName = GetParamAsString(1, tokens, numTokens, "output.txt");
 	ZPG_WriteGridAciiToFile(grid, fileName);
 	return ZPG_ERROR_NONE;
+}
+
+static i32 ZPG_ExecSaveGridBytes(ZPGContext* ctx, char** tokens, i32 numTokens)
+{
+    char* fileName = GetParamAsString(0, tokens, numTokens, "output.bin");
+    u8* ptr;
+    zpgSize size;
+    zpgError err;
+    err = ZPG_WriteGridBinary(ctx->grid, &ptr, &size);
+    if (err != ZPG_ERROR_NONE)
+    {
+        if (ctx->verbosity > 0) { printf("Failed to write grid data: %dn", err); }
+        return ZPG_ERROR_UNKNOWN;
+    }
+    err = ZPG_WriteBlob(fileName, ptr, size);
+    if (err != ZPG_ERROR_NONE)
+    {
+        if (ctx->verbosity > 0)
+        { printf("Failed to write %lld grid bytes to %s. Code: %d\n", size, fileName, err); }
+        return ZPG_ERROR_UNKNOWN;
+    }
+    ZPG_Free(ptr);
+    return ZPG_ERROR_NONE;
 }
 
 #endif // ZPG_COMMAND_H

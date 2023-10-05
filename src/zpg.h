@@ -14,11 +14,15 @@
 #define ZPG_ERROR_UNKNOWN 1
 #define ZPG_ERROR_UNRECOGNISED_OPTION 2
 #define ZPG_ERROR_MISSING_PARAMETER 3
-#define ZPG_ERROR_TARGET_IS_NOT_SET 4
-#define ZPG_ERROR_OUT_OF_BOUNDS 5
+#define ZPG_ERROR_NULL_PARAMETER 4
+#define ZPG_ERROR_TARGET_IS_NOT_SET 5
+#define ZPG_ERROR_OUT_OF_BOUNDS 6
+#define ZPG_ERROR_FAILED_TO_OPEN_FILE 7
+#define ZPG_ERROR_INVALID_PARAMETER 8
 
 #define ZPG_OUTPUT_FORMAT_EMPTY 0
 #define ZPG_OUTPUT_FORMAT_ASCI_GRID 1
+#define ZPG_OUTPUT_FORMAT_DATA_PNG 2
 
 #define ZPG_API_FLAG_PRINT_RESULT (1 << 0)
 #define ZPG_API_FLAG_PRINT_WORKING (1 << 1)
@@ -35,23 +39,6 @@ typedef i32 zpgHandle;
 typedef void* (*zpg_allocate_fn)(size_t size);
 typedef void (*zpg_free_fn)(void* ptr);
 typedef void (*zpg_fatal_fn)(const char* msg);
-
-static const char* Zpg_ErrorDescription(int code)
-{
-    switch (code)
-    {
-        case ZPG_ERROR_UNRECOGNISED_OPTION:
-        return "Unrecognised option";
-        case ZPG_ERROR_MISSING_PARAMETER:
-        return "Missing parameter";
-        case ZPG_ERROR_TARGET_IS_NOT_SET:
-        return "Target is not set";
-        case ZPG_ERROR_OUT_OF_BOUNDS:
-        return "Out of bounds";
-        default:
-        return "Unknown";
-    }
-}
 
 //////////////////////////////////////////
 // Functions
@@ -75,7 +62,7 @@ ZPG_EXPORT i32 ZPG_RunScript(u8* text, i32 textLength, i32 apiFlags);
 // Reading results from scripts
 ZPG_EXPORT zpgHandle ZPG_AddOutput(
     zpgHandle context, zpgHandle output, i32 format, void* ptr, zpgSize numBytes);
-ZPG_EXPORT i32          ZPG_GetOutputsCount();
+ZPG_EXPORT i32          ZPG_GetOutputsCount(zpgHandle context);
 ZPG_EXPORT zpgSize      ZPG_GetOutputSize(zpgHandle context, zpgHandle output);
 ZPG_EXPORT i32          ZPG_GetOutputFormat(zpgHandle context, zpgHandle output);
 ZPG_EXPORT void*        ZPG_GetOutputData(zpgHandle context, zpgHandle output);

@@ -86,15 +86,30 @@ static void run_script(char* inputFileName)
 		printf("Script failed with code %d\n", result);
 		return;
 	}
-    printf("Run script found %d outputs\n", ZPG_GetOutputsCount());
-	zpgHandle id = 0;
-	printf("Found %lld bytes from output %d\n",
-		ZPG_GetOutputSize(0, id),
-		id
-		);
-	printf("%s\n", (char*)ZPG_GetOutputData(0, id));
+
+	zpgHandle context = 0;
+	i32 numOutputs = ZPG_GetOutputsCount(context);
+    printf("Run script found %d outputs\n", numOutputs);
+	
+	// zpgHandle id = 0;
+	// printf("Found %lld bytes from output %d\n",
+	// 	ZPG_GetOutputSize(0, id),
+	// 	id
+	// 	);
+	// printf("%s\n", (char*)ZPG_GetOutputData(0, id));
+	for (i32 i = 0; i < numOutputs; ++i)
+	{
+		i32 format = ZPG_GetOutputFormat(context, i);
+		if (format == ZPG_OUTPUT_FORMAT_EMPTY) { continue; }
+		f32 outputSize = (f32)ZPG_GetOutputSize(context, i) / 1024.f;
+		printf("Output %d: format %d, size %.3fkb\n", i, format, outputSize);
+		// if (format == ZPG_OUTPUT_FORMAT_DATA_PNG)
+		// {
+		// 	ShellExecute
+		// }
+	}
+
 	ZPG_FreeAllOutputs(0);
-	printf("%d remaining outputs\n", ZPG_GetOutputsCount());
 }
 
 static void run_test()

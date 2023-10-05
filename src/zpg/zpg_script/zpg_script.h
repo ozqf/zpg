@@ -38,13 +38,22 @@ static void ZPG_PrintCommands()
 	printf("--- Commands Help ---\n");
     printf("help - list commands\n");
     printf("exit - end session and quit program\n");
-    printf("example - print example command sequence\n");
 	for (i32 i = 0; i < g_numCommands; ++i)
     {
         ZPGCommand* cmd = &g_commands[i];
         printf("%s\n", cmd->name);
     }
 	printf("\n");
+}
+
+static void ZPG_PrintInfo(ZPGContext* ctx)
+{
+	if (ctx == NULL) { printf("No context provided for info\n"); return; }
+	if (ctx->verbosity == 0) { return; }
+    printf("-- Context Info --\n");
+	printf("Stack size %d\n",
+		ctx->gridStack->numGrids
+	);
 }
 
 static void ZPG_InitScripts()
@@ -56,16 +65,19 @@ static void ZPG_InitScripts()
     g_bCommandsInit = YES;
     ZPG_RegisterCommand("grid_set_all", ZPG_ExecGridSetAll);
     ZPG_RegisterCommand("grid_ascii", ZPG_ExecGridPrintAscii);
-	ZPG_RegisterCommand("grid_save", ZPG_ExecSaveGridToTextFile);
+    ZPG_RegisterCommand("grid_values", ZPG_ExecGridPrintValues);
+	ZPG_RegisterCommand("grid_save_ascii_file", ZPG_ExecSaveGridAsciiToTextFile);
+    ZPG_RegisterCommand("grid_save_bytes", ZPG_ExecSaveGridBytes);
     ZPG_RegisterCommand("grid_copy_from", ZPG_ExecGridCopy);
     ZPG_RegisterCommand("grid_copy_value", ZPG_ExecGridCopyValue);
     ZPG_RegisterCommand("grid_replace_value", ZPG_ExecGridReplaceValue);
 	ZPG_RegisterCommand("grid_print_prefabs", ZPG_ExecPrintPrefabs);
     ZPG_RegisterCommand("grid_write_to_output", ZPG_ExecAsciiGridToOutput);
     ZPG_RegisterCommand("grid_scatter", ZPG_ExecGridScatter);
-    ZPG_RegisterCommand("grid_print_points", ZPG_ExecGridPrintPoints);
+    ZPG_RegisterCommand("grid_draw_points", ZPG_ExecGridDrawPoints);
     ZPG_RegisterCommand("grid_to_binary", ZPG_ExecGridToBinary);
     ZPG_RegisterCommand("grid_flip_binary", ZPG_ExecGridFlipBinary);
+    ZPG_RegisterCommand("grid_fill_rect", ZPG_ExecGridDrawRect);
 
     ZPG_RegisterCommand("stencil", ZPG_ExecStencil);
     ZPG_RegisterCommand("drunk", ZPG_ExecRandomWalk);
@@ -74,6 +86,7 @@ static void ZPG_InitScripts()
     ZPG_RegisterCommand("rooms", ZPG_ExecBuildRooms);
 
     ZPG_RegisterCommand("init_stack", ZPG_ExecInitStack);
+    ZPG_RegisterCommand("create_stack", ZPG_ExecCreateStack);
 	ZPG_RegisterCommand("seed", ZPG_ExecSetSeed);
     ZPG_RegisterCommand("set", ZPG_ExecSet);
 }
@@ -133,26 +146,15 @@ static void FreeContext(ZPGContext* ctx)
 
 }
 
-static void PrintExample()
-{
-    printf("-- Example command sequence --\n");
-    
-    printf("- Voronoi rooms (scales up grid) -\n\n");
-    printf("> init_stack 2 8 8\n");
-    printf("> grid_scatter 8\n");
-    printf("> voronoi\n");
-    printf("> rooms\n");
-
-    printf("\n");
-}
-
 /*
 Read - Eval - Print - Loop
 */
 ZPG_EXPORT i32 ZPG_BeginREPL()
 {
     ZPG_InitScripts();
-    printf("Enter commands (enter exit to quit program):\n");
+    printf("Awaiting commands:\n");
+    printf("\thelp to list comands\n\tinfo to display context state\n\texit to quit program:\n");
+    printf("\nCreated Default context:\n");
     ZPGContext ctx = CreateContext();
     ExecLine(&ctx, "set verbosity 2");
     // create a default grid stack - running init_stack
@@ -181,9 +183,9 @@ ZPG_EXPORT i32 ZPG_BeginREPL()
 			ZPG_PrintCommands();
 			continue;
 		}
-        if (strcmp(cmd, "example") == 0)
+        if (strcmp(cmd, "info") == 0)
         {
-            PrintExample();
+            ZPG_PrintInfo(&ctx);
             continue;
         }
 		// printf("You entered %s\n", cmd);
@@ -191,7 +193,7 @@ ZPG_EXPORT i32 ZPG_BeginREPL()
 		i32 result = ExecLine(&ctx, cmd);
 		if (result != 0)
 		{
-			printf("Error code %d: %s\n", result, Zpg_ErrorDescription(result));
+			printf("Error code %d\n", result);
 		}
 	}
 	
